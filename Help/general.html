@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+table, th, td {
+    border: 1px solid orange;
+    border-collapse: collapse;
+}
+th, td {
+    padding: 5px;
+}
+</style>
+</head>
+<body>
+<h1>Ubuntu setup</h1>
+
+<ul>
+  <li>uname -a
+    <ul>
+      <li>print system information, all
+    </ul>
+  <li>lsb_release -a
+    <ul>
+      <li>print distribution-specific information (Linux Standard Base)
+    </ul>
+  <li>lspci
+    <ul>
+      <li>list all PCI devices
+    </ul>
+  <li>sudo apt-get update
+    <ul>
+      <li>APT package handling utility (Advanced Package Tool).
+      <li>Downloads the package lists from the repositories and "updates" them to get information on the newest versions of packages and their dependencies.
+    </ul>
+  <li>sudo apt-get upgrade
+    <ul>
+      <li>fetch new versions of packages existing on the machine if APT knows about these new versions by way of apt-get update
+    </ul>
+  <li>ip route get 8.8.8.8 | awk '{print $NF; exit}'
+    <ul>
+      <li>get the ip address, alternative command is ifconfig
+    </ul>
+</ul>
+
+<h1>VIM</h1>
+<p>To substitute new line use \r. For example: 1,$s/newline/\r/
+
+<h1>Dev Box</h1>
+<table>
+<tr>
+    <td>computer name</td>	<td>MSDNdevBox1</td>
+</tr><tr>
+    <td>username</td>           <td>achapman</td>
+</tr><tr>
+    <td>password</td>	        <td>Band.</td>
+<tr>
+</table>
+
+<h1>Admin Box</h1>
+<table>
+<tr>
+    <td>computer name</td>	<td>MSDN-AUS-anchap</td>
+</tr><tr>
+    <td>username</td>           <td>amd\anchapman</td>
+</tr><tr>
+    <td>password</td>	        <td>Band.</td>
+</tr>
+</table>
+
+<h1>Jenkins</h1>
+<table>
+<tr>
+    <td>username</td>           <td>achapman</td>
+</tr><tr>
+    <td>password</td>	        <td>Band.</td>
+</tr><tr>
+    <td> Fiji rocm-1.3 and 1.4</td>
+    <td> ssh -p 1313 achapman@jenkins-rocm-1 </td>
+    <td> ssh -p 1414 achapman@jenkins-rocm-1 </td>
+</tr>
+</tr><tr>
+    <td> Hawaii rocm-1.3 and 1.4</td>
+    <td> ssh -p 1313 achapman@jenkins-rocm-0 </td>
+    <td> ssh -p 1414 achapman@jenkins-rocm-0 </td>
+</tr>
+</table>
+
+<h1>GitBucket</h1>
+<table>
+<tr>
+    <td>user.name</td>	<td>amcamd</td>
+</tr><tr>
+    <td>user.email</td>           <td>andrew.chapman@amd.com</td>
+</tr><tr>
+    <td>password</td>	        <td>Sputnik.</td>
+</tr>
+</table>
+
+<h1>GitHub</h1>
+<table>
+<tr>
+    <td>user.name</td>	<td>amcamd</td>
+</tr><tr>
+    <td>user.email</td>           <td>andrew.chapman@amd.com</td>
+</tr><tr>
+    <td>password</td>	        <td>Sputnik.</td>
+</tr>
+</table>
+<p>Configuring a remote for a fork
+<pre>
+===: git remote -v
+origin	https://github.com/amcamd/rocBLAS.git (fetch)
+origin	https://github.com/amcamd/rocBLAS.git (push)
+
+===: git remote add upstream https://github.com/RadeonOpenCompute/rocBLAS
+
+===: git remote -v
+origin	https://github.com/amcamd/rocBLAS.git (fetch)
+origin	https://github.com/amcamd/rocBLAS.git (push)
+upstream	https://github.com/RadeonOpenCompute/rocBLAS (fetch)
+upstream	https://github.com/RadeonOpenCompute/rocBLAS (push)
+</pre>
+<p>Syncing a fork
+<pre>
+===: git fetch upstream
+remote: Counting objects: 1, done.
+remote: Total 1 (delta 0), reused 0 (delta 0), pack-reused 0
+Unpacking objects: 100% (1/1), done.
+From https://github.com/RadeonOpenCompute/rocBLAS
+ * [new branch]      develop    -> upstream/develop
+ * [new branch]      master     -> upstream/master
+
+===: git checkout develop
+Already on 'develop'
+Your branch is up-to-date with 'origin/develop'.
+
+===: git merge upstream/develop
+Updating db0918e..e4bd4ae
+Fast-forward
+
+alternative
+===: git rebase upstream/develop develop
+First, rewinding head to replay your work on top of it...
+Fast-forwarded develop to upstream/develop.
+
+to get changes from local copy back into origin/develop
+===: git push
+</pre>
+
+
+<h1>www sites</h1>
+<a href="https://github.com/RadeonOpenCompute/rocBLAS">rocBLAS Code</a><br>
+<a href="https://radeonopencompute.github.io">https://radeonopencompute.github.io</a><br>
+<a href="http://hsautil.amd.com/job/RadeonOpenCompute">http://hsautil.amd.com/job/RadeonOpenCompute</a><br>
+<a href="https://code.visualstudio.com/">Code Visual Studio</a><br>
+<a href="https://cmake.org/cmake-tutorial/">Cmake Tutorial</a><br>
+<a href="https://www.docker.com">https://www.docker.com</a><br>
+<a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet">Editing Github Wiki </a><br>
+<a href="http://ontrack-internal.amd.com/browse/SWDEV-103388">Jira example</a><br>
+
+
+<h1>Useful commands</h1>
+<p>find ./rocBLAS-develop -type f -exec grep -l gemv {} \; 
+
+<h1>Build rocBLAS</h1>
+<p>
+cmake-gui 2.8 does not work. Use ccmake or cmake-gui 3.5. Get ccmake with: "sudo apt-get install cmake-curses-gui"
+<p>
+To avoid compiling tensor
+<ul><li> comment out gemm lines in file: ~/repos/rocBLAS-develop/clients/benchmarks/client.cpp
+<pre>
+/* #include "testing_gemm.hpp" */
+
+/*  else if (function == "gemm"){
+        if (precision == 's')
+            testing_gemm<float>( argus );
+        else if (precision == 'd')
+            testing_gemm<double>( argus );
+    } */
+</pre>
+<li>In file clients/gtest/CMakeLists.txt comment out the lines for gemm and trsm as below
+<pre>
+ set(Tensile_TEST_SRC
+#    gemm_gtest.cpp
+#    trsm_gtest.cpp
+     )
+</pre>
+</ul>
+<p>
+Choose Tensile_REPO in rocBLAS/cmake/external-Tensile.cmake
+</p>
+
+
+<pre>
+cd ~/repos/rocBLAS-develop-build
+rm -rf *
+ccmake ../../clone3-rocBLAS/rocBLAS -DHIP_ROOT=/opt/rocm/hip -DBOOST_ROOT=/usr/local -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -DCMAKE_C_COMPILER=/usr/bin/clang
+can also set -DCMAKE_BUILD_TYPE=Release -DBUILD_WITH_TENSILE=OFF, and Fiji_ROCm_1.4
+
+make -j                (option make VERBOSE=1 >& make.out)
+cd clients-build
+cd benchmarks-build
+make
+</pre>
+<p>
+Library will be in:<br>
+~/repos/rocBLAS-develop-build/library-package/lib/x86_64-linux-gnu/librocblas-hcc.a<br>
+~/repos/rocBLAS-develop-build/library-build/src/librocblas-hcc.a
+<p>
+Samples are in: ~/repos/rocBLAS-develop-build/clients-build/samples-build<br>
+To run sample: ./example-sscal
+<p>
+To run tests:
+<pre>
+cd clients-build/tests-build
+make
+staging/rocblas-test
+</pre>
+<p>
+To run benchmarks:
+<pre>
+cd ~repos/rocBLAS-develop-build/clients-build/benchmarks-build
+make
+./client -h
+./client  -f gemv -r s -m 1024 -n 256
+./client  -f gemv -r s
+./client -v 1
+./client -f gemm -r s -m 1024 -n 1024 -k 1024 --transposeB T
+</pre>
+<h1>Benchmark Code</h1>
+<p>
+<ul><li> The code for the executable is in clients/benchmarks/client.cpp. 
+<li>boost::program_options is used for parsing the command line. 
+<li>The instance argus of the class Arguments is from the file clients/include/utility.h. 
+<li>client.cpp contains include files like clients/include/testing_ger.hpp that 
+    call the routine to be timed.
+</ul>
+<h1>Tensile</h1>
+<pre>
+mkdir -p ~/repos/TensileWalkthrough; cd ~/repos/TensileWalkthrough
+git clone https://github.com/RadeonOpenCompute/Tensile.git repo
+mkdir build; cd build; cmake ../repo
+
+line 103 of ~/repos/TensileWalkthrough/repo/clients/gemm/gemm.cpp
+Convert if to #if 1 so list of dimensions used, not combinatorics
+
+In file below list dimensions and num_gemm_params in line 19 "const unsigned int num_gemm_params = 1;"
+~/repos/TensileWalkthrough/repo/clients/gemm/dnn_gemms.h
+
+in directory ~/repos/TensileWalkthrough/build: 
+make gemm; clients/gemm/gemm
+
+only training data file GEMM.xml from previous command should be in directory build/ProblemXMLs
+
+Train with the command:
+python ../repo/TensileGen/Tensile.py benchmark --backend hip --problems-path ~/repos/TensileWalkthrough/build/ProblemXMLs --solutions-path ~/repos/TensileWalkthrough/build/Solution
+
+Output will be in above directory --solutions-path in a file like:
+Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O0.xml
+
+To build rocBLAS library librocblas-hcc.a copy above xml file to directory
+~/clone3-rocBLAS/rocBLAS/library/src/blas3/Tensile/SolutionXMLs/Fiji_ROCm_1.4
+
+when running rocBLAS ccmake, specify Fiji_ROCm_1.4, this will use .xml file you just copied
+
+To build Tensile library (not the rocBLAS library):
+
+Edit ~/repos/TensileWalkthrough/repo/clients/gemm/CMakeLists.txt 
+and remove # below
+add_tensile_lib(TensileLib_GEMM EXCLUDE_FROM_ALL
+  PROBLEMS ${Tensile_DIR_PROBLEMS}
+  #SOLUTIONS ${Tensile_DIR_PROBLEMS}/../SolutionXMLs
+  BACKEND ${Tensile_BACKEND}
+  ENABLE_LOGGER
+)
+
+Rebuild gemm with full backend with:
+~/repos/TensileWalkthrough/build  cmake --build . --target gemm
+
+This will build the library
+
+~/repos/TensileWalkthrough/build/clients/gemm/libTensileLib_GEMM.a
+
+</pre>
+<h1>Timing with C++11</h1>
+<pre>
+#include &lt;chrono&gt;
+  std::chrono::time_point&lt;std::chrono::high_resolution_clock&gt; start, end;
+  std::chrono::duration&lt;double&gt;dur;
+  start = std::chrono::high_resolution_clock::now();
+  status = hcblasSgemm(handle, typeA, typeB, M, N, K, &amp;alpha, d_A, lda, d_B, ldb, &amp;beta, d_C, ldc);
+  end = std::chrono::high_resolution_clock::now();
+  dur = end - start;
+  double gemmSec= dur.count();
+
+  printf("dur, gemmSec = %f, %f\n",dur, gemmSec);
+  double gflops = (double)(M) * (double)(N) * (double)(K) * 2.0 / gemmSec / 1e9;
+  printf("gflops = %f\n",gflops);
+
+
+Alternative explicit cast to microseconds. Do not cast to seconds for jobs
+running for &lt; 1sec, because it truncates so you will loose all precition
+less than one second.
+  double gemmSec2= chrono::duration_cast&lt;chrono::microseconds&gt;(end - start).count();
+
+</pre>
+The event timer can also be used. It gives results similar to C++11 chrono.
+<pre>
+#include &lt;hip/hip_runtime.h&gt;
+#include &lt;hip/hip_runtime_api.h&gt;
+
+  hipEvent_t hipStart, hipStop;
+  hipEventCreate(&hipStart);
+  hipEventCreate(&hipStop);
+
+  hipEventRecord(hipStart);
+
+  hipEventRecord(hipStop);
+
+  float milliseconds = 0;
+  hipEventElapsedTime(&milliseconds, hipStart, hipStop);
+
+</pre>
+
+
+
+<h1>Building hcBLAS</h1>
+<p> To build hcBLAS I needed to change the following line in /lib/src/CMakeLists.txt
+<pre>
+set (HCC_LDFLAGS "${HCC_LDFLAGS} -L${HIP_PATH}/lib -lhip_hcc -Wl,-rpath-link,${HIP_PATH}/lib")
+</pre>
+to 
+<pre>
+set (HCC_LDFLAGS "${HCC_LDFLAGS} -L${HIP_PATH}/lib /opt/rocm/lib/libCXLActivityLogger.so -lhip_hcc -Wl,-rpath-link,${HIP_PATH}/lib")
+</pre>
+note the addition of /opt/rocm/lib/libCXLActivityLogger.so   
+
+<h1>rocm-smi  (ROCm System Management Interface</h1>
+<p>Run <pre>rocm-smi --help</pre> for information. Below commands set
+the device 1 clock to level 7 (1000 Hz) before a command, and then resets to
+default after command.
+<pre>
+rocm-smi -d 1 --setsclk 7
+sleep 1
+rocm-smi -d 1 -g
+
+./rocblas_sgemm_example
+
+#reset device 1 clock to default values
+rocm-smi -d 1 -r
+</pre>
+
+
+</body>
+</html>

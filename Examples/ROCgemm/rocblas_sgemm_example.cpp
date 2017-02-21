@@ -5,17 +5,19 @@
 #include <chrono>
 #include <limits>
 #include "rocblas.h"
+#include <hip/hip_runtime.h>
+#include <hip/hip_runtime_api.h>
 
 #define M_DIM 1000
 #define N_DIM 128
 #define K_DIM 4096
 #define TRANS_A rocblas_operation_transpose
 #define TRANS_B rocblas_operation_none
-#define ALPHA 1.0
-#define BETA 1.0
+#define ALPHA 1.1
+#define BETA 0.3
 #define P_MAX 8
 #define PERFORMANCE_TEST true
-#define CORRECTNESS_TEST true
+#define CORRECTNESS_TEST false
 
 #define CHECK_HIP_ERROR(error) \
     if (error != hipSuccess) { \
@@ -44,7 +46,7 @@ void Mat_mat_mult(T alpha, T beta, int M, int N, int K, vector<T> A, int As1, in
             for(int i3=0; i3<K; i3++){
                 t +=  A[i1 * As1 + i3 * As2] * B[i3 * Bs1 + i2 * Bs2]; 
             }
-            C[i1*Cs1 +i2*Cs2] = alpha * C[i1*Cs1+i2*Cs2] + beta * t ;
+            C[i1*Cs1 +i2*Cs2] = beta * C[i1*Cs1+i2*Cs2] + alpha * t ;
         }
     }
 }
@@ -142,25 +144,90 @@ int main() {
 
     if(PERFORMANCE_TEST) {
 
-        start = std::chrono::high_resolution_clock::now();
-        rocblas_sgemm(handle, order, transA, transB, M, N, K, &alpha, dA, lda, dB, ldb, &beta, dC, ldc);
-        end = std::chrono::high_resolution_clock::now();
-        dur= end - start;
+        hipEvent_t hipStart, hipStop;
+        hipEventCreate(&hipStart);
+        hipEventCreate(&hipStop);
+        float milliseconds = 0;
 
+#define CHRON_TIMER true
+#if CHRON_TIMER == true
+        printf("\n\n\nCHRON_TIMER == true\n\n\n");
+        hipDeviceSynchronize();
+        start = std::chrono::high_resolution_clock::now();
+        hipDeviceSynchronize();
+#else
+        printf("\n\n\nCHRON_TIMER == false\n\n\n");
+        hipEventRecord(hipStart);
+#endif
+
+        rocblas_sgemm(handle, order, transA, transB, M, N, K, &alpha, dA, lda, dB, ldb, &beta, dC, ldc);
+
+#if CHRON_TIMER == true
+        hipDeviceSynchronize();
+        end = std::chrono::high_resolution_clock::now();
+        hipDeviceSynchronize();
+        dur= end - start;
         int number_iterations = 10.0 > (1.0 / dur.count()) ? 10 : (int) (1.0 / dur.count());
+#else
+        hipEventRecord(hipStop);
+        hipEventElapsedTime(&milliseconds, hipStart, hipStop);
+        int number_iterations = 10.0 > (1000.0 / milliseconds) ? 10 : (int) (1000.0 / milliseconds);
+#endif
+        number_iterations = 1000 < number_iterations ? 1000 : number_iterations;
+        vector<float> times(number_iterations);
+
 
         double min_seconds = numeric_limits<double>::max();
+        double max_seconds = numeric_limits<double>::min();
+        double sum_seconds = 0.0;
         for(int i = 0; i < number_iterations; i++){
+#if CHRON_TIMER == true
+            hipDeviceSynchronize();
             start = std::chrono::high_resolution_clock::now();
+            hipDeviceSynchronize();
+#else
+            hipEventRecord(hipStart);
+#endif
 
             rocblas_sgemm(handle, order, transA, transB, M, N, K, &alpha, dA, lda, dB, ldb, &beta, dC, ldc);
 
+#if CHRON_TIMER == true
+            hipDeviceSynchronize();
             end = std::chrono::high_resolution_clock::now();
+            hipDeviceSynchronize();
             dur= end - start;
             min_seconds = min_seconds < dur.count() ? min_seconds : dur.count();
+            max_seconds = max_seconds > dur.count() ? max_seconds : dur.count();
+            sum_seconds = sum_seconds + dur.count();
+
+            times[i] = dur.count();
+#else
+            hipEventRecord(hipStop);
+            hipEventElapsedTime(&milliseconds, hipStart, hipStop);
+
+            min_seconds = min_seconds < milliseconds / 1000.0 ? min_seconds : milliseconds / 1000.0;
+            max_seconds = max_seconds > milliseconds / 1000.0 ? max_seconds : milliseconds / 1000.0;
+            sum_seconds = sum_seconds + milliseconds / 1000.0;
+
+            times[i] = milliseconds / 1000.0;
+#endif
         }
-        double gflops = (double)(M) * (double)(N) * (double)(K) * 2.0 / min_seconds / 1e9;
-        printf("seconds, gflops, number_iterations = %f, %f, %d\n", min_seconds, gflops, number_iterations);
+        double ave_seconds = sum_seconds / (float) number_iterations;
+        double ops = (double)(M) * (double)(N) * (double)(K) * 2.0;
+        double max_gflops = ops / min_seconds / 1e9;
+        double min_gflops = ops / max_seconds / 1e9;
+        double ave_gflops = ops / ave_seconds / 1e9;
+        double rsd_seconds = 0.0, rsd_gflops = 0.0;
+        for(int i = 0; i < number_iterations; i++) {
+            rsd_seconds += ((double) times[i] - ave_seconds) * ((double) times[i] - ave_seconds) ;
+            rsd_gflops += (ops / (double) times[i] / 1.e9 - ave_gflops) * (ops / (double) times[i] / 1.e9 - ave_gflops) ;
+        }
+        rsd_seconds = rsd_seconds / (double) number_iterations;
+        rsd_gflops = rsd_gflops / (double) number_iterations;
+        rsd_seconds = sqrt(rsd_seconds) / ave_seconds * 100.0;
+        rsd_gflops = sqrt(rsd_gflops) / ave_gflops * 100.0;
+        printf("max,ave,min,rsd_seconds, number_iterations = %f, %f, %f, %.1f%%, %d\n", max_seconds, ave_seconds, min_seconds, rsd_seconds, number_iterations);
+        printf("min,ave,max,rsd_gflops, number_iterations = %.0f, %.0f, %.0f, %.1f%%, %d\n", min_gflops, ave_gflops, max_gflops, rsd_gflops, number_iterations);
     }
 
     CHECK_HIP_ERROR(hipFree(dA));
