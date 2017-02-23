@@ -17,7 +17,7 @@
 #define BETA 0.3
 #define P_MAX 8
 #define PERFORMANCE_TEST true
-#define CORRECTNESS_TEST false
+#define CORRECTNESS_TEST true
 
 #define CHECK_HIP_ERROR(error) \
     if (error != hipSuccess) { \
@@ -59,8 +59,6 @@ int main() {
 
     rocblas_status status = rocblas_status_success;
     rocblas_order order = rocblas_order_column_major;
-    std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
-    std::chrono::duration<double> dur;
 
     rocblas_int lda, ldb, ldc, sizeOfA, sizeOfB, sizeOfC, As1, As2, Bs1, Bs2;
     ldc = M;
@@ -144,19 +142,22 @@ int main() {
 
     if(PERFORMANCE_TEST) {
 
+        std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
+        std::chrono::duration<double> dur;
         hipEvent_t hipStart, hipStop;
         hipEventCreate(&hipStart);
         hipEventCreate(&hipStop);
-        float milliseconds = 0;
+        float milliseconds = 0.0;
+        double seconds = 0.0;
 
 #define CHRON_TIMER true
 #if CHRON_TIMER == true
-        printf("\n\n\nCHRON_TIMER == true\n\n\n");
+        printf("CHRON_TIMER == true\n");
         hipDeviceSynchronize();
         start = std::chrono::high_resolution_clock::now();
         hipDeviceSynchronize();
 #else
-        printf("\n\n\nCHRON_TIMER == false\n\n\n");
+        printf("CHRON_TIMER == false\n");
         hipEventRecord(hipStart);
 #endif
 
@@ -167,19 +168,22 @@ int main() {
         end = std::chrono::high_resolution_clock::now();
         hipDeviceSynchronize();
         dur= end - start;
-        int number_iterations = 10.0 > (1.0 / dur.count()) ? 10 : (int) (1.0 / dur.count());
+        seconds = dur.count();
 #else
         hipEventRecord(hipStop);
         hipEventElapsedTime(&milliseconds, hipStart, hipStop);
-        int number_iterations = 10.0 > (1000.0 / milliseconds) ? 10 : (int) (1000.0 / milliseconds);
+        seconds = (double) milliseconds / 1000.0;
 #endif
+        // number of iterations required to run for 1 second, limit to between 10 and 1000
+        int number_iterations = 1.0 / seconds; 
+        number_iterations = 10 > number_iterations ? 10 : number_iterations;
         number_iterations = 1000 < number_iterations ? 1000 : number_iterations;
-        vector<float> times(number_iterations);
-
+        vector<double> times(number_iterations);
 
         double min_seconds = numeric_limits<double>::max();
         double max_seconds = numeric_limits<double>::min();
         double sum_seconds = 0.0;
+        int ninner = 100;
         for(int i = 0; i < number_iterations; i++){
 #if CHRON_TIMER == true
             hipDeviceSynchronize();
@@ -189,38 +193,38 @@ int main() {
             hipEventRecord(hipStart);
 #endif
 
-            rocblas_sgemm(handle, order, transA, transB, M, N, K, &alpha, dA, lda, dB, ldb, &beta, dC, ldc);
+            for(int i = 0; i < ninner; i++) {
+                rocblas_sgemm(handle, order, transA, transB, M, N, K, &alpha, dA, lda, dB, ldb, &beta, dC, ldc);
+            }
 
 #if CHRON_TIMER == true
             hipDeviceSynchronize();
             end = std::chrono::high_resolution_clock::now();
             hipDeviceSynchronize();
-            dur= end - start;
-            min_seconds = min_seconds < dur.count() ? min_seconds : dur.count();
-            max_seconds = max_seconds > dur.count() ? max_seconds : dur.count();
-            sum_seconds = sum_seconds + dur.count();
-
-            times[i] = dur.count();
+            dur= (end - start);
+            seconds = dur.count() / ninner;
 #else
             hipEventRecord(hipStop);
             hipEventElapsedTime(&milliseconds, hipStart, hipStop);
-
-            min_seconds = min_seconds < milliseconds / 1000.0 ? min_seconds : milliseconds / 1000.0;
-            max_seconds = max_seconds > milliseconds / 1000.0 ? max_seconds : milliseconds / 1000.0;
-            sum_seconds = sum_seconds + milliseconds / 1000.0;
-
-            times[i] = milliseconds / 1000.0;
+            seconds = (double) milliseconds / 1000.0 / ninner;
 #endif
+
+            min_seconds = min_seconds < seconds ? min_seconds : seconds;
+            max_seconds = max_seconds > seconds ? max_seconds : seconds;
+            sum_seconds = sum_seconds + seconds;
+
+            times[i] = seconds;
         }
-        double ave_seconds = sum_seconds / (float) number_iterations;
+        double ave_seconds = sum_seconds / (double) number_iterations;
         double ops = (double)(M) * (double)(N) * (double)(K) * 2.0;
         double max_gflops = ops / min_seconds / 1e9;
         double min_gflops = ops / max_seconds / 1e9;
         double ave_gflops = ops / ave_seconds / 1e9;
+        //calculate relative standard deviation (rsd). Also called coefficient of variation
         double rsd_seconds = 0.0, rsd_gflops = 0.0;
         for(int i = 0; i < number_iterations; i++) {
-            rsd_seconds += ((double) times[i] - ave_seconds) * ((double) times[i] - ave_seconds) ;
-            rsd_gflops += (ops / (double) times[i] / 1.e9 - ave_gflops) * (ops / (double) times[i] / 1.e9 - ave_gflops) ;
+            rsd_seconds += (times[i] - ave_seconds) * (times[i] - ave_seconds) ;
+            rsd_gflops += (ops / times[i] / 1.e9 - ave_gflops) * (ops / times[i] / 1.e9 - ave_gflops) ;
         }
         rsd_seconds = rsd_seconds / (double) number_iterations;
         rsd_gflops = rsd_gflops / (double) number_iterations;

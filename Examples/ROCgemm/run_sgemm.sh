@@ -58,3 +58,5 @@ rocm-smi -d 1 -g
 
 reset device 1 clock to default values
 rocm-smi -d 1 -r
+
+grep "min,ave,max,rsd_gflops" out?? > out.summary
