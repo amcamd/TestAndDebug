@@ -40,10 +40,16 @@ th, td {
     <ul>
       <li>get the ip address, alternative command is ifconfig
     </ul>
+  <li>sudo lsblk, sudo blkid, ls -l /dev/disk/bu-uuid, 
+    <ul>
+      <li>disk information
+    </ul>
+  </li>
 </ul>
 
 <h1>VIM</h1>
 <p>To substitute new line use \r. For example: 1,$s/newline/\r/
+<p>Visual Block Mode: Ctrl V, move cursor to highlight block, y or d, move cursor to place block, p
 
 <h1>Dev Box</h1>
 <table>
@@ -350,6 +356,66 @@ rocm-smi -d 1 -g
 rocm-smi -d 1 -r
 </pre>
 
+<h1>Single user runlevel N S</h1>
+<p>
+The command <pre>runlevel</pre> will show the runlevel. To boot the machine in runlevel N S
+edit /etc/default/grub to change from
+
+<pre>
+GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"
+#GRUB_TERMINAL=console
+#GRUB_GFXMODE=640x480
+</pre>
+
+to 
+
+<pre>
+GRUB_CMDLINE_LINUX_DEFAULT="text single"
+GRUB_TERMINAL=console
+GRUB_GFXMODE=640x480
+</pre>
+
+Then run <pre>sudo update-grub</pre> Reboot, and the machine should come up with runlevel N S.
+Reverse the changes to get back to runlevel N 2.
+<p>
+For Ubuntu 16 see
+<a href="http://askubuntu.com/questions/788323/change-runlevel-on-16-04">http://askubuntu.com/questions/788323/change-runlevel-on-16-04</a><br>
+
+<h1>Tensile V2</h1>
+
+<pre>
+
+cd repos
+mkdir Version2
+cd Version2
+git clone https://github.com/RadeonOpenCompute/Tensile.git
+
+cd Tensile
+
+git checkout develop
+
+sudo apt-get python-pip
+sudo apt-get install python-pip 
+* sudo python setup.py install 
+pip install .
+pip list
+
+tensile -h
+mkdir ../tempDir
+cd ../tempDir
+tensile ../Tensile/Tensile/Configs/rocblas_sgemm.yaml .
+
+cd 4_LibraryClient/
+cd build/
+./client 
+./client 0 128 129 130
+./client 0 128 129 130 0
+./client 0 128 129 130 -1
+
+cd Tensile/
+ls
+vi Kernels.cpp 
+</pre>
 
 </body>
 </html>

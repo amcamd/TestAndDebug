@@ -1,0 +1,1500 @@
+TN:M, N, K, lda, ldb, ldc = 1000, 128, 4096, 4096, 4096, 1000
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+GEMM Success !
+CHRON_TIMER == true
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+Tensile::getSolutionTop()
+C[i:1000,j:128] = Sum(k:4096) A[k,i] * B[k,j]
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series_()
+Tensile::getSolution_Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O2()
+Tensile::CT_SSSSS_Cij_Sk_Aki_Bkj_i16b2s_j16b2s_nl1x1_k16_O2_G1b1<float,float,float,float,float>()
+max,ave,min,rsd_seconds, number_iterations = 0.003562, 0.003290, 0.002230, 6.4%, 297
+min,ave,max,rsd_gflops, number_iterations = 294, 319, 470, 8.0%, 297

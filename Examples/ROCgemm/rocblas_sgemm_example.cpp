@@ -183,7 +183,7 @@ int main() {
         double min_seconds = numeric_limits<double>::max();
         double max_seconds = numeric_limits<double>::min();
         double sum_seconds = 0.0;
-        int ninner = 100;
+        int ninner = 1;
         for(int i = 0; i < number_iterations; i++){
 #if CHRON_TIMER == true
             hipDeviceSynchronize();
