@@ -73,6 +73,7 @@ th, td {
 </tr>
 </table>
 
+
 <h1>Jenkins</h1>
 <table>
 <tr>
@@ -88,6 +89,19 @@ th, td {
     <td> Hawaii rocm-1.3 and 1.4</td>
     <td> ssh -p 1313 achapman@jenkins-rocm-0 </td>
     <td> ssh -p 1414 achapman@jenkins-rocm-0 </td>
+</tr>
+</table>
+
+<h1>jenkins-cuda-0</h1>
+<table>
+<tr>
+    <td>username</td>           <td>achapman</td> <td>jenkins</td>
+</tr><tr>
+    <td>password</td>	        <td>Band.</td> <td>Aut0mat3</td>
+</tr><tr>
+    <td>login</td>
+    <td> ssh achapman@jenkins-cuda-0 </td>
+    <td> ssh jenkins@jenkins-cuda-0 </td>
 </tr>
 </table>
 
@@ -404,6 +418,8 @@ tensile -h
 mkdir ../tempDir
 cd ../tempDir
 tensile ../Tensile/Tensile/Configs/rocblas_sgemm.yaml .
+
+alternative: python ../Tensile/Tensile/Tensile.py ../Tensile/Tensile/Configs/rocblas_sgemm.yaml .
 
 cd 4_LibraryClient/
 cd build/
