@@ -45,6 +45,17 @@ th, td {
       <li>disk information
     </ul>
   </li>
+  <li>hipconfig
+    <ul>
+      <li>hip information
+    </ul>
+  </li>
+  <li>adduser
+    <ul>
+      <li>sudo useradd --create-home -G sudo --shell /bin/bash &lt;username&gt;
+      <li>sudo passwd &lt;username&gt;
+    </ul>
+  </li>
 </ul>
 
 <h1>VIM</h1>
@@ -307,8 +318,11 @@ This will build the library
 #include &lt;chrono&gt;
   std::chrono::time_point&lt;std::chrono::high_resolution_clock&gt; start, end;
   std::chrono::duration&lt;double&gt;dur;
+  hipDeviceSynchronize();
   start = std::chrono::high_resolution_clock::now();
-  status = hcblasSgemm(handle, typeA, typeB, M, N, K, &amp;alpha, d_A, lda, d_B, ldb, &amp;beta, d_C, ldc);
+    status = hcblasSgemm(handle, typeA, typeB, M, N, K, &amp;alpha, 
+    d_A, lda, d_B, ldb, &amp;beta, d_C, ldc);
+  hipDeviceSynchronize();
   end = std::chrono::high_resolution_clock::now();
   dur = end - start;
   double gemmSec= dur.count();
@@ -354,6 +368,16 @@ to
 set (HCC_LDFLAGS "${HCC_LDFLAGS} -L${HIP_PATH}/lib /opt/rocm/lib/libCXLActivityLogger.so -lhip_hcc -Wl,-rpath-link,${HIP_PATH}/lib")
 </pre>
 note the addition of /opt/rocm/lib/libCXLActivityLogger.so   
+<p>
+To run hcblas/test/benchmark you may need to set the following environment variables:
+<pre>
+> export CODEXL_PATH=/opt/rocm/profiler/bin
+
+> LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/achapman/hcblasClone/hcblas/test/benchmark
+> export LD_LIBRARY_PATH
+
+> export HCBLAS_PATH=/home/achapman/hcblasClone/hcblas
+</pre>
 
 <h1>rocm-smi  (ROCm System Management Interface</h1>
 <p>Run <pre>rocm-smi --help</pre> for information. Below commands set
@@ -432,6 +456,23 @@ cd Tensile/
 ls
 vi Kernels.cpp 
 </pre>
+
+<h1>Docker</h1>
+<p>https://hub.docker.com  account is   amcamd
+<p>On Ubuntu machine, can log in with <pre>docker login</pre>
+<p>to see all docker containers</p>
+<pre>
+sudo docker ps -a
+</pre>
+<p>to attach to docker container</p>
+<pre>
+sudo docker attach &lt;docker number&gt;
+</pre>
+<p>to run docker image sunway13/ubuntu14.04:promote-free-v2</p>
+<pre>
+sudo docker run -it --device "/dev/kfd" sunway513/ubuntu14.04:promote-free-v2 env TERM=xterm-color bash -l
+</pre>
+
 
 </body>
 </html>
