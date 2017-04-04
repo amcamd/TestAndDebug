@@ -137,7 +137,7 @@ th, td {
     <td>password</td>	        <td>Sputnik.</td>
 </tr>
 </table>
-<p>Configuring a remote for a fork
+<h4>Configuring a remote for a fork</h4>
 <pre>
 ===: git remote -v
 origin	https://github.com/amcamd/rocBLAS.git (fetch)
@@ -151,7 +151,7 @@ origin	https://github.com/amcamd/rocBLAS.git (push)
 upstream	https://github.com/RadeonOpenCompute/rocBLAS (fetch)
 upstream	https://github.com/RadeonOpenCompute/rocBLAS (push)
 </pre>
-<p>Syncing a fork
+<h4>Syncing a fork</h4>
 <pre>
 ===: git fetch upstream
 remote: Counting objects: 1, done.
@@ -176,6 +176,21 @@ Fast-forwarded develop to upstream/develop.
 
 to get changes from local copy back into origin/develop
 ===: git push
+</pre>
+<h4>Patch</h4>
+<pre>
+To generate a patch from the topmost n commits from a specific sha1 hash:
+===:git format-patch -&lt;n&gt; &lt;SHA1&gt;
+
+for example to generate a patch from the most recent commit to HEAD:
+===:git format-patch -1 HEAD
+
+To check a patch and then apply it without committing changes
+===: git apply --check name.patch
+===: git apply name.patch
+
+To reverse the patch:
+===: git apply --reverse name.patch
 </pre>
 
 
@@ -225,8 +240,14 @@ Choose Tensile_REPO in rocBLAS/cmake/external-Tensile.cmake
 <pre>
 cd ~/repos/rocBLAS-develop-build
 rm -rf *
-ccmake ../../clone3-rocBLAS/rocBLAS -DHIP_ROOT=/opt/rocm/hip -DBOOST_ROOT=/usr/local -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -DCMAKE_C_COMPILER=/usr/bin/clang
-can also set -DCMAKE_BUILD_TYPE=Release -DBUILD_WITH_TENSILE=OFF, and Fiji_ROCm_1.4
+ccmake ../rocBLAS -DHIP_ROOT=/opt/rocm/hip -DBOOST_ROOT=/usr/local -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -DCMAKE_C_COMPILER=/usr/bin/clang
+
+can also set 
+-DCMAKE_BUILD_TYPE=Release 
+-DBUILD_WITH_TENSILE=OFF 
+-DCMAKE_CXX_FLAGS='fPIC'
+
+Fiji_ROCm_1.4
 
 make -j                (option make VERBOSE=1 >& make.out)
 cd clients-build
@@ -459,20 +480,33 @@ vi Kernels.cpp
 
 <h1>Docker</h1>
 <p>https://hub.docker.com  account is   amcamd
-<p>On Ubuntu machine, can log in with <pre>docker login</pre>
-<p>to see all docker containers</p>
+<p>On Ubuntu machine, can log in with <pre>sudo docker login</pre>
+<p>To see all docker containers</p>
 <pre>
 sudo docker ps -a
 </pre>
-<p>to attach to docker container</p>
+<p>To attach to docker container</p>
 <pre>
 sudo docker attach &lt;docker number&gt;
 </pre>
-<p>to run docker image sunway13/ubuntu14.04:promote-free-v2</p>
+<p>To run docker image sunway13/ubuntu14.04:promote-free-v2</p>
 <pre>
 sudo docker run -it --device "/dev/kfd" sunway513/ubuntu14.04:promote-free-v2 env TERM=xterm-color bash -l
 </pre>
+<p>To remove a docker container, first get CONTAINER ID with 
+<pre>sudo docker ps -a</pre>
+Next use command 
+<pre>docker rm &lt;CONTAINER ID&gt;</pre>
 
+<h3>To commit a docker image as: sunway513/hipcaffe:rocblas</h3>
+<pre>In another terminal on the host machine find the docker image #ID with: sudo docker ps
+
+Commit the image ID with:
+sudo docker commit #ID sunway513/hipcaffe:rocblas
+
+Push to dockerhub repo with:
+sudo docker push sunway513/hipcaffe:rocblas
+</pre>
 
 </body>
 </html>
