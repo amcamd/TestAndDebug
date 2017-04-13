@@ -192,6 +192,36 @@ To check a patch and then apply it without committing changes
 To reverse the patch:
 ===: git apply --reverse name.patch
 </pre>
+<h4>Revert</h4>
+<pre>
+git revert &lt;oldest_commit_hash&gt;..&lt;latest_commit_hash&gt;
+</pre>
+
+<p>A solution that keeps no traces of the "undo".
+
+<p>NOTE: don't do this if someone allready pulled your change (I would use this only on my personal repo)
+
+<pre>
+git reset &lt;previous label or sha1&gt;
+</pre>
+
+<p>this will re-checkout all the updates locally (so git status will 
+list all updated files). Then you "do your work" and re-commit your 
+changes (Note: this step is optional)
+<pre>
+git commit -am "blabla"
+</pre>
+
+<p>At this moment your local tree differs from the remote
+
+<pre>
+git push -f
+</pre>
+
+will push and force remote to consider this push and remove the previous one
+
+!! watch-out some tags may still be pointing removed commit !!
+</pre>
 
 
 <h1>www sites</h1>
@@ -506,6 +536,19 @@ sudo docker commit #ID sunway513/hipcaffe:rocblas
 
 Push to dockerhub repo with:
 sudo docker push sunway513/hipcaffe:rocblas
+</pre>
+
+<h3>To install hip on cuda machine</h3>
+<pre>
+wget -qO - http://packages.amd.com/rocm/apt/debian/rocm.gpg.key | sudo apt-key add -
+sudo sh -c 'echo deb [arch=amd64] http://packages.amd.com/rocm/apt/debian/ xenial main > /etc/apt/sources.list.d/rocm.list'
+
+sudo apt-get install hip_nvcc
+</pre>
+To get the developer-preview branch
+<pre>
+git clone -b developer-preview https://github.com/GPUOpen-ProfessionalCompute-Tools/HIP.git
+cd HIP && mkdir build && cd build && cmake .. && sudo make install
 </pre>
 
 </body>
