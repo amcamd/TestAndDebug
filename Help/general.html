@@ -223,6 +223,18 @@ will push and force remote to consider this push and remove the previous one
 !! watch-out some tags may still be pointing removed commit !!
 </pre>
 
+<h4>Merge or "squash" multiple commits into one</h4>
+<p>to list commits <pre>git log --pretty=oneline</pre>
+
+<p>to merge last 5 commits:
+
+<pre>git rebase -i HEAD~5</pre>
+
+<p>In editor change all but oldest commit from pick to squash. Quit editor, and add commit 
+comment in next editor. If you have already pushed commits then
+
+<pre>git push --force    (or git push origin branch-name --force)</pre>
+
 
 <h1>www sites</h1>
 <a href="https://github.com/RadeonOpenCompute/rocBLAS">rocBLAS Code</a><br>
