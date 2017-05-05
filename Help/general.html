@@ -15,51 +15,56 @@ th, td {
 <h1>Ubuntu setup</h1>
 
 <ul>
-  <li>uname -a
+  <li><pre>uname -a</pre>
     <ul>
       <li>print system information, all
     </ul>
-  <li>lsb_release -a
+  <li><pre>lsb_release -a</pre>
     <ul>
       <li>print distribution-specific information (Linux Standard Base)
     </ul>
-  <li>lspci
+  <li><pre>lspci</pre>
     <ul>
       <li>list all PCI devices
     </ul>
-  <li>sudo apt-get update
+  <li><pre>sudo apt-get update</pre>
     <ul>
       <li>APT package handling utility (Advanced Package Tool).
       <li>Downloads the package lists from the repositories and "updates" them to get information on the newest versions of packages and their dependencies.
     </ul>
-  <li>sudo apt-get upgrade
+  <li><pre>sudo apt-get upgrade</pre>
     <ul>
       <li>fetch new versions of packages existing on the machine if APT knows about these new versions by way of apt-get update
     </ul>
-  <li>ip route get 8.8.8.8 | awk '{print $NF; exit}'
+  <li><pre>ip route get 8.8.8.8 | awk '{print $NF; exit}'</pre>
     <ul>
       <li>get the ip address, alternative command is ifconfig
     </ul>
-  <li>sudo lsblk, sudo blkid, ls -l /dev/disk/bu-uuid, 
+  <li><pre>sudo lsblk, sudo blkid, ls -l /dev/disk/bu-uuid, </pre>
     <ul>
       <li>disk information
     </ul>
   </li>
-  <li>hipconfig
+  <li><pre>hipconfig</pre>
     <ul>
       <li>hip information
     </ul>
   </li>
   <li>adduser
     <ul>
-      <li>sudo useradd --create-home -G sudo --shell /bin/bash &lt;username&gt;
-      <li>sudo passwd &lt;username&gt;
+      <li><pre>sudo useradd --create-home -G sudo --shell /bin/bash &lt;username&gt;</pre>
+      <li><pre>sudo passwd &lt;username&gt;</pre>
+    </ul>
+  </li>
+  <li><pre>gsettings set org.gnome.desktop.wm.preferences focus-mode 'mouse'</pre>
+    <ul>
+      <li>focus follows mouse
     </ul>
   </li>
 </ul>
 
 <h1>VIM</h1>
-<p>To substitute new line use \r. For example: 1,$s/newline/\r/
+<p>To substitute new line use \r. For example: <pre>1,$s/newline/\r/</pre>
 <p>Visual Block Mode: Ctrl V, move cursor to highlight block, y or d, move cursor to place block, p
 
 <h1>Dev Box</h1>
@@ -95,11 +100,13 @@ th, td {
     <td> Fiji rocm-1.3 and 1.4</td>
     <td> ssh -p 1313 achapman@jenkins-rocm-1 </td>
     <td> ssh -p 1414 achapman@jenkins-rocm-1 </td>
+    <td> ssh -p 1515 achapman@jenkins-rocm-1 </td>
 </tr>
 </tr><tr>
     <td> Hawaii rocm-1.3 and 1.4</td>
     <td> ssh -p 1313 achapman@jenkins-rocm-0 </td>
     <td> ssh -p 1414 achapman@jenkins-rocm-0 </td>
+    <td> ssh -p 1515 achapman@jenkins-rocm-0 </td>
 </tr>
 </table>
 
@@ -562,6 +569,15 @@ To get the developer-preview branch
 git clone -b developer-preview https://github.com/GPUOpen-ProfessionalCompute-Tools/HIP.git
 cd HIP && mkdir build && cd build && cmake .. && sudo make install
 </pre>
+
+<h3>To install OpenCL</h3>
+
+<p>Commands below are from the
+<a href="https://github.com/RadeonOpenCompute/ROCm">ROCm site</a><br>
+
+<pre>sudo apt-get install rocm rocm-opencl</pre>
+
+<pre>sudo apt-get install rocm-opencl-dev</pre>
 
 </body>
 </html>
