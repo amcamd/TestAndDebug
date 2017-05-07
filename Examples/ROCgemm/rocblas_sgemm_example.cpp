@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <vector>
 #include <math.h>
 #include <chrono>
@@ -8,10 +9,10 @@
 #include <hip/hip_runtime.h>
 #include <hip/hip_runtime_api.h>
 
-#define M_DIM 1000
-#define N_DIM 128
-#define K_DIM 4096
-#define TRANS_A rocblas_operation_transpose
+#define M_DIM 512
+#define N_DIM 512
+#define K_DIM 512
+#define TRANS_A rocblas_operation_none
 #define TRANS_B rocblas_operation_none
 #define ALPHA 1.1
 #define BETA 0.3
@@ -51,29 +52,100 @@ void Mat_mat_mult(T alpha, T beta, int M, int N, int K, vector<T> A, int As1, in
     }
 }
 
-int main() {
+void usage(char *argv[])
+{
+    printf("Usage: %s\n", argv[0]);
+    printf(" -m<gemm m, default %d>\n", M_DIM);
+    printf(" -n<gemm n, default %d>\n", N_DIM);
+    printf(" -k<gemm k, default %d>\n", K_DIM);
+    printf(" -t<gemm NN, NT, TN, TT, default NN>\n");
+    printf(" -a<gemm lda, default %d>\n", M_DIM);
+    printf(" -b<gemm ldb, default %d>\n", K_DIM);
+    printf(" -c<gemm ldc, default %d>\n", M_DIM);
+    exit (8);
+}
 
-    rocblas_int M = M_DIM, N = N_DIM, K = K_DIM;
-    rocblas_operation transA = TRANS_A, transB = TRANS_B;
-    float alpha = ALPHA, beta  = BETA;
+int parse_args(int argc, char *argv[], int &M, int &N, int &K, int &lda, int &ldb, int &ldc,
+                rocblas_operation &transA, rocblas_operation &transB)
+{
+    while ((argc > 1) && (argv[1][0] == '-'))
+     {
+        switch (argv[1][1])
+        {
+            case 't':
+                if(strcmp(&argv[1][2], "NN") == 0) {
+                    transA = rocblas_operation_none;
+                    transB = rocblas_operation_none;
+                } else if(strncmp(&argv[1][2], "NT", 2) == 0) {
+                    transA = rocblas_operation_none;
+                    transB = rocblas_operation_transpose;
+                } else if(strncmp(&argv[1][2], "TN", 2) == 0) {
+                    transA = rocblas_operation_transpose;
+                    transB = rocblas_operation_none;
+                } else if(strncmp(&argv[1][2], "TT", 2) == 0) {
+                    transA = rocblas_operation_transpose;
+                    transB = rocblas_operation_transpose;
+                }
+                break;
+            case 'm':
+                M = atoi(&argv[1][2]);
+                break;
+            case 'n':
+                N = atoi(&argv[1][2]);
+                break;
+            case 'k':
+                K = atoi(&argv[1][2]);
+                break;
+            case 'a':
+                lda = atoi(&argv[1][4]);
+                break;
+            case 'b':
+                ldb = atoi(&argv[1][4]);
+                break;
+            case 'c':
+                ldc = atoi(&argv[1][4]);
+                break;
+            default:
+                printf("Wrong Argument: %s\n", argv[1]);
+                return (1);
+        }
+        ++argv;
+        --argc;
+    }
+    return (0);
+}
 
+int main(int argc, char *argv[]) {
+
+    rocblas_int M = M_DIM;  float alpha = ALPHA;
+    rocblas_int N = N_DIM;  float beta  = BETA;
+    rocblas_int K = K_DIM; 
+    rocblas_int lda = 0, sizeOfA, As1, As2;  rocblas_operation transA = TRANS_A; 
+    rocblas_int ldb = 0, sizeOfB, Bs1, Bs2;  rocblas_operation transB = TRANS_B; 
+    rocblas_int ldc = 0, sizeOfC, Cs1, Cs2;
     rocblas_status status = rocblas_status_success;
-    rocblas_order order = rocblas_order_column_major;
+    rocblas_order   order = rocblas_order_column_major;
 
-    rocblas_int lda, ldb, ldc, sizeOfA, sizeOfB, sizeOfC, As1, As2, Bs1, Bs2;
-    ldc = M;
-    sizeOfC = N * ldc;
+    if( parse_args(argc, argv, M, N, K, lda, ldb, ldc, transA, transB)) {
+        usage(argv);
+    }
+
+    ldc = M;             // leading dimension of C (gemm argument)
+    sizeOfC = N * ldc;   // number of elements for memory allocation
+    Cs1 = 1;             // stride in first index
+    Cs2 = ldc;           // stride in second index
+    // set leading dimension and strides depending on transA and transB
     if( transA == rocblas_operation_none){
-        lda = M; As1 = 1; As2 = lda; sizeOfA = K * lda; printf("N");
+        lda = lda >= M ? lda : M; As1 = 1; As2 = lda; sizeOfA = K * lda; printf("N");
     }
     else {
-        lda = K; As1 = lda; As2 = 1; sizeOfA = M * lda; printf("T");
+        lda = lda >= K ? lda : K; As1 = lda; As2 = 1; sizeOfA = M * lda; printf("T");
     }
     if( transB == rocblas_operation_none){
-        ldb = K; Bs1 = 1; Bs2 = ldb; sizeOfB = N * ldb; printf("N:");
+        ldb = ldb >= K ? ldb : K; Bs1 = 1; Bs2 = ldb; sizeOfB = N * ldb; printf("N:");
     }
     else {
-        ldb = N; Bs1 = ldb; Bs2 = 1; sizeOfB = K * ldb; printf("T: ");
+        ldb = ldb >= N ? ldb : N; Bs1 = ldb; Bs2 = 1; sizeOfB = K * ldb; printf("T: ");
     }
  
     printf("M, N, K, lda, ldb, ldc = %d, %d, %d, %d, %d, %d\n",M, N, K, lda, ldb, ldc);
