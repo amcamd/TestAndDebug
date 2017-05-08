@@ -28,30 +28,6 @@
 
 using namespace std;
 
-void printMatrix(const char* name, float* A, rocblas_int m, rocblas_int n, rocblas_int lda) {
-    printf("---------- %s ----------\n", name);
-    for( int i = 0; i < m; i++) {
-        for( int j = 0; j < n; j++) {
-            printf("%f ",A[i + j * lda]);
-        }
-        printf("\n");
-    }
-}
-
-template <typename T>
-void Mat_mat_mult(T alpha, T beta, int M, int N, int K, vector<T> A, int As1, int As2, 
-                  vector<T> B, int Bs1, int Bs2, vector<T> & C, int Cs1, int Cs2) {
-    for(int i1=0; i1<M; i1++) {
-        for(int i2=0; i2<N; i2++) {
-            float t = 0.0;
-            for(int i3=0; i3<K; i3++){
-                t +=  A[i1 * As1 + i3 * As2] * B[i3 * Bs1 + i2 * Bs2]; 
-            }
-            C[i1*Cs1 +i2*Cs2] = beta * C[i1*Cs1+i2*Cs2] + alpha * t ;
-        }
-    }
-}
-
 void usage(char *argv[])
 {
     printf("Usage: %s\n", argv[0]);
@@ -115,6 +91,83 @@ int parse_args(int argc, char *argv[], int &M, int &N, int &K, int &lda, int &ld
     return (0);
 }
 
+template <typename T>
+void printMatrix(const char* name, T* A, rocblas_int m, rocblas_int n, rocblas_int lda) {
+    printf("---------- %s ----------\n", name);
+    for( int i = 0; i < m; i++) {
+        for( int j = 0; j < n; j++) {
+            printf("%f ",A[i + j * lda]);
+        }
+        printf("\n");
+    }
+}
+
+template <typename T>
+void mat_mat_mult(T alpha, T beta, int M, int N, int K, vector<T> A, int As1, int As2, 
+                  vector<T> B, int Bs1, int Bs2, vector<T> & C, int Cs1, int Cs2) {
+    for(int i1=0; i1<M; i1++) {
+        for(int i2=0; i2<N; i2++) {
+            float t = 0.0;
+            for(int i3=0; i3<K; i3++){
+                t +=  A[i1 * As1 + i3 * As2] * B[i3 * Bs1 + i2 * Bs2]; 
+            }
+            C[i1*Cs1 +i2*Cs2] = beta * C[i1*Cs1+i2*Cs2] + alpha * t ;
+        }
+    }
+}
+
+int element_check(int M, int N, int ldc, float tolerance, vector<float>hC, vector<float>hC_copy){
+    float error = 0;
+    for(rocblas_int i1=0; i1<M; i1++) {
+        for(rocblas_int i2=0; i2<N; i2++) {
+            error = fabs(hC[i1+i2*ldc] - hC_copy[i1+i2*ldc]);
+            if(error > tolerance) {
+              printf("error %d,%d: %E  CPU=%E, GPU=%E\n",i1,i2,error,hC[i1+i2*ldc],hC_copy[i1+i2*ldc]);
+              break;
+            }
+        }
+        if(error > tolerance) break;
+    }
+
+    if(error > tolerance){
+        return 1;
+    }
+    else{
+        return 0;
+    }
+}
+
+double error_norm(int n1, int n2, vector<float> c_float, vector<double> c_double) {
+    double frobenius_norm_error = 0.0;
+    for (int i = 0; i < n1*n2; i++) {
+        frobenius_norm_error += (c_double[i] - (double)c_float[i]) * (c_double[i] - (double)c_float[i]);
+    }
+    return(sqrt(frobenius_norm_error));
+}
+
+template <typename T>
+T frobenius_norm(int n1, int n2, vector<T> a) {
+    T norm;
+    for (int i = 0; i < n1*n2; i++){
+        norm += a[i] * a[i];
+    }
+    return sqrt(norm);
+}
+
+int norm_check(int M, int N, double tolerance, vector<float> hc, vector<double>hc64) {
+    float eps = std::numeric_limits<float>::epsilon();
+    double frobenius_norm_error = error_norm(M, N, hc, hc64);
+    double frobenius_norm_c64 = frobenius_norm<double>(M, N, hc64);
+//  printf("frobenius_norm_error, frobenius_norm_c = %E, %E\n", frobenius_norm_error, frobenius_norm_c64);
+    printf("(frobenius_norm_error/frobenius_norm_c) / eps = %E\n", frobenius_norm_error/frobenius_norm_c64/eps);
+    double error = (frobenius_norm_error/frobenius_norm_c64) / eps;
+    if (error > tolerance) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
 int main(int argc, char *argv[]) {
 
     rocblas_int M = M_DIM;  float alpha = ALPHA;
@@ -151,8 +204,10 @@ int main(int argc, char *argv[]) {
     printf("M, N, K, lda, ldb, ldc = %d, %d, %d, %d, %d, %d\n",M, N, K, lda, ldb, ldc);
 
     vector<float> hA(sizeOfA), hB(sizeOfB), hC(sizeOfC), hC_copy(sizeOfC);
+    vector<double> hA64(sizeOfA), hB64(sizeOfB), hC64(sizeOfC);
     float *dA, *dB, *dC;
-    float tolerance = 0, error;
+    float element_tolerance = 0;
+    double norm_tolerance = 80;
 
     rocblas_handle handle;
     rocblas_create_handle(&handle);
@@ -164,9 +219,9 @@ int main(int argc, char *argv[]) {
 
     // Initial Data on CPU,
     srand(1);
-    for( int i = 0; i < sizeOfA; ++i ) { hA[i] = rand() % 10 + 1; }
-    for( int i = 0; i < sizeOfB; ++i ) { hB[i] = rand() % 10 + 1; }
-    for( int i = 0; i < sizeOfC; ++i ) { hC[i] = rand() % 10 + 1; }
+    for( int i = 0; i < sizeOfA; ++i ) { hA[i] = rand() % 17; hA64[i] = (double)hA[i]; }
+    for( int i = 0; i < sizeOfB; ++i ) { hB[i] = rand() % 17; hB64[i] = (double)hB[i]; }
+    for( int i = 0; i < sizeOfC; ++i ) { hC[i] = rand() % 17; hC64[i] = (double)hC[i]; }
 
     // save a copy in hA
     hC_copy = hC;
@@ -187,28 +242,22 @@ int main(int argc, char *argv[]) {
         // copy output from device memory to host memory
         CHECK_HIP_ERROR(hipMemcpy(hC.data(), dC, sizeof(float) * sizeOfC, hipMemcpyDeviceToHost));
 
-        Mat_mat_mult<float>(alpha, beta, M, N, K, hA, As1, As2, hB, Bs1, Bs2, hC_copy, 1, ldc);
+        mat_mat_mult<float>(alpha, beta, M, N, K, hA, As1, As2, hB, Bs1, Bs2, hC_copy, 1, ldc);
+        mat_mat_mult<double>((double)alpha, (double)beta, M, N, K, hA64, As1, As2, hB64, Bs1, Bs2, hC64, 1, ldc);
 
-//      printMatrix("calculated matrix hC", hC.data(), min(P_MAX,M), min(P_MAX,N), ldc);
-//      printMatrix("reference  matrix hC_copy", hC_copy.data(), min(P_MAX,M), min(P_MAX,N), ldc);
+//      printMatrix<float>("calculated matrix hC", hC.data(), min(P_MAX,M), min(P_MAX,N), ldc);
+//      printMatrix<float>("reference  matrix hC_copy", hC_copy.data(), min(P_MAX,M), min(P_MAX,N), ldc);
 
-        // verify rocblas_scal result
-        for(rocblas_int i1=0; i1<M; i1++) {
-            for(rocblas_int i2=0; i2<N; i2++) {
-                error = fabs(hC[i1+i2*ldc] - hC_copy[i1+i2*ldc]);
-                if(error > tolerance) {
-                  printf("error %d,%d: %f  CPU=%f, GPU=%f\n",i1,i2,error,hC[i1+i2*lda],hC_copy[i1+i2*lda]);
-                  break;
-                }
-            }
-            if(error > tolerance) break;
+        if( element_check(M, N, ldc, element_tolerance, hC, hC_copy)){
+            printf("GEMM Failed element wise test !\n"); 
+        } else {
+            printf("GEMM Success in element wise test!\n");
         }
 
-        if(error > tolerance){
-            printf("GEMM Failed !\n"); return 1;
-        }
-        else{
-            printf("GEMM Success !\n");
+        if( norm_check(M, N, norm_tolerance, hC, hC64)){
+            printf("GEMM Failed norm test !\n");
+        } else {
+            printf("GEMM passed norm test!\n");
         }
     }
 
