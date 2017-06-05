@@ -12,6 +12,43 @@ th, td {
 </style>
 </head>
 <body>
+<h1>www sites</h1>
+<p>
+<table>
+<tr>
+    <td><a href="https://github.com/RadeonOpenCompute/rocBLAS">rocBLAS</a><br></td>
+    <td>https://github.com/RadeonOpenCompute/rocBLAS</td>
+</tr><tr>
+    <td><a href="https://github.com/ROCmSoftwarePlatform/hipBLAS">hipBLAS</a><br></td>
+    <td>https://github.com/ROCmSoftwarePlatform/hipBLAS</td>
+</tr><tr>
+    <td><a href="https://bitbucket.org/multicoreware/hcblas">hcBLAS</a><br></td>
+    <td>https://bitbucket.org/multicoreware/hcblas</td>
+</tr><tr>
+    <td><a href="https://github.com/RadeonOpenCompute/Tensile">Tensile</a><br></td>
+    <td>https://github.com/RadeonOpenCompute/Tensile</td>
+</tr><tr>
+    <td><a href="https://github.com/AMDComputeLibraries/MLOpen">MIOpen</a><br></td>
+    <td>https://github.com/AMDComputeLibraries/MLOpen</td>
+</tr><tr>
+    <td><a href="https://bitbucket.org/multicoreware/hipcaffe">hipCaffe</a><br></td>
+    <td>https://bitbucket.org/multicoreware/hipcaffe</td>
+</tr><tr>
+    <td><a href="https://github.com/RadeonOpenCompute/deepbench">Deepbench</a><br></td>
+    <td>https://github.com/RadeonOpenCompute/deepbench</td>
+</tr>
+</table>
+
+<p>
+<a href="https://radeonopencompute.github.io">https://radeonopencompute.github.io</a><br>
+<a href="http://hsautil.amd.com/job/RadeonOpenCompute">http://hsautil.amd.com/job/RadeonOpenCompute</a><br>
+<a href="https://code.visualstudio.com/">Code Visual Studio</a><br>
+<a href="https://cmake.org/cmake-tutorial/">Cmake Tutorial</a><br>
+<a href="https://www.docker.com">https://www.docker.com</a><br>
+<a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet">Editing Github Wiki </a><br>
+<a href="http://ontrack-internal.amd.com/browse/SWDEV-103388">Jira example</a><br>
+
+
 <h1>Ubuntu setup</h1>
 
 <ul>
@@ -67,6 +104,12 @@ th, td {
 <p>To substitute new line use \r. For example: <pre>1,$s/newline/\r/</pre>
 <p>Visual Block Mode: Ctrl V, move cursor to highlight block, y or d, move cursor to place block, p
 
+<h1>Excel row-by-row conditional formatting</h1>
+<p>Select (or high-light) the block of rows and columns
+<p>Select &lt;HOME&gt;&lt;Conditional Formatting&gt;&lt;New Rule&lt;Use a formula to determine which cells to format&gt;
+<p>To get the min values  =A1=MIN($A1:$C1)
+<p>Select &lt;Format&gt;, choose a Fill color
+
 <h1>Dev Box</h1>
 <table>
 <tr>
@@ -85,7 +128,7 @@ th, td {
 </tr><tr>
     <td>username</td>           <td>amd\anchapman</td>
 </tr><tr>
-    <td>password</td>	        <td>Band.</td>
+    <td>password</td>	        <td>Young.</td>
 </tr>
 </table>
 
@@ -110,16 +153,18 @@ th, td {
 </tr>
 </table>
 
-<h1>jenkins-cuda-0</h1>
+<h1>cuda machines</h1>
 <table>
 <tr>
-    <td>username</td>           <td>achapman</td> <td>jenkins</td>
+   <td>machine</td> <td>jenkins-cuda-0</td> <td>fpNvidia01</td>
+<tr>
+    <td>username</td> <td>chunky</td> <td>chunky</td>
 </tr><tr>
-    <td>password</td>	        <td>Band.</td> <td>Aut0mat3</td>
+    <td>password</td> <td>monkey</td> <td>monkey</td>
 </tr><tr>
     <td>login</td>
     <td> ssh achapman@jenkins-cuda-0 </td>
-    <td> ssh jenkins@jenkins-cuda-0 </td>
+    <td> ssh achapman@fpNvidia01 </td>
 </tr>
 </table>
 
@@ -145,114 +190,167 @@ th, td {
 </tr>
 </table>
 <h4>Configuring a remote for a fork</h4>
-<pre>
+<ul>
+<li><pre>
 ===: git remote -v
+<samp>
 origin	https://github.com/amcamd/rocBLAS.git (fetch)
 origin	https://github.com/amcamd/rocBLAS.git (push)
+</samp></pre>
 
+<li><pre>
 ===: git remote add upstream https://github.com/RadeonOpenCompute/rocBLAS
+</pre>
 
+<li><pre>
 ===: git remote -v
+<samp>
 origin	https://github.com/amcamd/rocBLAS.git (fetch)
 origin	https://github.com/amcamd/rocBLAS.git (push)
 upstream	https://github.com/RadeonOpenCompute/rocBLAS (fetch)
 upstream	https://github.com/RadeonOpenCompute/rocBLAS (push)
+</samp>
 </pre>
+</ul>
+
+
 <h4>Syncing a fork</h4>
-<pre>
+<ul>
+
+<li><pre>
 ===: git fetch upstream
+<samp>
 remote: Counting objects: 1, done.
 remote: Total 1 (delta 0), reused 0 (delta 0), pack-reused 0
 Unpacking objects: 100% (1/1), done.
 From https://github.com/RadeonOpenCompute/rocBLAS
  * [new branch]      develop    -> upstream/develop
  * [new branch]      master     -> upstream/master
+</samp></pre>
 
+<li><pre>
 ===: git checkout develop
+<samp>
 Already on 'develop'
 Your branch is up-to-date with 'origin/develop'.
+</samp></pre>
 
+<li><pre>
 ===: git merge upstream/develop
+<samp>
 Updating db0918e..e4bd4ae
 Fast-forward
+</samp></pre>
 
-alternative
+<li>Alternative 1:
+<pre>
 ===: git rebase upstream/develop develop
+<samp>
 First, rewinding head to replay your work on top of it...
 Fast-forwarded develop to upstream/develop.
+</samp></pre>
 
-to get changes from local copy back into origin/develop
+<li>Alternative 2, Merge strategy favors upstream/develop:
+<pre>
+===: git rebase -s recursive -X ours upstream/develop develop
+</pre>
+
+<li>To get changes from local copy back into origin/develop:
+<pre>
 ===: git push
 </pre>
+</ul>
+
 <h4>Patch</h4>
+<ul>
+<li>To generate a patch from the topmost n commits from a specific sha1 hash:
 <pre>
-To generate a patch from the topmost n commits from a specific sha1 hash:
 ===:git format-patch -&lt;n&gt; &lt;SHA1&gt;
+</pre>
 
-for example to generate a patch from the most recent commit to HEAD:
+<li>for example to generate a patch from the most recent commit to HEAD:
+<pre>
 ===:git format-patch -1 HEAD
+</pre>
 
-To check a patch and then apply it without committing changes
+<li>To check a patch and then apply it without committing changes:
+<pre>
 ===: git apply --check name.patch
 ===: git apply name.patch
+</pre>
 
-To reverse the patch:
+<li>To reverse the patch:
+<pre>
 ===: git apply --reverse name.patch
 </pre>
+</ul>
+
 <h4>Revert</h4>
-<pre>
-git revert &lt;oldest_commit_hash&gt;..&lt;latest_commit_hash&gt;
-</pre>
+<ul>
+<li><code>git revert &lt;oldest_commit_hash&gt;..&lt;latest_commit_hash&gt; </code>
 
-<p>A solution that keeps no traces of the "undo".
-
-<p>NOTE: don't do this if someone allready pulled your change (I would use this only on my personal repo)
-
+<li>A solution that keeps no traces of the "undo". NOTE: don't do this 
+if someone allready pulled your change (I would use this only on my personal repo)
 <pre>
 git reset &lt;previous label or sha1&gt;
 </pre>
 
-<p>this will re-checkout all the updates locally (so git status will 
+<li>this will re-checkout all the updates locally (so git status will 
 list all updated files). Then you "do your work" and re-commit your 
 changes (Note: this step is optional)
 <pre>
-git commit -am "blabla"
+git commit -m "blabla"
 </pre>
 
-<p>At this moment your local tree differs from the remote
-
+<li>At this moment your local tree differs from the remote. The following
+will push and force remote to consider this push and remove the previous one:
 <pre>
 git push -f
 </pre>
 
-will push and force remote to consider this push and remove the previous one
 
-!! watch-out some tags may still be pointing removed commit !!
-</pre>
+<li>!! watch-out some tags may still be pointing removed commit !!
+</ul>
 
 <h4>Merge or "squash" multiple commits into one</h4>
-<p>to list commits <pre>git log --pretty=oneline</pre>
+<ul>
+<li>To list commits: <code>git log --pretty=oneline</code>
 
-<p>to merge last 5 commits:
+<li>To merge last 5 commits: <code>git rebase -i HEAD~5</code>
 
-<pre>git rebase -i HEAD~5</pre>
-
-<p>In editor change all but oldest commit from pick to squash. Quit editor, and add commit 
-comment in next editor. If you have already pushed commits then
+<li>In editor change all but oldest commit from pick to squash. 
+<li>Quit editor, and add commit 
+comment in next editor. 
+<li>If you have already pushed commits then force push with:
 
 <pre>git push --force    (or git push origin branch-name --force)</pre>
+</ul>
 
 
-<h1>www sites</h1>
-<a href="https://github.com/RadeonOpenCompute/rocBLAS">rocBLAS Code</a><br>
-<a href="https://radeonopencompute.github.io">https://radeonopencompute.github.io</a><br>
-<a href="http://hsautil.amd.com/job/RadeonOpenCompute">http://hsautil.amd.com/job/RadeonOpenCompute</a><br>
-<a href="https://code.visualstudio.com/">Code Visual Studio</a><br>
-<a href="https://cmake.org/cmake-tutorial/">Cmake Tutorial</a><br>
-<a href="https://www.docker.com">https://www.docker.com</a><br>
-<a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet">Editing Github Wiki </a><br>
-<a href="http://ontrack-internal.amd.com/browse/SWDEV-103388">Jira example</a><br>
+<h4>pull request from cherry-pick commite</h4>
 
+<p>You need to basically create a new branch upstreamDevelop & cherry-pick the commits you want to add to it.
+
+<pre>git remote add upstream &lt;git repository&gt;</pre>
+
+<pre>git remote update</pre>
+
+<p>create new branch upstreamDevelop that is copy of upstream/develop
+<pre>git checkout -b upstreamDevelop upstream/develop</pre>
+
+<p>get the commit (or commits) you want
+<pre>git cherry-pick &lt;SHA hash of commit&gt;</pre>
+
+<p>to push the new branch upstreamDevelop to origin</pre>
+<pre>git push origin upstreamDevelop</pre>
+
+<p>You will now see new branch upstreamDevelop in your "origin" repositiory at githup
+
+<h4>Changing a commit message</h4>
+<ul>
+<li><code>git commit --amend</code>
+<li>If commit has been pushed, force push with:  <code>git push --force</code>
+</ul>
 
 <h1>Useful commands</h1>
 <p>find ./rocBLAS-develop -type f -exec grep -l gemv {} \; 
@@ -317,6 +415,8 @@ cd clients-build/tests-build
 make
 staging/rocblas-test
 </pre>
+<p>To run only tests with name matching ger
+<pre>staging/rocblas-test --gtest_filter=*ger*
 <p>
 To run benchmarks:
 <pre>
