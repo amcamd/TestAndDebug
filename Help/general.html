@@ -330,7 +330,7 @@ comment in next editor.
 </ul>
 
 
-<h4>pull request from cherry-pick commite</h4>
+<h4>pull request from cherry-pick commit</h4>
 
 <p>You need to basically create a new branch upstreamDevelop & cherry-pick the commits you want to add to it.
 
@@ -350,9 +350,23 @@ comment in next editor.
 <p>You will now see new branch upstreamDevelop in your "origin" repositiory at githup
 
 <h4>Changing a commit message</h4>
+<p>For the latest commit
 <ul>
 <li><code>git commit --amend</code>
 <li>If commit has been pushed, force push with:  <code>git push --force</code>
+</ul>
+
+<p>For an older commit, say second last
+<ul>
+<li><code>git rebase -i HEAD~2</code>
+<li>change the text from <code>pick</code> to <code>edit</code> in the message you want to change
+<li>Then:
+<ul>
+<li><code>git commit --amend</code>
+
+<li><code>git rebase --continue</code>
+<li>you will likely also need <code>git push --force</code>
+</ul>
 </ul>
 
 <h1>Useful commands</h1>

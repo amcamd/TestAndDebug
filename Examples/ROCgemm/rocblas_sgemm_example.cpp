@@ -22,9 +22,22 @@
 
 #define CHECK_HIP_ERROR(error) \
     if (error != hipSuccess) { \
-      fprintf(stderr, "error: '%s'(%d) at %s:%d\n", hipGetErrorString(error), error,__FILE__, __LINE__); \
+      fprintf(stderr, "Hip error: '%s'(%d) at %s:%d\n", hipGetErrorString(error), error,__FILE__, __LINE__); \
       exit(EXIT_FAILURE);\
     }
+
+#define CHECK_ROCBLAS_ERROR(error) \
+     if (error != rocblas_status_success) { \
+        fprintf(stderr, "rocBLAS error: "); \
+        if(error == rocblas_status_invalid_handle)fprintf(stderr, "rocblas_status_invalid_handle"); \
+        if(error == rocblas_status_not_implemented )fprintf(stderr, " rocblas_status_not_implemented"); \
+        if(error == rocblas_status_invalid_pointer)fprintf(stderr, "rocblas_status_invalid_pointer"); \
+        if(error == rocblas_status_invalid_size)fprintf(stderr, "rocblas_status_invalid_size"); \
+        if(error == rocblas_status_memory_error)fprintf(stderr, "rocblas_status_memory_error"); \
+        if(error == rocblas_status_internal_error)fprintf(stderr, "rocblas_status_internal_error"); \
+        fprintf(stderr, "\n"); \
+        exit(EXIT_FAILURE); \
+     }
 
 using namespace std;
 
@@ -121,15 +134,15 @@ int element_check(int M, int N, int ldc, float tolerance, vector<float>hC, vecto
     for(rocblas_int i1=0; i1<M; i1++) {
         for(rocblas_int i2=0; i2<N; i2++) {
             error = fabs(hC[i1+i2*ldc] - hC_copy[i1+i2*ldc]);
-            if(error > tolerance) {
+            if(error != error || error > tolerance) {
               printf("error %d,%d: %E  CPU=%E, GPU=%E\n",i1,i2,error,hC[i1+i2*ldc],hC_copy[i1+i2*ldc]);
               break;
             }
         }
-        if(error > tolerance) break;
+        if(error != error || error > tolerance) break;
     }
 
-    if(error > tolerance){
+    if(error != error || error > tolerance){
         return 1;
     }
     else{
@@ -161,7 +174,7 @@ int norm_check(int M, int N, double tolerance, vector<float> hc, vector<double>h
 //  printf("frobenius_norm_error, frobenius_norm_c = %E, %E\n", frobenius_norm_error, frobenius_norm_c64);
     printf("(frobenius_norm_error/frobenius_norm_c) / eps = %E\n", frobenius_norm_error/frobenius_norm_c64/eps);
     double error = (frobenius_norm_error/frobenius_norm_c64) / eps;
-    if (error > tolerance) {
+    if (error != error || error > tolerance) {
         return 1;
     } else {
         return 0;
@@ -176,7 +189,6 @@ int main(int argc, char *argv[]) {
     rocblas_int lda = 0, sizeOfA, As1, As2;  rocblas_operation transA = TRANS_A; 
     rocblas_int ldb = 0, sizeOfB, Bs1, Bs2;  rocblas_operation transB = TRANS_B; 
     rocblas_int ldc = 0, sizeOfC, Cs1, Cs2;
-    rocblas_status status = rocblas_status_success;
     rocblas_order   order = rocblas_order_column_major;
 
     if( parse_args(argc, argv, M, N, K, lda, ldb, ldc, transA, transB)) {
@@ -210,7 +222,7 @@ int main(int argc, char *argv[]) {
     double norm_tolerance = 80;
 
     rocblas_handle handle;
-    rocblas_create_handle(&handle);
+    CHECK_ROCBLAS_ERROR(rocblas_create_handle(&handle));
 
     // allocate memory on device
     CHECK_HIP_ERROR(hipMalloc(&dA, sizeOfA * sizeof(float)));
@@ -231,13 +243,8 @@ int main(int argc, char *argv[]) {
     CHECK_HIP_ERROR(hipMemcpy(dC, hC.data(), sizeof(float) * sizeOfC, hipMemcpyHostToDevice));
 
     if(CORRECTNESS_TEST){
-        status = rocblas_sgemm(handle, order, transA, transB, M, N, K, &alpha, dA, lda, dB, 
-                               ldb, &beta, dC, ldc);
-
-        if( status != rocblas_status_success) {
-            printf("***ERROR***: rocblas_status = %d\n", status);
-            return -1;
-        }
+        CHECK_ROCBLAS_ERROR(rocblas_sgemm(handle, order, transA, transB, M, N, K, &alpha, dA, lda, dB, 
+                               ldb, &beta, dC, ldc));
 
         // copy output from device memory to host memory
         CHECK_HIP_ERROR(hipMemcpy(hC.data(), dC, sizeof(float) * sizeOfC, hipMemcpyDeviceToHost));
@@ -282,7 +289,8 @@ int main(int argc, char *argv[]) {
         hipEventRecord(hipStart);
 #endif
 
-        rocblas_sgemm(handle, order, transA, transB, M, N, K, &alpha, dA, lda, dB, ldb, &beta, dC, ldc);
+        CHECK_ROCBLAS_ERROR(rocblas_sgemm(handle, order, transA, transB, M, N, K, &alpha, dA, lda, dB, 
+                               ldb, &beta, dC, ldc));
 
 #if CHRON_TIMER == true
         hipDeviceSynchronize();
@@ -358,7 +366,7 @@ int main(int argc, char *argv[]) {
     CHECK_HIP_ERROR(hipFree(dA));
     CHECK_HIP_ERROR(hipFree(dB));
     CHECK_HIP_ERROR(hipFree(dC));
-    rocblas_destroy_handle(handle);
+    CHECK_ROCBLAS_ERROR(rocblas_destroy_handle(handle));
 
     return 0;
 }
