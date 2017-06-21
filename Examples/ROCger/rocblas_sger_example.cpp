@@ -83,7 +83,6 @@ int main(int argc, char *argv[]) {
     if( parse_args(argc, argv, M, N, lda, incx, incy)) {
         usage(argv);
     }
-    if (lda < M) { lda = M; }
     printf("M, N, incx, incy, lda = %d, %d, %d, %d, %d\n",M, N, incx, incy, lda);
 
     vector<float> hx(M * incx);
@@ -111,11 +110,13 @@ int main(int argc, char *argv[]) {
     {
         hy[j * incy] = rand() % 10 + 1;
     }
-    for( int i = 0; i < M; ++i )
-    {
-        for(int j = 0; j < N; ++j)
+    if ( lda >= M ){
+        for( int i = 0; i < M; ++i )
         {
-            hA[i + j * lda] = rand() % 10 + 1;
+            for(int j = 0; j < N; ++j)
+            {
+                hA[i + j * lda] = rand() % 10 + 1;
+            }
         }
     }
 
@@ -126,7 +127,12 @@ int main(int argc, char *argv[]) {
     hipMemcpy(dy, hy.data(), sizeof(float) * N * incy, hipMemcpyHostToDevice);
     hipMemcpy(dA, hA.data(), sizeof(float) * N * lda,  hipMemcpyHostToDevice);
 
-    rocblas_sger(handle, M, N, &alpha, dx, incx, dy, incy, dA, lda);
+    rocblas_status status = rocblas_sger(handle, M, N, &alpha, dx, incx, dy, incy, dA, lda);
+    if (status != rocblas_status_success) 
+    {
+        printf("rocblas_sger failed and returned rocblas_status = %d\n", status);
+        return 1;
+    }
 
     // copy output from device memory to host memory
     hipMemcpy(hA.data(), dA, sizeof(float) * N * lda, hipMemcpyDeviceToHost);
