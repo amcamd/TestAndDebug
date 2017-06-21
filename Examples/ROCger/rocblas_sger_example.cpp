@@ -20,7 +20,59 @@ void printMatrix(const char* name, float* A, rocblas_int m, rocblas_int n, rocbl
     }
 }
 
-int main() {
+void usage(char *argv[])
+{
+    printf("Usage: %s\n", argv[0]);
+    printf(" -m<ger m, default %d>\n", M_DIM);
+    printf(" -n<ger n, default %d>\n", N_DIM);
+    printf(" -a<ger lda, default %d>\n", M_DIM);
+    printf(" -x<ger incx, default %d>\n", 1);
+    printf(" -y<ger incy, default %d>\n", 1);
+    exit (8);
+}
+
+
+int parse_args(int argc, char *argv[], int &M, int &N, int &lda, int &incx, int &incy)
+{
+    while (argc > 1)
+    {
+       if (argv[1][0] == '-')
+       {
+           switch (argv[1][1])
+           {
+               case 'm':
+                   M = atoi(&argv[1][2]);
+                   break;
+               case 'n':
+                   N = atoi(&argv[1][2]);
+                   break;
+               case 'a':
+                   lda = atoi(&argv[1][2]);
+                   break;
+               case 'x':
+                   incx = atoi(&argv[1][2]);
+                   break;
+               case 'y':
+                   incy = atoi(&argv[1][2]);
+                   break;
+               default:
+                   printf("Wrong Argument: %s\n", argv[1]);
+                   return (1);
+            }
+        }
+        else
+        {
+           printf("Wrong Argument: %s\n", argv[1]);
+           return (1);
+        }
+        ++argv;
+        --argc;
+    }
+    return (0);
+}
+
+
+int main(int argc, char *argv[]) {
 
     rocblas_int M = M_DIM;
     rocblas_int N = N_DIM;
@@ -28,6 +80,10 @@ int main() {
     rocblas_int incy = 1;
     rocblas_int lda = M_DIM;
     float alpha = 1.0;
+    if( parse_args(argc, argv, M, N, lda, incx, incy)) {
+        usage(argv);
+    }
+    if (lda < M) { lda = M; }
     printf("M, N, incx, incy, lda = %d, %d, %d, %d, %d\n",M, N, incx, incy, lda);
 
     vector<float> hx(M * incx);

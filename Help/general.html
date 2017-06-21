@@ -36,6 +36,12 @@ th, td {
 </tr><tr>
     <td><a href="https://github.com/RadeonOpenCompute/deepbench">Deepbench</a><br></td>
     <td>https://github.com/RadeonOpenCompute/deepbench</td>
+</tr><tr>
+    <td><a href="http://docs.nvidia.com/cuda/cublas/#introduction">cuBLAS</a><br></td>
+    <td>http://docs.nvidia.com/cuda/cublas/#introduction</td>
+</tr><tr>
+    <td><a href="http://hsautil.amd.com/job/RadeonOpenCompute/">hsUtil</a><br></td>
+    <td>http://hsautil.amd.com/job/RadeonOpenCompute/</td>
 </tr>
 </table>
 
@@ -192,6 +198,17 @@ th, td {
     <td>password</td>	        <td>Sputnik.</td>
 </tr>
 </table>
+<h4>lola alias</h4>
+<pre>
+[alias]
+        lol = log --graph --decorate --pretty=oneline --abbrev-commit
+        lola = log --graph --decorate --pretty=oneline --abbrev-commit --all
+[color]
+        branch = auto
+        diff = auto
+        interactive = auto
+        status = auto
+</pre>
 <h4>Configuring a remote for a fork</h4>
 <ul>
 <li><pre>
@@ -368,6 +385,52 @@ comment in next editor.
 <li>you will likely also need <code>git push --force</code>
 </ul>
 </ul>
+
+<h4>Merge develop into master and release</h4>
+<ul>
+<li> <code>mkdir -p ~/repos/rocBLASmergeDevelop; cd ~/repos/rocBLASmergeDevelop</code>
+
+<li> <code>git clone https://github.com/RadeonOpenCompute/rocBLAS.git</code>
+
+<li> <code>cd rocblas</code>
+<li> <code>git checkout develop</code>
+<li> change rocBLAS/cmake/build_version.cmake to 0.4.2.0
+<ul>
+   <li> <code>vim cmake/build-version.cmake</code>
+   <li> <code>git add cmake/build_version.cmake</code>
+   <li> <code>git commit -m"version for master branch release"</code>
+</ul>
+
+<li> <code>git checkout master</code>
+<li> <code>git merge develop</code>
+<li> <code>git checkout develop</code>
+<li> <code>git merge master --ff-only</code>  # getting the develop branch to include the new merge commit
+
+<li> change rocBLAS/cmake/build_version.cmake to 0.5.2.0
+<ul>
+  <li> <code>vim cmake/build-version.cmake</code>
+  <li> <code>git add cmake/build-version.cmake</code>
+  <li> <code>git commit -m"version for develop branch at release"</code>
+</ul>
+
+<li> <code>git push --all</code>
+
+<li> go to  https://github.com/RadeonOpenCompute/rocBLAS.git
+
+<li> under repository name click &lt;Releases&gt;
+
+<li> click &lt;Draft a new release&gt;
+<ul>
+
+<li> select MASTER branch 
+<li>enter <a href="http://semver.org">Semantic Versioning</a> version tag
+<li>enter Title and notes
+<li>add .deb and .rpm files from Jenkins. You may need to use Chrome browser
+  in place of Firefox for adding .deb and .rpm.
+<li> click &lt;Publish release&gt;
+</ul>
+</ul>
+
 
 <h1>Useful commands</h1>
 <p>find ./rocBLAS-develop -type f -exec grep -l gemv {} \; 

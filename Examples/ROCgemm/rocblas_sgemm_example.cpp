@@ -57,47 +57,56 @@ void usage(char *argv[])
 int parse_args(int argc, char *argv[], int &M, int &N, int &K, int &lda, int &ldb, int &ldc,
                 rocblas_operation &transA, rocblas_operation &transB)
 {
-    while ((argc > 1) && (argv[1][0] == '-'))
-     {
-        switch (argv[1][1])
+    while (argc > 1)
+    {
+        if (argv[1][0] == '-')
         {
-            case 't':
-                if(strcmp(&argv[1][2], "NN") == 0) {
-                    transA = rocblas_operation_none;
-                    transB = rocblas_operation_none;
-                } else if(strncmp(&argv[1][2], "NT", 2) == 0) {
-                    transA = rocblas_operation_none;
-                    transB = rocblas_operation_transpose;
-                } else if(strncmp(&argv[1][2], "TN", 2) == 0) {
-                    transA = rocblas_operation_transpose;
-                    transB = rocblas_operation_none;
-                } else if(strncmp(&argv[1][2], "TT", 2) == 0) {
-                    transA = rocblas_operation_transpose;
-                    transB = rocblas_operation_transpose;
-                }
-                break;
-            case 'm':
-                M = atoi(&argv[1][2]);
-                break;
-            case 'n':
-                N = atoi(&argv[1][2]);
-                break;
-            case 'k':
-                K = atoi(&argv[1][2]);
-                break;
-            case 'a':
-                lda = atoi(&argv[1][4]);
-                break;
-            case 'b':
-                ldb = atoi(&argv[1][4]);
-                break;
-            case 'c':
-                ldc = atoi(&argv[1][4]);
-                break;
-            default:
-                printf("Wrong Argument: %s\n", argv[1]);
-                return (1);
+            switch (argv[1][1])
+            {
+                case 't':
+                    if(strcmp(&argv[1][2], "NN") == 0) {
+                        transA = rocblas_operation_none;
+                        transB = rocblas_operation_none;
+                    } else if(strncmp(&argv[1][2], "NT", 2) == 0) {
+                        transA = rocblas_operation_none;
+                        transB = rocblas_operation_transpose;
+                    } else if(strncmp(&argv[1][2], "TN", 2) == 0) {
+                        transA = rocblas_operation_transpose;
+                        transB = rocblas_operation_none;
+                    } else if(strncmp(&argv[1][2], "TT", 2) == 0) {
+                        transA = rocblas_operation_transpose;
+                        transB = rocblas_operation_transpose;
+                    }
+                    break;
+                case 'm':
+                    M = atoi(&argv[1][2]);
+                    break;
+                case 'n':
+                    N = atoi(&argv[1][2]);
+                    break;
+                case 'k':
+                    K = atoi(&argv[1][2]);
+                    break;
+                case 'a':
+                    lda = atoi(&argv[1][2]);
+                    break;
+                case 'b':
+                    ldb = atoi(&argv[1][2]);
+                    break;
+                case 'c':
+                    ldc = atoi(&argv[1][2]);
+                    break;
+                default:
+                    printf("Wrong Argument: %s\n", argv[1]);
+                    return (1);
+            }
         }
+        else
+        {
+            printf("Wrong Argument: %s\n", argv[1]);
+            return (1);
+        }
+
         ++argv;
         --argc;
     }
