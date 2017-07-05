@@ -40,6 +40,9 @@ th, td {
     <td><a href="http://docs.nvidia.com/cuda/cublas/#introduction">cuBLAS</a><br></td>
     <td>http://docs.nvidia.com/cuda/cublas/#introduction</td>
 </tr><tr>
+    <td><a href="https://github.com/ecrc/kblas-gpu">KBLAS</a><br></td>
+    <td>https://github.com/ecrc/kblas-gpu</td>
+</tr><tr>
     <td><a href="http://hsautil.amd.com/job/RadeonOpenCompute/">hsUtil</a><br></td>
     <td>http://hsautil.amd.com/job/RadeonOpenCompute/</td>
 </tr>
@@ -107,9 +110,29 @@ th, td {
   </li>
 </ul>
 
+<h1>ROCM1.6 installation</h1>
+<p>Instructions at 
+    <td><a href="https://github.com/RadeonOpenCompute/ROCm">ROCm</a><br></td>
+<pre>
+--- Add the ROCM apt repository
+wget -qO - http://10.255.8.5/rocm/apt/debian/rocm.gpg.key | sudo apt-key add -
+sudo sh -c 'echo deb [arch=amd64] http://10.255.8.5/rocm/apt/debian/ xenial main > /etc/apt/sources.list.d/rocm.list'
+
+--- Uninstall previous ROCM packages
+sudo apt-get purge libhsakmt
+sudo apt-get purge radeon-firmware
+sudo apt-get purge $(dpkg -l | grep 'kfd\|rocm' | grep linux | grep -v libc | awk '{print $2}')
+
+--- Install or update
+sudo apt-get update
+sudo apt-get install rocm
+</pre>
+
+
 <h1>VIM</h1>
 <p>To substitute new line use \r. For example: <pre>1,$s/newline/\r/</pre>
-<p>Visual Block Mode: Ctrl V, move cursor to highlight block, y or d, move cursor to place block, p
+<p>To insert tab when expandtab option is ON: <pre>i , &lt;CTRL&gt;&lt;v&gt; , &lt;tab&gt;  (i is for insert mode)</pre>
+<p>Visual Block Mode: Ctrl V, move cursor to highlight block, y or d (for yank or delete), move cursor to pup block, p (for put)
 
 <h1>Excel row-by-row conditional formatting</h1>
 <p>Select (or high-light) the block of rows and columns
@@ -496,7 +519,7 @@ make
 staging/rocblas-test
 </pre>
 <p>To run only tests with name matching ger
-<pre>staging/rocblas-test --gtest_filter=*ger*
+<code>staging/rocblas-test --gtest_filter=*ger*</code>
 <p>
 To run benchmarks:
 <pre>
@@ -630,7 +653,7 @@ To run hcblas/test/benchmark you may need to set the following environment varia
 </pre>
 
 <h1>rocm-smi  (ROCm System Management Interface</h1>
-<p>Run <pre>rocm-smi --help</pre> for information. Below commands set
+<p>Run <code>rocm-smi --help</code> for information. Below commands set
 the device 1 clock to level 7 (1000 Hz) before a command, and then resets to
 default after command.
 <pre>
@@ -758,6 +781,27 @@ cd HIP && mkdir build && cd build && cmake .. && sudo make install
 <pre>sudo apt-get install rocm rocm-opencl</pre>
 
 <pre>sudo apt-get install rocm-opencl-dev</pre>
+
+<h1>Artifactory</h1>
+
+<p>
+http://compute-artifactory.amd.com/artifactory/webapp/#/artifacts/browse/tree/General/deb-experimental-local
+<p>
+http://compute-artifactory.amd.com/artifactory/webapp/#/artifacts/browse/tree/General/rocm-docker-github/kknox/hcc/clang_tot_upgrade/hcc-lc-ubuntu-16.04
+
+<p>
+edit /etc/apt/sources.list.d/rocm.list
+
+<p>
+change
+deb [arch=amd64] http://packages.amd.com/rocm/apt/debian/ xenial main
+
+<p>
+to something like
+deb [arch=amd64] http://compute-artifactory.amd.com/rocm/apt/debian/ xenial main
+<p>
+http://compute-artifactory.amd.com/artifactory/webapp/#/artifacts/browse/tree/General/rocm-release-1.6-deb/amd/rocm
+
 
 </body>
 </html>
