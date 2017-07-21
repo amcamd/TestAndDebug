@@ -16,8 +16,8 @@ th, td {
 <p>
 <table>
 <tr>
-    <td><a href="https://github.com/RadeonOpenCompute/rocBLAS">rocBLAS</a><br></td>
-    <td>https://github.com/RadeonOpenCompute/rocBLAS</td>
+    <td><a href="https://github.com/ROCmSoftwarePlatform/rocBLAS">rocBLAS</a><br></td>
+    <td>https://github.com/ROCmSoftwarePlatform/rocBLAS</td>
 </tr><tr>
     <td><a href="https://github.com/ROCmSoftwarePlatform/hipBLAS">hipBLAS</a><br></td>
     <td>https://github.com/ROCmSoftwarePlatform/hipBLAS</td>
@@ -25,8 +25,8 @@ th, td {
     <td><a href="https://bitbucket.org/multicoreware/hcblas">hcBLAS</a><br></td>
     <td>https://bitbucket.org/multicoreware/hcblas</td>
 </tr><tr>
-    <td><a href="https://github.com/RadeonOpenCompute/Tensile">Tensile</a><br></td>
-    <td>https://github.com/RadeonOpenCompute/Tensile</td>
+    <td><a href="https://github.com/ROCmSoftwarePlatform/Tensile">Tensile</a><br></td>
+    <td>https://github.com/ROCmSoftwarePlatform/Tensile</td>
 </tr><tr>
     <td><a href="https://github.com/AMDComputeLibraries/MLOpen">MIOpen</a><br></td>
     <td>https://github.com/AMDComputeLibraries/MLOpen</td>
@@ -43,15 +43,15 @@ th, td {
     <td><a href="https://github.com/ecrc/kblas-gpu">KBLAS</a><br></td>
     <td>https://github.com/ecrc/kblas-gpu</td>
 </tr><tr>
-    <td><a href="http://hsautil.amd.com/job/RadeonOpenCompute/">hsUtil</a><br></td>
-    <td>http://hsautil.amd.com/job/RadeonOpenCompute/</td>
+    <td><a href="http://hsautil.amd.com/job/ROCmSoftwarePlatform/">hsUtil</a><br></td>
+    <td>http://hsautil.amd.com/job/ROCmSoftwarePlatform/</td>
 </tr>
 </table>
 
 
 <p>
 <a href="https://radeonopencompute.github.io">https://radeonopencompute.github.io</a><br>
-<a href="http://hsautil.amd.com/job/RadeonOpenCompute">http://hsautil.amd.com/job/RadeonOpenCompute</a><br>
+<a href="http://hsautil.amd.com/job/ROCmSoftwarePlatform">http://hsautil.amd.com/job/ROCmSoftwarePlatform</a><br>
 <a href="https://code.visualstudio.com/">Code Visual Studio</a><br>
 <a href="https://cmake.org/cmake-tutorial/">Cmake Tutorial</a><br>
 <a href="https://www.docker.com">https://www.docker.com</a><br>
@@ -126,6 +126,9 @@ sudo apt-get purge $(dpkg -l | grep 'kfd\|rocm' | grep linux | grep -v libc | aw
 --- Install or update
 sudo apt-get update
 sudo apt-get install rocm
+
+sudo apt-get install hsa-ext-rocr-dev hsakmt-roct-dev hsa-rocr-dev
+
 </pre>
 
 
@@ -147,7 +150,7 @@ sudo apt-get install rocm
 </tr><tr>
     <td>username</td>           <td>achapman</td>
 </tr><tr>
-    <td>password</td>	        <td>Band.</td>
+    <td>password</td>	        <td></td>
 <tr>
 </table>
 
@@ -158,7 +161,7 @@ sudo apt-get install rocm
 </tr><tr>
     <td>username</td>           <td>amd\anchapman</td>
 </tr><tr>
-    <td>password</td>	        <td>Young.</td>
+    <td>password</td>	        <td></td>
 </tr>
 </table>
 
@@ -168,7 +171,7 @@ sudo apt-get install rocm
 <tr>
     <td>username</td>           <td>achapman</td>
 </tr><tr>
-    <td>password</td>	        <td>Band.</td>
+    <td>password</td>	        <td></td>
 </tr><tr>
     <td> Fiji rocm-1.3 and 1.4</td>
     <td> ssh -p 1313 achapman@jenkins-rocm-1 </td>
@@ -185,20 +188,15 @@ sudo apt-get install rocm
 
 <p>To restart -p 1515 jenkins-rocm-1, <code>sudo docker start rocm-v1.5</code>
 
-<h1>cuda machines</h1>
+<h1>other machines</h1>
 <table>
 <tr>
-   <td>machine</td> <td>jenkins-cuda-0</td> <td>fpNvidia01</td>
-<tr>
-    <td>username</td> <td>chunky</td> <td>chunky</td>
+   <td>cuda machines</td> <td>jenkins-cuda-0 (kepler)</td> <td>fpNvidia01</td>
 </tr><tr>
-    <td>password</td> <td>monkey</td> <td>monkey</td>
-</tr><tr>
-    <td>login</td>
-    <td> ssh achapman@jenkins-cuda-0 </td>
-    <td> ssh achapman@fpNvidia01 </td>
+   <td>ROCM1.6 machine</td> <td>fsp9300-1, 10.236.104.210</td>
 </tr>
 </table>
+
 
 <h1>GitBucket</h1>
 <table>
@@ -207,7 +205,7 @@ sudo apt-get install rocm
 </tr><tr>
     <td>user.email</td>           <td>andrew.chapman@amd.com</td>
 </tr><tr>
-    <td>password</td>	        <td>Sputnik.</td>
+    <td>password</td>	        <td></td>
 </tr>
 </table>
 
@@ -218,7 +216,7 @@ sudo apt-get install rocm
 </tr><tr>
     <td>user.email</td>           <td>andrew.chapman@amd.com</td>
 </tr><tr>
-    <td>password</td>	        <td>Sputnik.</td>
+    <td>password</td>	        <td></td>
 </tr>
 </table>
 <h4>lola alias</h4>
@@ -242,7 +240,7 @@ origin	https://github.com/amcamd/rocBLAS.git (push)
 </samp></pre>
 
 <li><pre>
-===: git remote add upstream https://github.com/RadeonOpenCompute/rocBLAS
+===: git remote add upstream https://github.com/ROCmSoftwarePlatform/rocBLAS
 </pre>
 
 <li><pre>
@@ -250,8 +248,8 @@ origin	https://github.com/amcamd/rocBLAS.git (push)
 <samp>
 origin	https://github.com/amcamd/rocBLAS.git (fetch)
 origin	https://github.com/amcamd/rocBLAS.git (push)
-upstream	https://github.com/RadeonOpenCompute/rocBLAS (fetch)
-upstream	https://github.com/RadeonOpenCompute/rocBLAS (push)
+upstream	https://github.com/ROCmSoftwarePlatform/rocBLAS (fetch)
+upstream	https://github.com/ROCmSoftwarePlatform/rocBLAS (push)
 </samp>
 </pre>
 </ul>
@@ -266,7 +264,7 @@ upstream	https://github.com/RadeonOpenCompute/rocBLAS (push)
 remote: Counting objects: 1, done.
 remote: Total 1 (delta 0), reused 0 (delta 0), pack-reused 0
 Unpacking objects: 100% (1/1), done.
-From https://github.com/RadeonOpenCompute/rocBLAS
+From https://github.com/ROCmSoftwarePlatform/rocBLAS
  * [new branch]      develop    -> upstream/develop
  * [new branch]      master     -> upstream/master
 </samp></pre>
@@ -413,7 +411,7 @@ comment in next editor.
 <ul>
 <li> <code>mkdir -p ~/repos/rocBLASmergeDevelop; cd ~/repos/rocBLASmergeDevelop</code>
 
-<li> <code>git clone https://github.com/RadeonOpenCompute/rocBLAS.git</code>
+<li> <code>git clone https://github.com/ROCmSoftwarePlatform/rocBLAS.git</code>
 
 <li> <code>cd rocblas</code>
 <li> <code>git checkout develop</code>
@@ -438,7 +436,7 @@ comment in next editor.
 
 <li> <code>git push --all</code>
 
-<li> go to  https://github.com/RadeonOpenCompute/rocBLAS.git
+<li> go to  https://github.com/ROCmSoftwarePlatform/rocBLAS.git
 
 <li> under repository name click &lt;Releases&gt;
 
@@ -542,7 +540,7 @@ make
 <h1>Tensile</h1>
 <pre>
 mkdir -p ~/repos/TensileWalkthrough; cd ~/repos/TensileWalkthrough
-git clone https://github.com/RadeonOpenCompute/Tensile.git repo
+git clone https://github.com/ROCmSoftwarePlatform/Tensile.git repo
 mkdir build; cd build; cmake ../repo
 
 line 103 of ~/repos/TensileWalkthrough/repo/clients/gemm/gemm.cpp
@@ -699,7 +697,7 @@ For Ubuntu 16 see
 cd repos
 mkdir Version2
 cd Version2
-git clone https://github.com/RadeonOpenCompute/Tensile.git
+git clone https://github.com/ROCmSoftwarePlatform/Tensile.git
 
 cd Tensile
 
@@ -798,9 +796,19 @@ deb [arch=amd64] http://packages.amd.com/rocm/apt/debian/ xenial main
 
 <p>
 to something like
-deb [arch=amd64] http://compute-artifactory.amd.com/rocm/apt/debian/ xenial main
+deb [arch=amd64] http://compute-artifactory.amd.com/rocm/apt/debian/ xcnial 
+<p>
+or
 <p>
 http://compute-artifactory.amd.com/artifactory/webapp/#/artifacts/browse/tree/General/rocm-release-1.6-deb/amd/rocm
+<p>
+or
+<p>
+deb [arch=amd64] http://compute-artifactory.amd.com/artifactory/list/rocm-release-1.6-deb/ xenial main
+<p>
+or
+<p>
+deb [arch=amd64] http://10.255.8.5/rocm/apt/debian/ xenial main
 
 
 </body>
