@@ -1,7 +1,15 @@
-#include <stdlib.h>
 #include <stdio.h>
 #include <atomic>
 #include <hip/hip_runtime.h>
+
+#define CHECK(cmd) \
+{\
+    hipError_t error  = cmd;\
+    if (error != hipSuccess) { \
+      fprintf(stderr, "error: '%s'(%d) at %s:%d\n", hipGetErrorString(error), error,__FILE__, __LINE__); \
+    exit(EXIT_FAILURE);\
+    }\
+}
 
 template <typename T>
 __device__ inline void atomicAddFloat(T *fPtr, T operand)
@@ -30,8 +38,8 @@ atomicAddFloat(hipLaunchParm lp, T *accumulator, T increment)
 
 int main()
 {
-    const unsigned blocks = 4;
-    const unsigned threadsPerBlock = 256;
+    const unsigned blocks = 32;
+    const unsigned threadsPerBlock = 64;
 
     dim3 grid(blocks,1,1);
     dim3 threads(threadsPerBlock,1,1);
@@ -42,11 +50,11 @@ int main()
     float  *d_acc_32;
     double *d_acc_64;
 
-    hipMalloc(&d_acc_32, sizeof(float));
-    hipMalloc(&d_acc_64, sizeof(double));
+    CHECK(hipMalloc(&d_acc_32, sizeof(float)));
+    CHECK(hipMalloc(&d_acc_64, sizeof(double)));
 
-    hipMemcpy(d_acc_32, &h_acc_32, sizeof(float), hipMemcpyHostToDevice);
-    hipMemcpy(d_acc_64, &h_acc_64 , sizeof(double), hipMemcpyHostToDevice);
+    CHECK(hipMemcpy(d_acc_32, &h_acc_32, sizeof(float), hipMemcpyHostToDevice));
+    CHECK(hipMemcpy(d_acc_64, &h_acc_64 , sizeof(double), hipMemcpyHostToDevice));
 
     //kernelCall
     hipLaunchKernel(atomicAddFloat, dim3(grid), dim3(threads), 0, 0, 
@@ -56,8 +64,11 @@ int main()
     hipLaunchKernel(atomicAddFloat, dim3(grid), dim3(threads), 0, 0, 
                 d_acc_64, h_inc_64);
 
-    hipMemcpy(&h_acc_32, d_acc_32, sizeof(float), hipMemcpyDeviceToHost);
-    hipMemcpy(&h_acc_64, d_acc_64, sizeof(double), hipMemcpyDeviceToHost);
+    CHECK(hipMemcpy(&h_acc_32, d_acc_32, sizeof(float), hipMemcpyDeviceToHost));
+    CHECK(hipMemcpy(&h_acc_64, d_acc_64, sizeof(double), hipMemcpyDeviceToHost));
+
+    CHECK(hipFree(d_acc_32));
+    CHECK(hipFree(d_acc_64));
 
     std::cout << "h_inc_32, h_acc_32 = " << h_inc_32 << "  " << h_acc_32 << std::endl;
     std::cout << "h_inc_64, h_acc_64 = " << h_inc_64 << "  " << h_acc_64 << std::endl;
