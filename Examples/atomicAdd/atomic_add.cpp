@@ -12,7 +12,7 @@
 }
 
 template <typename T>
-__device__ inline void atomicAddFloat(T *fPtr, T operand)
+__device__ inline void atomic_add(T *fPtr, T operand)
 {
     std::atomic<T> *aPtr = reinterpret_cast<std::atomic<T>*>(fPtr);
     T oldValue, newValue;
@@ -31,9 +31,9 @@ __device__ inline void atomicAddFloat(T *fPtr, T operand)
 
 template <typename T>
 __global__ void
-atomicAddFloat(hipLaunchParm lp, T *accumulator, T increment)
+test_atomic_add(hipLaunchParm lp, T *accumulator, T increment)
 {
-    atomicAddFloat(accumulator, increment);
+    atomic_add(accumulator, increment);
 }
 
 int main()
@@ -57,11 +57,11 @@ int main()
     CHECK(hipMemcpy(d_acc_64, &h_acc_64 , sizeof(double), hipMemcpyHostToDevice));
 
     //kernelCall
-    hipLaunchKernel(atomicAddFloat, dim3(grid), dim3(threads), 0, 0, 
+    hipLaunchKernel(test_atomic_add, dim3(grid), dim3(threads), 0, 0,
                 d_acc_32, h_inc_32);
 
     //kernelCall
-    hipLaunchKernel(atomicAddFloat, dim3(grid), dim3(threads), 0, 0, 
+    hipLaunchKernel(test_atomic_add, dim3(grid), dim3(threads), 0, 0,
                 d_acc_64, h_inc_64);
 
     CHECK(hipMemcpy(&h_acc_32, d_acc_32, sizeof(float), hipMemcpyDeviceToHost));
