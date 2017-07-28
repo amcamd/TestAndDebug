@@ -129,7 +129,7 @@ void mat_mat_mult(T alpha, T beta, int M, int N, int K, vector<T> A, int As1, in
                   vector<T> B, int Bs1, int Bs2, vector<T> & C, int Cs1, int Cs2) {
     for(int i1=0; i1<M; i1++) {
         for(int i2=0; i2<N; i2++) {
-            float t = 0.0;
+            T t = 0.0;
             for(int i3=0; i3<K; i3++){
                 t +=  A[i1 * As1 + i3 * As2] * B[i3 * Bs1 + i2 * Bs2]; 
             }
