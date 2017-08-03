@@ -1,9 +1,8 @@
 
-#include <cuda.h>
-#include <cuda_runtime_api.h>
-#include <cublas.h>
-#include "operators.h"
+
 #include <stdio.h>
+#include <atomic>
+#include <hip/hip_runtime.h>
 
 
 template <class T, int syhemv_bs, int thread_x, int thread_y, int elements_per_thread>
@@ -247,7 +246,7 @@ syhemvl_special_nd( 	int n, T alpha,
 	    	
 	    	res_1_ *= alpha;
 	    	// use atomics
-	    	atomicAdd(&ycopy[incy * tx], res_1_);
+////	    atomicAdd(&ycopy[incy * tx], res_1_);
 	    }
 	}
 	
@@ -269,7 +268,7 @@ syhemvl_special_nd( 	int n, T alpha,
 	      	
 	      	treg[0] *= alpha; 
 	      	// use atomics
-	      	atomicAdd(&y[incy * tx], treg[0]);	     
+////	    atomicAdd(&y[incy * tx], treg[0]);	     
 	  	}
 	}	
 }
@@ -547,7 +546,7 @@ syhemvl_generic_nd( int n, T alpha,
 	    	
 	    	res_1_ *= alpha;
 	    	// use atomics
-	    	atomicAdd(&ycopy[incy * tx], res_1_);
+////	    atomicAdd(&ycopy[incy * tx], res_1_);
 		}
     }// end of for loop on blocks
     
@@ -615,7 +614,7 @@ syhemvl_generic_nd( int n, T alpha,
 	    	
 	    	res_1_ *= alpha;
 	    	// use atomics
-	    	if(tx < n_mod_syhemv_bs)atomicAdd(&ycopy[incy * tx], res_1_);
+////	   	if(tx < n_mod_syhemv_bs)atomicAdd(&ycopy[incy * tx], res_1_);
 		}
 	}
 	
@@ -633,7 +632,7 @@ syhemvl_generic_nd( int n, T alpha,
 	  		treg[0] += la[tx * (syhemv_bs/2) +  (j % (syhemv_bs/2))];	    
 	   		
 	   	treg[0] *= alpha;
-	   	atomicAdd(&y[incy * tx], treg[0]);
+////	atomicAdd(&y[incy * tx], treg[0]);
 	}
 }
 /*******************************************************************************/

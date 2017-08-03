@@ -1,5 +1,5 @@
 
-#include "syhemv_core.cuh"
+#include "syhemv_core.hpp"
 
 #if(SM >= 30)
 
@@ -54,13 +54,13 @@ int kblas_ssymv_driver( char uplo,
 
 		if(mod == 0)
 		{
-			syhemvl_special_d <float, ssymv_bs, thread_x, thread_y, elements_per_thread> <<<dimGrid , dimBlock, 0, stream>>> ( m, alpha, dA, lda, dX, incx, beta, dY, incy);
-			syhemvl_special_nd<float, ssymv_bs, thread_x, thread_y, elements_per_thread> <<<dimGrid_, dimBlock, 0, stream>>> ( m, alpha, dA, lda, dX, incx, beta, dY, incy);
+////			syhemvl_special_d <float, ssymv_bs, thread_x, thread_y, elements_per_thread> <<<dimGrid , dimBlock, 0, stream>>> ( m, alpha, dA, lda, dX, incx, beta, dY, incy);
+////			syhemvl_special_nd<float, ssymv_bs, thread_x, thread_y, elements_per_thread> <<<dimGrid_, dimBlock, 0, stream>>> ( m, alpha, dA, lda, dX, incx, beta, dY, incy);
 		}
 		else
 		{
-		  	syhemvl_generic_d <float, ssymv_bs, thread_x, thread_y, elements_per_thread> <<<dimGrid , dimBlock, 0, stream>>> ( m, alpha, dA, lda, dX, incx, beta, dY, incy, mod);
-			syhemvl_generic_nd<float, ssymv_bs, thread_x, thread_y, elements_per_thread> <<<dimGrid_, dimBlock, 0, stream>>> ( m, alpha, dA, lda, dX, incx, beta, dY, incy, mod);
+////		  	syhemvl_generic_d <float, ssymv_bs, thread_x, thread_y, elements_per_thread> <<<dimGrid , dimBlock, 0, stream>>> ( m, alpha, dA, lda, dX, incx, beta, dY, incy, mod);
+////			syhemvl_generic_nd<float, ssymv_bs, thread_x, thread_y, elements_per_thread> <<<dimGrid_, dimBlock, 0, stream>>> ( m, alpha, dA, lda, dX, incx, beta, dY, incy, mod);
 		}
 	}
 	else{printf("Upper/Lower mode %c is not supported \n", uplo); return -1;}	
