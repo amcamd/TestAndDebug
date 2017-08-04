@@ -36,6 +36,10 @@
 #include <atomic>
 #include <hip/hip_runtime.h>
 
+template<typename T> T make_zero();
+
+template<> double make_zero(){ return 0.0;}
+template<> float make_zero(){ return 0.0;}
 
 template <class T, int syhemv_bs, int thread_x, int thread_y, int elements_per_thread>
 __global__ void

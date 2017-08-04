@@ -32,9 +32,10 @@
   OF  THIS  SOFTWARE,  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 **/
 
+/*
 *****************************************************************************/
 
-#include "syhemv_core.cuh"
+#include "syhemv_core.hpp"
 
 #if(SM >= 30)
 
@@ -89,11 +90,17 @@ int kblas_ssymv_driver( char uplo,
 
 		if(mod == 0)
 		{
+            hipLaunchKernel(syhemvl_special_d<float, ssymv_bs, thread_x, thread_y, elements_per_thread>, dim3(dimGrid), dim3(dimBlock), 0, stream, m, alpha, dA, lda, dX, incx, beta, dY, incy);
+            hipLaunchKernel(syhemvl_special_nd<float, ssymv_bs, thread_x, thread_y, elements_per_thread>, dim3(dimGrid_), dim3(dimBlock), 0, stream, m, alpha, dA, lda, dX, incx, beta, dY, incy);
+
 ////        syhemvl_special_d<float, ssymv_bs, thread_x, thread_y, elements_per_thread><<<dimGrid, dimBlock, 0, stream>>> ( m, alpha, dA, lda, dX, incx, beta, dY, incy);
 ////        syhemvl_special_nd<float, ssymv_bs, thread_x, thread_y, elements_per_thread><<<dimGrid_, dimBlock, 0, stream>>> ( m, alpha, dA, lda, dX, incx, beta, dY, incy);
 		}
 		else
 		{
+            hipLaunchKernel(syhemvl_generic_d<float, ssymv_bs, thread_x, thread_y, elements_per_thread>, dim3(dimGrid), dim3(dimBlock), 0, stream, m, alpha, dA, lda, dX, incx, beta, dY, incy, mod);
+            hipLaunchKernel(syhemvl_generic_nd<float, ssymv_bs, thread_x, thread_y, elements_per_thread>, dim3(dimGrid_), dim3(dimBlock), 0, stream, m, alpha, dA, lda, dX, incx, beta, dY, incy, mod);
+
 ////        syhemvl_generic_d<float, ssymv_bs, thread_x, thread_y, elements_per_thread><<<dimGrid, dimBlock, 0, stream>>> ( m, alpha, dA, lda, dX, incx, beta, dY, incy, mod);
 ////        syhemvl_generic_nd<float, ssymv_bs, thread_x, thread_y, elements_per_thread><<<dimGrid_, dimBlock, 0, stream>>> ( m, alpha, dA, lda, dX, incx, beta, dY, incy, mod);
 		}
