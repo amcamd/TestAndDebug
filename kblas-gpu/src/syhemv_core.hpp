@@ -49,10 +49,10 @@ syhemvl_special_d( 	int n, T alpha,
 				    T  beta,
 				    T *y, int incy)
 {
-    const int tx  = threadIdx.x ;
-    const int ty  = threadIdx.y ;
+    const int tx  = hipThreadIdx_x ;
+    const int ty  = hipThreadIdx_y ;
     const int td  = (thread_x * ty ) + tx;
-    const int blkc = blockIdx.x ;
+    const int blkc = hipBlockIdx_x ;
     
     T res	= make_zero<T>();
     T yold	= make_zero<T>();
@@ -157,19 +157,19 @@ syhemvl_special_nd( 	int n, T alpha,
 				    T  beta,
 				    T *y, int incy)
 {
-    const int	tx   = threadIdx.x ;
-    const int	ty   = threadIdx.y ;
-    const int	blkc = blockIdx.x ;
-    const int	by 	= blockIdx.y;
+    const int	tx   = hipThreadIdx_x ;
+    const int	ty   = hipThreadIdx_y ;
+    const int	blkc = hipBlockIdx_x ;
+    const int	by 	= hipBlockIdx_y;
     const int	td  = (thread_x * ty ) + tx;
     const int	tx_  = td % (syhemv_bs/2);
     const int	ty_  = td / (syhemv_bs/2);
     T		* xcopy, *ycopy;
     
     // compute how many matrix blocks to be processed
-	int count = (gridDim.x-blkc-1)/gridDim.y;
-	//int count = (gridDim.x-blkc-1)/gridDim.y;
-	//if(by < (gridDim.x-blkc-1)%gridDim.y) count++;
+	int count = (hipGridDim_x-blkc-1)/hipGridDim_y;
+	//int count = (hipGridDim_x-blkc-1)/hipGridDim_y;
+	//if(by < (hipGridDim_x-blkc-1)%hipGridDim_y) count++;
 	
 	T xreg[elements_per_thread];
 	T areg[elements_per_thread];
@@ -182,11 +182,11 @@ syhemvl_special_nd( 	int n, T alpha,
     __shared__ T accum[syhemv_bs * (2 * thread_y)];
     __shared__ T xbuff[syhemv_bs];
     
-    if(blkc == gridDim.x-1)return;
+    if(blkc == hipGridDim_x-1)return;
     
 	{
 		// compute number of preceding blocks
-		//int pr = by*(gridDim.x-blkc-1)/gridDim.y + min(by, (gridDim.x-blkc-1)%gridDim.y);
+		//int pr = by*(hipGridDim_x-blkc-1)/hipGridDim_y + min(by, (hipGridDim_x-blkc-1)%hipGridDim_y);
 		
 		// Advance 'A' to start of diagonal blocks first
 		A += syhemv_bs * blkc * (lda + 1);
@@ -205,7 +205,7 @@ syhemvl_special_nd( 	int n, T alpha,
     	ycopy = y;
     	ycopy += (by * count * syhemv_bs) * incy; 
     }
-    if(by == gridDim.y-1) count += (gridDim.x-blkc-1)%gridDim.y; 
+    if(by == hipGridDim_y-1) count += (hipGridDim_x-blkc-1)%hipGridDim_y; 
 	if(count == 0) return; 
 	
 	T res_1_	= make_zero<T>();
@@ -226,7 +226,7 @@ syhemvl_special_nd( 	int n, T alpha,
 	
 	
 	#pragma unroll
-    for(int Vblocks = 0; Vblocks < count /*gridDim.x-blkc-1*/; Vblocks++)
+    for(int Vblocks = 0; Vblocks < count /*hipGridDim_x-blkc-1*/; Vblocks++)
     {
 		
 		res_1_	=	make_zero<T>();
@@ -252,7 +252,7 @@ syhemvl_special_nd( 	int n, T alpha,
 		x += syhemv_bs * incx;
 		
 		// read upper from next block
-		if(Vblocks != count-1 /*(gridDim.x-blkc-1)-1*/)
+		if(Vblocks != count-1 /*(hipGridDim_x-blkc-1)-1*/)
 		{
 			#pragma unroll
 			for(int k = 0; k < elements_per_thread; k++)
@@ -293,7 +293,7 @@ syhemvl_special_nd( 	int n, T alpha,
 		
 	__syncthreads();
 	
-	if(blkc != gridDim.x-1)
+	if(blkc != hipGridDim_x-1)
 	{
 		if(ty == 0)
 		{
@@ -318,9 +318,9 @@ syhemvl_generic_d( int n, T alpha,
 				    T *y, int incy,
 				    int	    n_mod_syhemv_bs)
 {
-    const int tx   = threadIdx.x ;
-    const int ty   = threadIdx.y ;
-    const int blkc = blockIdx.x ;
+    const int tx   = hipThreadIdx_x ;
+    const int ty   = hipThreadIdx_y ;
+    const int blkc = hipBlockIdx_x ;
     const int td  = (thread_x * ty ) + tx;
     
     T res  = make_zero<T>();
@@ -347,7 +347,7 @@ syhemvl_generic_d( int n, T alpha,
 	y += (blkc * syhemv_bs) * incy;
 	
 	// load part of vector x
-	if(blkc == gridDim.x-1)
+	if(blkc == hipGridDim_x-1)
 	{
 		if(ty == 0)
 		{
@@ -373,7 +373,7 @@ syhemvl_generic_d( int n, T alpha,
 	} // end of load part of vector x
 	
 	// init shmem (last TB only)
-	if(blkc == gridDim.x-1)
+	if(blkc == hipGridDim_x-1)
 	{
 		#pragma unroll
 		for(int j = 0; j < syhemv_bs; j+= thread_y)	 
@@ -384,7 +384,7 @@ syhemvl_generic_d( int n, T alpha,
 	}
 	
 	// load a bock of data
-	if(blkc == gridDim.x-1)
+	if(blkc == hipGridDim_x-1)
 	{
 		int j;
 		#pragma unroll
@@ -446,7 +446,7 @@ syhemvl_generic_d( int n, T alpha,
 			res += accum[j * syhemv_bs + tx];
 	  	res *= alpha;
 	  	res += yold;
-	  	if(blkc == gridDim.x-1){if(tx < n_mod_syhemv_bs)y[tx * incy] = res;}
+	  	if(blkc == hipGridDim_x-1){if(tx < n_mod_syhemv_bs)y[tx * incy] = res;}
 	  	else{y[tx * incy] = res;}
 	}
 }
@@ -460,16 +460,16 @@ syhemvl_generic_nd( int n, T alpha,
                                T *y, int incy,
 								int     n_mod_syhemv_bs)
 {
-    const int tx   = threadIdx.x ;
-    const int ty   = threadIdx.y ;
-    const int blkc = blockIdx.x ;
-    const int by 	= blockIdx.y;
+    const int tx   = hipThreadIdx_x ;
+    const int ty   = hipThreadIdx_y ;
+    const int blkc = hipBlockIdx_x ;
+    const int by 	= hipBlockIdx_y;
     const int td  = (thread_x * ty ) + tx;
     const int tx_  = td % (syhemv_bs/2);
     const int ty_  = td / (syhemv_bs/2);
     T *xcopy, *ycopy; 
     
-    int count = (gridDim.x-blkc-1-1)/gridDim.y;
+    int count = (hipGridDim_x-blkc-1-1)/hipGridDim_y;
     
     T xreg[elements_per_thread];
     T areg[elements_per_thread];
@@ -484,7 +484,7 @@ syhemvl_generic_nd( int n, T alpha,
     __shared__ T accum[syhemv_bs * (2 * thread_y)];
     __shared__ T xbuff[syhemv_bs];
     
-    if(blkc == gridDim.x - 1)return;
+    if(blkc == hipGridDim_x - 1)return;
     
     // Advance 'A' to start of diagonal blocks first
     A += syhemv_bs * blkc * (lda + 1);
@@ -503,8 +503,8 @@ syhemvl_generic_nd( int n, T alpha,
     ycopy = y;
     ycopy += (by * count * syhemv_bs) * incy; 
     
-    if(by == gridDim.y-1) count += ((gridDim.x-blkc-1-1)%gridDim.y) ;//- 1;	// -1 for the generic block at the bottom
-    if(by != gridDim.y-1){if(count == 0) return;} 
+    if(by == hipGridDim_y-1) count += ((hipGridDim_x-blkc-1-1)%hipGridDim_y) ;//- 1;	// -1 for the generic block at the bottom
+    if(by != hipGridDim_y-1){if(count == 0) return;} 
     
 	int j = ty_ * elements_per_thread * lda + tx_;
 	
@@ -513,7 +513,7 @@ syhemvl_generic_nd( int n, T alpha,
     A += syhemv_bs;
     x += syhemv_bs * incx;
     
-    if(blkc < gridDim.x-2)		// to prevent out of bound access
+    if(blkc < hipGridDim_x-2)		// to prevent out of bound access
     {
     	#pragma unroll
     	for(int k = 0; k < elements_per_thread; k++)
@@ -525,7 +525,7 @@ syhemvl_generic_nd( int n, T alpha,
     x -= syhemv_bs * incx;
 	
     #pragma unroll
-    for(int Vblocks = 0; Vblocks < count /*(gridDim.x-blkc-1)-1*/; Vblocks++)
+    for(int Vblocks = 0; Vblocks < count /*(hipGridDim_x-blkc-1)-1*/; Vblocks++)
     {
 		A += syhemv_bs;
 		x += syhemv_bs * incx;
@@ -549,7 +549,7 @@ syhemvl_generic_nd( int n, T alpha,
 		A += syhemv_bs;
 		x += syhemv_bs * incx;
 		
-		if(Vblocks != count-1 /*((gridDim.x-blkc-1)-1)-1*/)
+		if(Vblocks != count-1 /*((hipGridDim_x-blkc-1)-1)-1*/)
 		{
 			#pragma unroll
 			for(int k = 0; k < elements_per_thread; k++)
@@ -588,7 +588,7 @@ syhemvl_generic_nd( int n, T alpha,
     
     //////////////////////////////////////////////////
     // last irregular tile
-    if(by == gridDim.y-1)
+    if(by == hipGridDim_y-1)
     {
     	res_1_ = make_zero<T>();
     	res_2_ = make_zero<T>();
