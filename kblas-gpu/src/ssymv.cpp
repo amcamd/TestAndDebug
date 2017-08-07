@@ -35,6 +35,7 @@
 /*
 *****************************************************************************/
 
+// #include "operators.h"
 #include "syhemv_core.hpp"
 
 #if(SM >= 30)
@@ -59,12 +60,11 @@
 
 #endif
 
-
 int kblas_ssymv_driver( char uplo, 
 						int m, float alpha, float *dA, int lda, 
 						float *dX, int incx, 
 						float  beta, float *dY, int incy, 
-						cudaStream_t stream)
+						hipStream_t stream)
 {
 	// handle the case when incx and/or incy is -ve
 	if(incx < 0) dX -= (m-1) * incx;
@@ -76,10 +76,10 @@ int kblas_ssymv_driver( char uplo,
 	else if(uplo == 'L' || uplo == 'l')
 	{
 		/** configuration params **/
-		const int ssymv_bs = ssymv_lower_bs;
-		const int thread_x = ssymv_bs;
-		const int thread_y = ssymv_lower_ty;
-		const int elements_per_thread = (ssymv_bs/(2*thread_y)) ;
+        const int ssymv_bs = ssymv_lower_bs;
+        const int thread_x = ssymv_bs;
+        const int thread_y = ssymv_lower_ty;
+        const int elements_per_thread = (ssymv_bs/(2*thread_y)) ;
 		/** end configuration params **/
 		
 		int mod = m % ssymv_bs;
@@ -90,19 +90,15 @@ int kblas_ssymv_driver( char uplo,
 
 		if(mod == 0)
 		{
-            hipLaunchKernel(syhemvl_special_d<float, ssymv_bs, thread_x, thread_y, elements_per_thread>, dim3(dimGrid), dim3(dimBlock), 0, stream, m, alpha, dA, lda, dX, incx, beta, dY, incy);
-            hipLaunchKernel(syhemvl_special_nd<float, ssymv_bs, thread_x, thread_y, elements_per_thread>, dim3(dimGrid_), dim3(dimBlock), 0, stream, m, alpha, dA, lda, dX, incx, beta, dY, incy);
+            hipLaunchKernel(HIP_KERNEL_NAME(syhemvl_special_d<float, ssymv_bs, thread_x, thread_y, elements_per_thread>), dim3(dimGrid), dim3(dimBlock), 0, 0, m, alpha, dA, lda, dX, incx, beta, dY, incy);
+            hipLaunchKernel(HIP_KERNEL_NAME(syhemvl_special_nd<float, ssymv_bs, thread_x, thread_y, elements_per_thread>), dim3(dimGrid_), dim3(dimBlock), 0, stream, m, alpha, dA, lda, dX, incx, beta, dY, incy);
 
-////        syhemvl_special_d<float, ssymv_bs, thread_x, thread_y, elements_per_thread><<<dimGrid, dimBlock, 0, stream>>> ( m, alpha, dA, lda, dX, incx, beta, dY, incy);
-////        syhemvl_special_nd<float, ssymv_bs, thread_x, thread_y, elements_per_thread><<<dimGrid_, dimBlock, 0, stream>>> ( m, alpha, dA, lda, dX, incx, beta, dY, incy);
 		}
 		else
 		{
-            hipLaunchKernel(syhemvl_generic_d<float, ssymv_bs, thread_x, thread_y, elements_per_thread>, dim3(dimGrid), dim3(dimBlock), 0, stream, m, alpha, dA, lda, dX, incx, beta, dY, incy, mod);
-            hipLaunchKernel(syhemvl_generic_nd<float, ssymv_bs, thread_x, thread_y, elements_per_thread>, dim3(dimGrid_), dim3(dimBlock), 0, stream, m, alpha, dA, lda, dX, incx, beta, dY, incy, mod);
+            hipLaunchKernel(HIP_KERNEL_NAME(syhemvl_generic_d<float, ssymv_bs, thread_x, thread_y, elements_per_thread>), dim3(dimGrid), dim3(dimBlock), 0, stream, m, alpha, dA, lda, dX, incx, beta, dY, incy, mod);
+            hipLaunchKernel(HIP_KERNEL_NAME(syhemvl_generic_nd<float, ssymv_bs, thread_x, thread_y, elements_per_thread>), dim3(dimGrid_), dim3(dimBlock), 0, stream, m, alpha, dA, lda, dX, incx, beta, dY, incy, mod);
 
-////        syhemvl_generic_d<float, ssymv_bs, thread_x, thread_y, elements_per_thread><<<dimGrid, dimBlock, 0, stream>>> ( m, alpha, dA, lda, dX, incx, beta, dY, incy, mod);
-////        syhemvl_generic_nd<float, ssymv_bs, thread_x, thread_y, elements_per_thread><<<dimGrid_, dimBlock, 0, stream>>> ( m, alpha, dA, lda, dX, incx, beta, dY, incy, mod);
 		}
 	}
 	else{printf("Upper/Lower mode %c is not supported \n", uplo); return -1;}	
@@ -124,7 +120,7 @@ int kblas_ssymv_async( char uplo,
 						int m, float alpha, float *dA, int lda, 
 						float *dX, int incx, 
 						float  beta, float *dY, int incy, 
-						cudaStream_t stream)
+						hipStream_t stream)
 {
 	return kblas_ssymv_driver( uplo, m, alpha, dA, lda, dX, incx, beta, dY, incy, stream);
 }

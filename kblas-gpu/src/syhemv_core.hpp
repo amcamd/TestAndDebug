@@ -41,14 +41,18 @@ template<typename T> T make_zero();
 template<> double make_zero(){ return 0.0;}
 template<> float make_zero(){ return 0.0;}
 
+
 template <class T, int syhemv_bs, int thread_x, int thread_y, int elements_per_thread>
 __global__ void
-syhemvl_special_d( 	int n, T alpha,
+syhemvl_special_d( 	
+                    hipLaunchParm lp,
+                    int n, T alpha,
 				    T *A, int lda,
 				    T *x, int incx,
 				    T  beta,
 				    T *y, int incy)
 {
+
     const int tx  = hipThreadIdx_x ;
     const int ty  = hipThreadIdx_y ;
     const int td  = (thread_x * ty ) + tx;
@@ -149,9 +153,12 @@ syhemvl_special_d( 	int n, T alpha,
 	}
 }
 /*******************************************************************************/
+// template <class T>
 template <class T, int syhemv_bs, int thread_x, int thread_y, int elements_per_thread>
 __global__ void
-syhemvl_special_nd( 	int n, T alpha,
+syhemvl_special_nd( 	
+                    hipLaunchParm lp,
+                    int n, T alpha,
 				    T *A, int lda,
 				    T *x, int incx,
 				    T  beta,
@@ -309,9 +316,12 @@ syhemvl_special_nd( 	int n, T alpha,
 	}	
 }
 /*******************************************************************************/
+// template <class T>
 template <class T, int syhemv_bs, int thread_x, int thread_y, int elements_per_thread>
 __global__ void
-syhemvl_generic_d( int n, T alpha,
+syhemvl_generic_d( 
+                    hipLaunchParm lp,
+                    int n, T alpha,
 				    T *A, int lda,
 				    T *x, int incx,
 				    T  beta,
@@ -451,9 +461,12 @@ syhemvl_generic_d( int n, T alpha,
 	}
 }
 /*****************************************************************************************/
+// template <class T>
 template <class T, int syhemv_bs, int thread_x, int thread_y, int elements_per_thread >
 __global__ void 
-syhemvl_generic_nd( int n, T alpha,
+syhemvl_generic_nd( 
+                               hipLaunchParm lp,
+                               int n, T alpha,
                                T *A, int lda,
                                T *x, int incx,
                                T  beta,
