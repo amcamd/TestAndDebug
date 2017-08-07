@@ -32,9 +32,10 @@
   OF  THIS  SOFTWARE,  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 **/
 
-#include <stdio.h>
-#include <atomic>
+// #include <atomic>
 #include <hip/hip_runtime.h>
+#include "operators.h"
+#include <stdio.h>
 
 template<typename T> T make_zero();
 
