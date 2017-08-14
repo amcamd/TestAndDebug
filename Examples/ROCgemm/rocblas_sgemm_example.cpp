@@ -202,6 +202,7 @@ int main(int argc, char *argv[]) {
 
     if( parse_args(argc, argv, M, N, K, lda, ldb, ldc, transA, transB)) {
         usage(argv);
+        return -1;
     }
 
     ldc = M;             // leading dimension of C (gemm argument)
