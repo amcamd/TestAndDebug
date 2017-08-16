@@ -198,7 +198,6 @@ int main(int argc, char *argv[]) {
     rocblas_int lda = 0, sizeOfA, As1, As2;  rocblas_operation transA = TRANS_A; 
     rocblas_int ldb = 0, sizeOfB, Bs1, Bs2;  rocblas_operation transB = TRANS_B; 
     rocblas_int ldc = 0, sizeOfC, Cs1, Cs2;
-    rocblas_order   order = rocblas_order_column_major;
 
     if( parse_args(argc, argv, M, N, K, lda, ldb, ldc, transA, transB)) {
         usage(argv);
@@ -228,7 +227,7 @@ int main(int argc, char *argv[]) {
     vector<float> hA(sizeOfA), hB(sizeOfB), hC(sizeOfC), hC_copy(sizeOfC);
     vector<double> hA64(sizeOfA), hB64(sizeOfB), hC64(sizeOfC);
     float *dA, *dB, *dC;
-    float element_tolerance = 0;
+    float element_tolerance =10;
     double norm_tolerance = 80;
 
     rocblas_handle handle;
@@ -253,7 +252,7 @@ int main(int argc, char *argv[]) {
     CHECK_HIP_ERROR(hipMemcpy(dC, hC.data(), sizeof(float) * sizeOfC, hipMemcpyHostToDevice));
 
     if(CORRECTNESS_TEST){
-        CHECK_ROCBLAS_ERROR(rocblas_sgemm(handle, order, transA, transB, M, N, K, &alpha, dA, lda, dB, 
+        CHECK_ROCBLAS_ERROR(rocblas_sgemm(handle, transA, transB, M, N, K, &alpha, dA, lda, dB, 
                                ldb, &beta, dC, ldc));
 
         // copy output from device memory to host memory
@@ -299,7 +298,7 @@ int main(int argc, char *argv[]) {
         hipEventRecord(hipStart);
 #endif
 
-        CHECK_ROCBLAS_ERROR(rocblas_sgemm(handle, order, transA, transB, M, N, K, &alpha, dA, lda, dB, 
+        CHECK_ROCBLAS_ERROR(rocblas_sgemm(handle, transA, transB, M, N, K, &alpha, dA, lda, dB, 
                                ldb, &beta, dC, ldc));
 
 #if CHRON_TIMER == true
@@ -333,7 +332,7 @@ int main(int argc, char *argv[]) {
 #endif
 
             for(int i = 0; i < ninner; i++) {
-                rocblas_sgemm(handle, order, transA, transB, M, N, K, &alpha, dA, lda, dB, ldb, &beta, dC, ldc);
+                rocblas_sgemm(handle, transA, transB, M, N, K, &alpha, dA, lda, dB, ldb, &beta, dC, ldc);
             }
 
 #if CHRON_TIMER == true

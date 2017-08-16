@@ -2,15 +2,15 @@
 
 HIP_INCLUDE=/opt/rocm/hip/include
 
-ROCBLAS_INSTALL_DIR=$(HOME)/repos/rocBLAS/build/library-package
+#ROCBLAS_INSTALL_DIR=$(HOME)/repos/rocBLAS/build/library-package
+ROCBLAS_INSTALL_DIR=/opt/rocm/rocblas
 
 ROCBLAS_INCLUDE=$(ROCBLAS_INSTALL_DIR)/include
 ROCBLAS_LIB_PATH=$(ROCBLAS_INSTALL_DIR)/lib
 
 ROCBLAS_LIB=rocblas-hcc
-TENSILE_LIB=tensile-rocblas
 
-LDFLAGS=-lm -L$(ROCBLAS_LIB_PATH) -l$(ROCBLAS_LIB) -l$(TENSILE_LIB)
+LDFLAGS=-lm -L$(ROCBLAS_LIB_PATH) -l$(ROCBLAS_LIB)
 LD=hipcc
 CFLAGS=-I$(ROCBLAS_INCLUDE) -I$(HIP_INCLUDE)
 CPP=hipcc
