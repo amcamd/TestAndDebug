@@ -9,6 +9,7 @@ typedef __fp16 half2 __attribute__((ext_vector_type(2)));
 extern "C" half2 __v_pk_fma_f16(half2, half2, half2) __asm("llvm.fma.v2f16");
 
 #define NB 128
+#define NB_X 256
 
 #define CHECK_HIP_ERROR(error) \
 if (error != hipSuccess) { \
@@ -84,6 +85,46 @@ haxpy_half8(int n8, half2 alpha, half8 *xx, half8 *yy)
     }
 }
 
+template<typename T>
+__global__ void
+axpy_kernel_host_scalar(hipLaunchParm lp,
+    int n,
+    const T alpha,
+    const T *x, rocblas_int incx,
+    T *y,  rocblas_int incy)
+{
+    int tid = hipBlockIdx_x * hipBlockDim_x + hipThreadIdx_x;
+    if(incx >= 0 && incy >= 0)
+    {
+        if ( tid < n )
+        {
+            y[tid*incy] +=  (alpha) * x[tid * incx];
+        }
+    }
+    else if(incx < 0 && incy < 0)
+    {
+        if (tid < n)
+        {
+            y[(1 - n + tid) * incy] +=  (alpha) * x[(1 - n + tid) * incx];
+        }
+    }
+    else if (incx >=0)
+    {
+        if (tid < n)
+        {
+            y[(1 - n + tid) * incy] +=  (alpha) * x[tid * incx];
+        }
+    }
+    else
+    {
+        if (tid < n)
+        {
+            y[tid * incy] +=  (alpha) * x[(1 - n + tid) * incx];
+        }
+    }
+}
+  
+
 
 extern "C"
 rocblas_status
@@ -102,33 +143,46 @@ rocblas_haxpy(rocblas_handle handle,
     else if(nullptr == handle)
         return rocblas_status_invalid_handle;
 
-    if(1 != incx || 1 != incy) return rocblas_status_not_implemented;
-
     /*
      * Quick return if possible. Not Argument error
      */
-    if ( n <= 0 )
-        return rocblas_status_success;
+    if ( n <= 0 ) return rocblas_status_success;
 
-    rocblas_int n8 = (n/8) * 8;
-    half2 half2_alpha;
-    half2_alpha.x = *alpha;
-    half2_alpha.y = *alpha;
+    if(1 != incx || 1 != incy)
+    {
+        std::cout << "1 != incx || 1 != incy" << std::endl;
+        int blocks = (n-1)/ NB_X + 1;
 
-    int blocks = (((n/8)-1) / NB) + 1;
+        dim3 grid( blocks, 1, 1 );
+        dim3 threads(NB_X, 1, 1);
 
-    dim3 grid( blocks, 1, 1 );
-    dim3 threads(NB, 1, 1);
+        hipLaunchKernel(HIP_KERNEL_NAME(axpy_kernel_host_scalar),
+            dim3(blocks), dim3(threads), 0, 0,
+            n, *alpha, x, incx, y, incy);
+    }
+    else
+    {
 
-    hipLaunchKernelGGL(haxpy_half8, dim3(grid), dim3(threads), 0, 0, 
+        rocblas_int n8 = (n/8) * 8;
+        half2 half2_alpha;
+        half2_alpha.x = *alpha;
+        half2_alpha.y = *alpha;
+
+        int blocks = (((n/8)-1) / NB) + 1;
+
+        dim3 grid( blocks, 1, 1 );
+        dim3 threads(NB, 1, 1);
+
+        hipLaunchKernelGGL(haxpy_half8, dim3(grid), dim3(threads), 0, 0, 
             n8, half2_alpha, (half8*)x, (half8*)y);
 
-    int mod_threads = n - n8;
+        int mod_threads = n - n8;
 
-    if (0 != mod_threads)
-    {
-        hipLaunchKernelGGL(haxpy_half8_mod, dim3(1, 1, 1), dim3(mod_threads, 1, 1), 
+        if (0 != mod_threads)
+        {
+            hipLaunchKernelGGL(haxpy_half8_mod, dim3(1, 1, 1), dim3(mod_threads, 1, 1), 
                 0, 0, n, *alpha, x, y);
+        }
     }
 
     return rocblas_status_success;
@@ -177,31 +231,35 @@ void usage(char *argv[])
 int main(int argc, char *argv[]) 
 {
     int n=0, incx=1, incy=1;
+    __fp16 alpha = 3.0;
     if (parse_args(argc, argv, n, incx, incy))
     {
         usage(argv);
         return -1;
     }
-    std::cout << "n, incx, incy = " << n << ", " << incx << ", " << incy << std::endl;
-    std::cout << "NB, n/NB, n%NB = " << NB << ", " << n/NB << ", " << n%NB << std::endl;
-    std::cout << "(n/8)*8 = " << (n/8)*8 << ", n%8 = " << n%8 << std::endl;
+    std::cout << "n, n%8 = " << n << ", " << n%8;
+    std::cout << "      NB, n/NB, n%NB = " << NB << ", " << n/NB << ", " << n%NB;
+    std::cout << "      incx, incy = " << incx << ", " << incy << std::endl;
         
-    int                 size = n * sizeof(__fp16);
-    __fp16              alpha = 3.0, *Xd, *Yd;
-    std::vector<__fp16> X(n), Y(n), Ycopy(n);
+    std::vector<__fp16> X(n*incx), Y(n*incy), Ycopy(n*incy);
 
-
+    for(int i = 0; i < X.size(); i++)
+    { 
+        X[i] = __fp16((i+4)%64);
+    }
     for(int i = 0; i < Y.size(); i++)
     { 
         Y[i] = __fp16(i%128); 
-        X[i] = __fp16((i+4)%64);
     }
 
     Ycopy = Y;
-    CHECK_HIP_ERROR(hipMalloc(&Xd, size));
-    CHECK_HIP_ERROR(hipMalloc(&Yd, size));
-    CHECK_HIP_ERROR(hipMemcpy(Xd, X.data(), size, hipMemcpyHostToDevice));
-    CHECK_HIP_ERROR(hipMemcpy(Yd, Y.data(), size, hipMemcpyHostToDevice));
+    int sizeX = n * incx * sizeof(__fp16);
+    int sizeY = n * incy * sizeof(__fp16);
+    __fp16 *Xd, *Yd;
+    CHECK_HIP_ERROR(hipMalloc(&Xd, sizeX));
+    CHECK_HIP_ERROR(hipMalloc(&Yd, sizeY));
+    CHECK_HIP_ERROR(hipMemcpy(Xd, X.data(), sizeX, hipMemcpyHostToDevice));
+    CHECK_HIP_ERROR(hipMemcpy(Yd, Y.data(), sizeY, hipMemcpyHostToDevice));
 
     rocblas_handle handle;
     CHECK_ROCBLAS_ERROR(rocblas_create_handle(&handle));
@@ -216,39 +274,27 @@ int main(int argc, char *argv[])
 
     auto stop = std::chrono::high_resolution_clock::now();
 
-    CHECK_HIP_ERROR(hipMemcpy(Y.data(), Yd, size, hipMemcpyDeviceToHost));
-    std::cout << "X, Ycopy, Y" << std::endl;
-    for (int i = 0; i < 20; i++)
-    {
-        if(float(Y[i] == float(alpha) * float(X[i]) + float(Ycopy[i]))) 
-        {
-            std::cout<<(float)X[i]<<", "<<(float)Ycopy[i]<<", "<<(float)Y[i]<<std::endl;
-        }
-        else
-        {
-            std::cout<<(float)X[i]<<", "<<(float)Ycopy[i]<<", "<<(float)Y[i]<<" FAIL"<<std::endl;
-        }
-    }
+    CHECK_HIP_ERROR(hipMemcpy(Y.data(), Yd, sizeY, hipMemcpyDeviceToHost));
 
-    std::cout << std::endl << "Y.size() = " << Y.size() << std::endl;
     int even_error = 0;
-    for(int i=0; i<Y.size(); i+=2) {
-        float out = float(alpha) * float(X[i]) + float(Ycopy[i]);
-        if(float(Y[i]) != out) {
+    for(int i = 0; i < n; i+=2) {
+        float out = float(alpha) * float(X[i*incx]) + float(Ycopy[i*incy]);
+        if(float(Y[i*incy]) != out) {
             if(even_error < 20) 
-                std::cerr<<"Bad even output: "<<float(Y[i])<<" at: "<<i<<" Expected: "<<out<<std::endl;
+                std::cerr<<"Bad even output: "<<float(Y[i*incy])<<" at: "<<i<<" Expected: "<<out<<std::endl;
                 std::cerr<<"alpha, X[i], Ycopy[i] = "<<float(alpha)<<", "<<
-                    float(X[i])<<", "<<float(Ycopy[i])<<std::endl;
+                    float(X[i*incx])<<", "<<float(Ycopy[i*incy])<<std::endl;
             even_error++;
         }
     }
     if(0 == even_error)std::cout<<"---All even pass---    ";
+
     int odd_error = 0;
-    for(int i=1; i<Y.size(); i+=2) {
-        float out = float(alpha) * float(X[i]) + float(Ycopy[i]);
-        if(float(Y[i]) != out) {
+    for(int i = 1; i < n; i+=2) {
+        float out = float(alpha) * float(X[i*incx]) + float(Ycopy[i*incy]);
+        if(float(Y[i*incy]) != out) {
             if(odd_error < 20) 
-                std::cerr<<"Bad odd output: "<<float(Y[i])<<" at: "<<i<<" Expected: "<<out<<std::endl;
+                std::cerr<<"Bad odd output: "<<float(Y[i*incy])<<" at: "<<i<<" Expected: "<<out<<std::endl;
             odd_error++;
         }
     }
