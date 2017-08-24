@@ -88,23 +88,11 @@ rocblas_status axpy_template<double>(rocblas_handle handle,
 
 template <typename T> int byte_per_flop();
 
-template<>
-int byte_per_flop<__fp16>()
-{
-    return 2;
-}
+template<> int byte_per_flop<__fp16>() { return 2; }
 
-template<>
-int byte_per_flop<float>()
-{
-    return 4;
-}
+template<> int byte_per_flop<float>() { return 4; }
 
-template<>
-int byte_per_flop<double>()
-{
-    return 8;
-}
+template<> int byte_per_flop<double>() { return 8; }
 
 
 template <typename T>
@@ -165,8 +153,6 @@ void time_axpy(int n, int incx, int incy, T alpha, int number_inner_calls, int n
     double flop = ((double) n) * 2.0 * ((double)number_inner_calls);
     double ld_byte = ((double) n) * 2.0 * byte_per_flop<T>() * ((double)number_inner_calls);
     double st_byte = ((double) n) * 1.0 * byte_per_flop<T>() * ((double)number_inner_calls);
-//  double ld_byte = ((double) n) * 2.0 * 2.0 * ((double)number_inner_calls);
-//  double st_byte = ((double) n) * 1.0 * 2.0 * ((double)number_inner_calls);
 
     double max_gflops = flop / min_seconds / 1e9;
     double min_gflops = flop / max_seconds / 1e9;
@@ -192,8 +178,8 @@ void time_axpy(int n, int incx, int incy, T alpha, int number_inner_calls, int n
     printf("max,ave,min,rsd_seconds = %f, %f, %f, %.1f%%\n", 
             max_seconds, ave_seconds, min_seconds, rsd_seconds);
     printf("min,ave,max_gflop/sec = %.0f, %.0f, %.0f\n", min_gflops, ave_gflops, max_gflops);
-    printf("min,ave,max_ld_gB/sec = %.0f, %.0f, %.0f\n", min_ld_gbyte_s, ave_ld_gbyte_s, max_ld_gbyte_s);
-    printf("min,ave,max_st_gB/sec = %.0f, %.0f, %.0f\n", min_st_gbyte_s, ave_st_gbyte_s, max_st_gbyte_s);
+    printf("min,ave,max_load_GB/sec = %.0f, %.0f, %.0f\n", min_ld_gbyte_s, ave_ld_gbyte_s, max_ld_gbyte_s);
+    printf("min,ave,max_store_GB/sec = %.0f, %.0f, %.0f\n", min_st_gbyte_s, ave_st_gbyte_s, max_st_gbyte_s);
     
     CHECK_HIP_ERROR(hipFree(xd));
     CHECK_HIP_ERROR(hipFree(yd));
@@ -215,11 +201,11 @@ int main(int argc, char *argv[])
 
     printf("number_inner_calls, number_outer_tests= %d, %d\n", number_inner_calls, number_outer_tests);
 
-    printf("--- __fp16 -----------------------------------------------\n");
+    printf("--- __fp16 --- haxpy -------------------------------------\n");
     time_axpy<__fp16>(n, incx, incy, alpha, number_inner_calls, number_outer_tests);
-    printf("--- float  -----------------------------------------------\n");
+    printf("--- float  --- saxpy -------------------------------------\n");
     time_axpy<float>(n, incx, incy, alpha, number_inner_calls, number_outer_tests);
-    printf("--- double -----------------------------------------------\n");
+    printf("--- double --- daxpy -------------------------------------\n");
     time_axpy<double>(n, incx, incy, alpha, number_inner_calls, number_outer_tests);
 }
 
