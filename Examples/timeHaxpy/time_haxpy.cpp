@@ -180,6 +180,7 @@ void time_axpy(int n, int incx, int incy, T alpha, int number_inner_calls, int n
     printf("min,ave,max_gflop/sec = %.0f, %.0f, %.0f\n", min_gflops, ave_gflops, max_gflops);
     printf("min,ave,max_load_GB/sec = %.0f, %.0f, %.0f\n", min_ld_gbyte_s, ave_ld_gbyte_s, max_ld_gbyte_s);
     printf("min,ave,max_store_GB/sec = %.0f, %.0f, %.0f\n", min_st_gbyte_s, ave_st_gbyte_s, max_st_gbyte_s);
+    printf("ave load+store GB/sec = %.0f\n", ave_st_gbyte_s + ave_ld_gbyte_s);
     
     CHECK_HIP_ERROR(hipFree(xd));
     CHECK_HIP_ERROR(hipFree(yd));
