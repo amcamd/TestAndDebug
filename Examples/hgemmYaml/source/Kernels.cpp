@@ -141,23 +141,20 @@ __device__ void generalized_z_order(
 #define TYPE_MAC_WRITE(DST,ALPHA,REG,BETA) DST = 0 != (BETA) ? (ALPHA)*(REG) + (BETA)*(DST) : (ALPHA)*(REG);
 
 /* 4x4 micro-tile */
-#define MAC_4x4\
-  TYPE_MAC(rA[0],rB[0],rC[0+0*TT0I]); \
-  TYPE_MAC(rA[1],rB[0],rC[1+0*TT0I]); \
-  TYPE_MAC(rA[2],rB[0],rC[2+0*TT0I]); \
-  TYPE_MAC(rA[3],rB[0],rC[3+0*TT0I]); \
-  TYPE_MAC(rA[0],rB[1],rC[0+1*TT0I]); \
-  TYPE_MAC(rA[1],rB[1],rC[1+1*TT0I]); \
-  TYPE_MAC(rA[2],rB[1],rC[2+1*TT0I]); \
-  TYPE_MAC(rA[3],rB[1],rC[3+1*TT0I]); \
-  TYPE_MAC(rA[0],rB[2],rC[0+2*TT0I]); \
-  TYPE_MAC(rA[1],rB[2],rC[1+2*TT0I]); \
-  TYPE_MAC(rA[2],rB[2],rC[2+2*TT0I]); \
-  TYPE_MAC(rA[3],rB[2],rC[3+2*TT0I]); \
-  TYPE_MAC(rA[0],rB[3],rC[0+3*TT0I]); \
-  TYPE_MAC(rA[1],rB[3],rC[1+3*TT0I]); \
-  TYPE_MAC(rA[2],rB[3],rC[2+3*TT0I]); \
-  TYPE_MAC(rA[3],rB[3],rC[3+3*TT0I]); \
+    
+typedef __fp16 half2 __attribute__((ext_vector_type(2)));
+
+extern "C" half2 __v_pk_fma_f16(half2, half2, half2) __asm("llvm.fma.v2f16");
+
+#define MAC_4x4_new\
+    c01_0 = __v_pk_fma_f16(a01, b00, c01_0); \
+    c23_0 = __v_pk_fma_f16(a23, b00, c23_0); \
+    c01_1 = __v_pk_fma_f16(a01, b11, c01_1); \
+    c23_1 = __v_pk_fma_f16(a23, b11, c23_1); \
+    c01_2 = __v_pk_fma_f16(a01, b22, c01_2); \
+    c23_2 = __v_pk_fma_f16(a23, b22, c23_2); \
+    c01_3 = __v_pk_fma_f16(a01, b33, c01_3); \
+    c23_3 = __v_pk_fma_f16(a23, b33, c23_3); \
 
 /* hard-coded initial strides */
 #define strideC0I 1
@@ -195,25 +192,16 @@ __global__ void Cij_Aik_Bkj_HB_MT032x032x08_K1(
 #define SCALAR_ZERO (half)(0)
 
   /* registers for MAC's */
-  DATA_TYPE rC[TT0I*TT1J];
-  rC[0] = SCALAR_ZERO;
-  rC[1] = SCALAR_ZERO;
-  rC[2] = SCALAR_ZERO;
-  rC[3] = SCALAR_ZERO;
-  rC[4] = SCALAR_ZERO;
-  rC[5] = SCALAR_ZERO;
-  rC[6] = SCALAR_ZERO;
-  rC[7] = SCALAR_ZERO;
-  rC[8] = SCALAR_ZERO;
-  rC[9] = SCALAR_ZERO;
-  rC[10] = SCALAR_ZERO;
-  rC[11] = SCALAR_ZERO;
-  rC[12] = SCALAR_ZERO;
-  rC[13] = SCALAR_ZERO;
-  rC[14] = SCALAR_ZERO;
-  rC[15] = SCALAR_ZERO;
-  DATA_TYPE rA[TT0I];
-  DATA_TYPE rB[TT1J];
+    half2 a01, a23;
+    half2 b00, c01_0, c23_0;
+    half2 b11, c01_1, c23_1;
+    half2 b22, c01_2, c23_2;
+    half2 b33, c01_3, c23_3;
+
+    c01_0[0] = 0;  c01_1[0] = 0; c01_2[0] = 0; c01_3[0] = 0;
+    c01_0[1] = 0;  c01_1[1] = 0; c01_2[1] = 0; c01_3[1] = 0;
+    c23_0[0] = 0;  c23_1[0] = 0; c23_2[0] = 0; c23_3[0] = 0;
+    c23_0[1] = 0;  c23_1[1] = 0; c23_2[1] = 0; c23_3[1] = 0;
 
   /* registers for global->local */
   DATA_TYPE a_0_0_0_0;
@@ -458,173 +446,174 @@ __global__ void Cij_Aik_Bkj_HB_MT032x032x08_K1(
 #pragma clang diagnostic pop
     __syncthreads();
 
+
     /* iter 0 */
 
     /* local read a */
-    rA[0*VECTOR_WIDTH+0] = localReadA[0*SG0I*VECTOR_WIDTH + 0]; 
-    rA[0*VECTOR_WIDTH+1] = localReadA[0*SG0I*VECTOR_WIDTH + 1]; 
-    rA[0*VECTOR_WIDTH+2] = localReadA[0*SG0I*VECTOR_WIDTH + 2]; 
-    rA[0*VECTOR_WIDTH+3] = localReadA[0*SG0I*VECTOR_WIDTH + 3]; 
+    a01[0]               = localReadA[0*SG0I*VECTOR_WIDTH + 0]; 
+    a01[1]               = localReadA[0*SG0I*VECTOR_WIDTH + 1]; 
+    a23[0]               = localReadA[0*SG0I*VECTOR_WIDTH + 2]; 
+    a23[1]               = localReadA[0*SG0I*VECTOR_WIDTH + 3]; 
 
     /* local read b */
-    rB[0*VECTOR_WIDTH+0] = localReadB[0*SG1J*VECTOR_WIDTH + 0]; 
-    rB[0*VECTOR_WIDTH+1] = localReadB[0*SG1J*VECTOR_WIDTH + 1]; 
-    rB[0*VECTOR_WIDTH+2] = localReadB[0*SG1J*VECTOR_WIDTH + 2]; 
-    rB[0*VECTOR_WIDTH+3] = localReadB[0*SG1J*VECTOR_WIDTH + 3]; 
+    b00[0] = localReadB[0*SG1J*VECTOR_WIDTH + 0]; b00[1] = localReadB[0*SG1J*VECTOR_WIDTH + 0];
+    b11[0] = localReadB[0*SG1J*VECTOR_WIDTH + 1]; b11[1] = localReadB[0*SG1J*VECTOR_WIDTH + 1];
+    b22[0] = localReadB[0*SG1J*VECTOR_WIDTH + 2]; b22[1] = localReadB[0*SG1J*VECTOR_WIDTH + 2];
+    b33[0] = localReadB[0*SG1J*VECTOR_WIDTH + 3]; b33[1] = localReadB[0*SG1J*VECTOR_WIDTH + 3];
 
     /* local read increment a */
     localReadA += LOCAL_SPLITU*(MT0I+PAD);
 
     /* local read increment b */
     localReadB += LOCAL_SPLITU*(MT1J+PAD);
-    MAC_4x4
+    MAC_4x4_new
 
     /* iter 1 */
 
     /* local read a */
-    rA[0*VECTOR_WIDTH+0] = localReadA[0*SG0I*VECTOR_WIDTH + 0]; 
-    rA[0*VECTOR_WIDTH+1] = localReadA[0*SG0I*VECTOR_WIDTH + 1]; 
-    rA[0*VECTOR_WIDTH+2] = localReadA[0*SG0I*VECTOR_WIDTH + 2]; 
-    rA[0*VECTOR_WIDTH+3] = localReadA[0*SG0I*VECTOR_WIDTH + 3]; 
+    a01[0]               = localReadA[0*SG0I*VECTOR_WIDTH + 0]; 
+    a01[1]               = localReadA[0*SG0I*VECTOR_WIDTH + 1]; 
+    a23[0]               = localReadA[0*SG0I*VECTOR_WIDTH + 2]; 
+    a23[1]               = localReadA[0*SG0I*VECTOR_WIDTH + 3]; 
 
     /* local read b */
-    rB[0*VECTOR_WIDTH+0] = localReadB[0*SG1J*VECTOR_WIDTH + 0]; 
-    rB[0*VECTOR_WIDTH+1] = localReadB[0*SG1J*VECTOR_WIDTH + 1]; 
-    rB[0*VECTOR_WIDTH+2] = localReadB[0*SG1J*VECTOR_WIDTH + 2]; 
-    rB[0*VECTOR_WIDTH+3] = localReadB[0*SG1J*VECTOR_WIDTH + 3]; 
+    b00[0] = localReadB[0*SG1J*VECTOR_WIDTH + 0]; b00[1] = localReadB[0*SG1J*VECTOR_WIDTH + 0];
+    b11[0] = localReadB[0*SG1J*VECTOR_WIDTH + 1]; b11[1] = localReadB[0*SG1J*VECTOR_WIDTH + 1];
+    b22[0] = localReadB[0*SG1J*VECTOR_WIDTH + 2]; b22[1] = localReadB[0*SG1J*VECTOR_WIDTH + 2];
+    b33[0] = localReadB[0*SG1J*VECTOR_WIDTH + 3]; b33[1] = localReadB[0*SG1J*VECTOR_WIDTH + 3];
 
     /* local read increment a */
     localReadA += LOCAL_SPLITU*(MT0I+PAD);
 
     /* local read increment b */
     localReadB += LOCAL_SPLITU*(MT1J+PAD);
-    MAC_4x4
+    MAC_4x4_new
 
     /* iter 2 */
 
     /* local read a */
-    rA[0*VECTOR_WIDTH+0] = localReadA[0*SG0I*VECTOR_WIDTH + 0]; 
-    rA[0*VECTOR_WIDTH+1] = localReadA[0*SG0I*VECTOR_WIDTH + 1]; 
-    rA[0*VECTOR_WIDTH+2] = localReadA[0*SG0I*VECTOR_WIDTH + 2]; 
-    rA[0*VECTOR_WIDTH+3] = localReadA[0*SG0I*VECTOR_WIDTH + 3]; 
+    a01[0]               = localReadA[0*SG0I*VECTOR_WIDTH + 0]; 
+    a01[1]               = localReadA[0*SG0I*VECTOR_WIDTH + 1]; 
+    a23[0]               = localReadA[0*SG0I*VECTOR_WIDTH + 2]; 
+    a23[1]               = localReadA[0*SG0I*VECTOR_WIDTH + 3]; 
 
     /* local read b */
-    rB[0*VECTOR_WIDTH+0] = localReadB[0*SG1J*VECTOR_WIDTH + 0]; 
-    rB[0*VECTOR_WIDTH+1] = localReadB[0*SG1J*VECTOR_WIDTH + 1]; 
-    rB[0*VECTOR_WIDTH+2] = localReadB[0*SG1J*VECTOR_WIDTH + 2]; 
-    rB[0*VECTOR_WIDTH+3] = localReadB[0*SG1J*VECTOR_WIDTH + 3]; 
+    b00[0] = localReadB[0*SG1J*VECTOR_WIDTH + 0]; b00[1] = localReadB[0*SG1J*VECTOR_WIDTH + 0];
+    b11[0] = localReadB[0*SG1J*VECTOR_WIDTH + 1]; b11[1] = localReadB[0*SG1J*VECTOR_WIDTH + 1];
+    b22[0] = localReadB[0*SG1J*VECTOR_WIDTH + 2]; b22[1] = localReadB[0*SG1J*VECTOR_WIDTH + 2];
+    b33[0] = localReadB[0*SG1J*VECTOR_WIDTH + 3]; b33[1] = localReadB[0*SG1J*VECTOR_WIDTH + 3];
 
     /* local read increment a */
     localReadA += LOCAL_SPLITU*(MT0I+PAD);
 
     /* local read increment b */
     localReadB += LOCAL_SPLITU*(MT1J+PAD);
-    MAC_4x4
+    MAC_4x4_new
 
     /* iter 3 */
 
     /* local read a */
-    rA[0*VECTOR_WIDTH+0] = localReadA[0*SG0I*VECTOR_WIDTH + 0]; 
-    rA[0*VECTOR_WIDTH+1] = localReadA[0*SG0I*VECTOR_WIDTH + 1]; 
-    rA[0*VECTOR_WIDTH+2] = localReadA[0*SG0I*VECTOR_WIDTH + 2]; 
-    rA[0*VECTOR_WIDTH+3] = localReadA[0*SG0I*VECTOR_WIDTH + 3]; 
+    a01[0]               = localReadA[0*SG0I*VECTOR_WIDTH + 0]; 
+    a01[1]               = localReadA[0*SG0I*VECTOR_WIDTH + 1]; 
+    a23[0]               = localReadA[0*SG0I*VECTOR_WIDTH + 2]; 
+    a23[1]               = localReadA[0*SG0I*VECTOR_WIDTH + 3]; 
 
     /* local read b */
-    rB[0*VECTOR_WIDTH+0] = localReadB[0*SG1J*VECTOR_WIDTH + 0]; 
-    rB[0*VECTOR_WIDTH+1] = localReadB[0*SG1J*VECTOR_WIDTH + 1]; 
-    rB[0*VECTOR_WIDTH+2] = localReadB[0*SG1J*VECTOR_WIDTH + 2]; 
-    rB[0*VECTOR_WIDTH+3] = localReadB[0*SG1J*VECTOR_WIDTH + 3]; 
+    b00[0] = localReadB[0*SG1J*VECTOR_WIDTH + 0]; b00[1] = localReadB[0*SG1J*VECTOR_WIDTH + 0];
+    b11[0] = localReadB[0*SG1J*VECTOR_WIDTH + 1]; b11[1] = localReadB[0*SG1J*VECTOR_WIDTH + 1];
+    b22[0] = localReadB[0*SG1J*VECTOR_WIDTH + 2]; b22[1] = localReadB[0*SG1J*VECTOR_WIDTH + 2];
+    b33[0] = localReadB[0*SG1J*VECTOR_WIDTH + 3]; b33[1] = localReadB[0*SG1J*VECTOR_WIDTH + 3];
 
     /* local read increment a */
     localReadA += LOCAL_SPLITU*(MT0I+PAD);
 
     /* local read increment b */
     localReadB += LOCAL_SPLITU*(MT1J+PAD);
-    MAC_4x4
+    MAC_4x4_new
 
     /* iter 4 */
 
     /* local read a */
-    rA[0*VECTOR_WIDTH+0] = localReadA[0*SG0I*VECTOR_WIDTH + 0]; 
-    rA[0*VECTOR_WIDTH+1] = localReadA[0*SG0I*VECTOR_WIDTH + 1]; 
-    rA[0*VECTOR_WIDTH+2] = localReadA[0*SG0I*VECTOR_WIDTH + 2]; 
-    rA[0*VECTOR_WIDTH+3] = localReadA[0*SG0I*VECTOR_WIDTH + 3]; 
+    a01[0]               = localReadA[0*SG0I*VECTOR_WIDTH + 0]; 
+    a01[1]               = localReadA[0*SG0I*VECTOR_WIDTH + 1]; 
+    a23[0]               = localReadA[0*SG0I*VECTOR_WIDTH + 2]; 
+    a23[1]               = localReadA[0*SG0I*VECTOR_WIDTH + 3]; 
 
     /* local read b */
-    rB[0*VECTOR_WIDTH+0] = localReadB[0*SG1J*VECTOR_WIDTH + 0]; 
-    rB[0*VECTOR_WIDTH+1] = localReadB[0*SG1J*VECTOR_WIDTH + 1]; 
-    rB[0*VECTOR_WIDTH+2] = localReadB[0*SG1J*VECTOR_WIDTH + 2]; 
-    rB[0*VECTOR_WIDTH+3] = localReadB[0*SG1J*VECTOR_WIDTH + 3]; 
+    b00[0] = localReadB[0*SG1J*VECTOR_WIDTH + 0]; b00[1] = localReadB[0*SG1J*VECTOR_WIDTH + 0];
+    b11[0] = localReadB[0*SG1J*VECTOR_WIDTH + 1]; b11[1] = localReadB[0*SG1J*VECTOR_WIDTH + 1];
+    b22[0] = localReadB[0*SG1J*VECTOR_WIDTH + 2]; b22[1] = localReadB[0*SG1J*VECTOR_WIDTH + 2];
+    b33[0] = localReadB[0*SG1J*VECTOR_WIDTH + 3]; b33[1] = localReadB[0*SG1J*VECTOR_WIDTH + 3];
 
     /* local read increment a */
     localReadA += LOCAL_SPLITU*(MT0I+PAD);
 
     /* local read increment b */
     localReadB += LOCAL_SPLITU*(MT1J+PAD);
-    MAC_4x4
+    MAC_4x4_new
 
     /* iter 5 */
 
     /* local read a */
-    rA[0*VECTOR_WIDTH+0] = localReadA[0*SG0I*VECTOR_WIDTH + 0]; 
-    rA[0*VECTOR_WIDTH+1] = localReadA[0*SG0I*VECTOR_WIDTH + 1]; 
-    rA[0*VECTOR_WIDTH+2] = localReadA[0*SG0I*VECTOR_WIDTH + 2]; 
-    rA[0*VECTOR_WIDTH+3] = localReadA[0*SG0I*VECTOR_WIDTH + 3]; 
+    a01[0]               = localReadA[0*SG0I*VECTOR_WIDTH + 0]; 
+    a01[1]               = localReadA[0*SG0I*VECTOR_WIDTH + 1]; 
+    a23[0]               = localReadA[0*SG0I*VECTOR_WIDTH + 2]; 
+    a23[1]               = localReadA[0*SG0I*VECTOR_WIDTH + 3]; 
 
     /* local read b */
-    rB[0*VECTOR_WIDTH+0] = localReadB[0*SG1J*VECTOR_WIDTH + 0]; 
-    rB[0*VECTOR_WIDTH+1] = localReadB[0*SG1J*VECTOR_WIDTH + 1]; 
-    rB[0*VECTOR_WIDTH+2] = localReadB[0*SG1J*VECTOR_WIDTH + 2]; 
-    rB[0*VECTOR_WIDTH+3] = localReadB[0*SG1J*VECTOR_WIDTH + 3]; 
+    b00[0] = localReadB[0*SG1J*VECTOR_WIDTH + 0]; b00[1] = localReadB[0*SG1J*VECTOR_WIDTH + 0];
+    b11[0] = localReadB[0*SG1J*VECTOR_WIDTH + 1]; b11[1] = localReadB[0*SG1J*VECTOR_WIDTH + 1];
+    b22[0] = localReadB[0*SG1J*VECTOR_WIDTH + 2]; b22[1] = localReadB[0*SG1J*VECTOR_WIDTH + 2];
+    b33[0] = localReadB[0*SG1J*VECTOR_WIDTH + 3]; b33[1] = localReadB[0*SG1J*VECTOR_WIDTH + 3];
 
     /* local read increment a */
     localReadA += LOCAL_SPLITU*(MT0I+PAD);
 
     /* local read increment b */
     localReadB += LOCAL_SPLITU*(MT1J+PAD);
-    MAC_4x4
+    MAC_4x4_new
 
     /* iter 6 */
 
     /* local read a */
-    rA[0*VECTOR_WIDTH+0] = localReadA[0*SG0I*VECTOR_WIDTH + 0]; 
-    rA[0*VECTOR_WIDTH+1] = localReadA[0*SG0I*VECTOR_WIDTH + 1]; 
-    rA[0*VECTOR_WIDTH+2] = localReadA[0*SG0I*VECTOR_WIDTH + 2]; 
-    rA[0*VECTOR_WIDTH+3] = localReadA[0*SG0I*VECTOR_WIDTH + 3]; 
+    a01[0]               = localReadA[0*SG0I*VECTOR_WIDTH + 0]; 
+    a01[1]               = localReadA[0*SG0I*VECTOR_WIDTH + 1]; 
+    a23[0]               = localReadA[0*SG0I*VECTOR_WIDTH + 2]; 
+    a23[1]               = localReadA[0*SG0I*VECTOR_WIDTH + 3]; 
 
     /* local read b */
-    rB[0*VECTOR_WIDTH+0] = localReadB[0*SG1J*VECTOR_WIDTH + 0]; 
-    rB[0*VECTOR_WIDTH+1] = localReadB[0*SG1J*VECTOR_WIDTH + 1]; 
-    rB[0*VECTOR_WIDTH+2] = localReadB[0*SG1J*VECTOR_WIDTH + 2]; 
-    rB[0*VECTOR_WIDTH+3] = localReadB[0*SG1J*VECTOR_WIDTH + 3]; 
+    b00[0] = localReadB[0*SG1J*VECTOR_WIDTH + 0]; b00[1] = localReadB[0*SG1J*VECTOR_WIDTH + 0];
+    b11[0] = localReadB[0*SG1J*VECTOR_WIDTH + 1]; b11[1] = localReadB[0*SG1J*VECTOR_WIDTH + 1];
+    b22[0] = localReadB[0*SG1J*VECTOR_WIDTH + 2]; b22[1] = localReadB[0*SG1J*VECTOR_WIDTH + 2];
+    b33[0] = localReadB[0*SG1J*VECTOR_WIDTH + 3]; b33[1] = localReadB[0*SG1J*VECTOR_WIDTH + 3];
 
     /* local read inc a */
     localReadA += LOCAL_SPLITU*(MT0I+PAD);
 
     /* local read inc b */
     localReadB += LOCAL_SPLITU*(MT1J+PAD);
-    MAC_4x4
+    MAC_4x4_new
 
     /* iter 7 */
 
     /* local read a */
-    rA[0*VECTOR_WIDTH+0] = localReadA[0*SG0I*VECTOR_WIDTH + 0]; 
-    rA[0*VECTOR_WIDTH+1] = localReadA[0*SG0I*VECTOR_WIDTH + 1]; 
-    rA[0*VECTOR_WIDTH+2] = localReadA[0*SG0I*VECTOR_WIDTH + 2]; 
-    rA[0*VECTOR_WIDTH+3] = localReadA[0*SG0I*VECTOR_WIDTH + 3]; 
+    a01[0]               = localReadA[0*SG0I*VECTOR_WIDTH + 0]; 
+    a01[1]               = localReadA[0*SG0I*VECTOR_WIDTH + 1]; 
+    a23[0]               = localReadA[0*SG0I*VECTOR_WIDTH + 2]; 
+    a23[1]               = localReadA[0*SG0I*VECTOR_WIDTH + 3]; 
 
     /* local read b */
-    rB[0*VECTOR_WIDTH+0] = localReadB[0*SG1J*VECTOR_WIDTH + 0]; 
-    rB[0*VECTOR_WIDTH+1] = localReadB[0*SG1J*VECTOR_WIDTH + 1]; 
-    rB[0*VECTOR_WIDTH+2] = localReadB[0*SG1J*VECTOR_WIDTH + 2]; 
-    rB[0*VECTOR_WIDTH+3] = localReadB[0*SG1J*VECTOR_WIDTH + 3]; 
+    b00[0] = localReadB[0*SG1J*VECTOR_WIDTH + 0]; b00[1] = localReadB[0*SG1J*VECTOR_WIDTH + 0];
+    b11[0] = localReadB[0*SG1J*VECTOR_WIDTH + 1]; b11[1] = localReadB[0*SG1J*VECTOR_WIDTH + 1];
+    b22[0] = localReadB[0*SG1J*VECTOR_WIDTH + 2]; b22[1] = localReadB[0*SG1J*VECTOR_WIDTH + 2];
+    b33[0] = localReadB[0*SG1J*VECTOR_WIDTH + 3]; b33[1] = localReadB[0*SG1J*VECTOR_WIDTH + 3];
 
     /* local read init pointers a */
     localReadA = (DATA_TYPE *)(localMemory + localReadOffsetA);
 
     /* local read init pointers b */
     localReadB = (DATA_TYPE *)(localMemory + localReadOffsetB);
-    MAC_4x4
+    MAC_4x4_new
 
     /******************************************/
     /* Unrolled Loop - End                    */
@@ -639,38 +628,38 @@ __global__ void Cij_Aik_Bkj_HB_MT032x032x08_K1(
     unsigned int s0I = (wgMT0I/VECTOR_WIDTH)/SG0I;
     if (r0I == 1) {
       {
-        rC[0+0*VECTOR_WIDTH+0*TT0I] = rC[3+0*VECTOR_WIDTH+0*TT0I];
-        rC[0+0*VECTOR_WIDTH+1*TT0I] = rC[3+0*VECTOR_WIDTH+1*TT0I];
-        rC[0+0*VECTOR_WIDTH+2*TT0I] = rC[3+0*VECTOR_WIDTH+2*TT0I];
-        rC[0+0*VECTOR_WIDTH+3*TT0I] = rC[3+0*VECTOR_WIDTH+3*TT0I];
+        c01_0[0] = c23_0[1];
+        c01_1[0] = c23_1[1];
+        c01_2[0] = c23_2[1];
+        c01_3[0] = c23_3[1];
       }
     }
     if (r0I == 2) {
       {
-        rC[0+0*VECTOR_WIDTH+0*TT0I] = rC[2+0*VECTOR_WIDTH+0*TT0I];
-        rC[1+0*VECTOR_WIDTH+0*TT0I] = rC[3+0*VECTOR_WIDTH+0*TT0I];
-        rC[0+0*VECTOR_WIDTH+1*TT0I] = rC[2+0*VECTOR_WIDTH+1*TT0I];
-        rC[1+0*VECTOR_WIDTH+1*TT0I] = rC[3+0*VECTOR_WIDTH+1*TT0I];
-        rC[0+0*VECTOR_WIDTH+2*TT0I] = rC[2+0*VECTOR_WIDTH+2*TT0I];
-        rC[1+0*VECTOR_WIDTH+2*TT0I] = rC[3+0*VECTOR_WIDTH+2*TT0I];
-        rC[0+0*VECTOR_WIDTH+3*TT0I] = rC[2+0*VECTOR_WIDTH+3*TT0I];
-        rC[1+0*VECTOR_WIDTH+3*TT0I] = rC[3+0*VECTOR_WIDTH+3*TT0I];
+        c01_0[0] = c23_0[0];
+        c01_0[1] = c23_0[1];
+        c01_1[0] = c23_1[0];
+        c01_1[1] = c23_1[1];
+        c01_2[0] = c23_2[0];
+        c01_2[1] = c23_2[1];
+        c01_3[0] = c23_3[0];
+        c01_3[1] = c23_3[1];
       }
     }
     if (r0I == 3) {
       {
-        rC[0+0*VECTOR_WIDTH+0*TT0I] = rC[1+0*VECTOR_WIDTH+0*TT0I];
-        rC[1+0*VECTOR_WIDTH+0*TT0I] = rC[2+0*VECTOR_WIDTH+0*TT0I];
-        rC[2+0*VECTOR_WIDTH+0*TT0I] = rC[3+0*VECTOR_WIDTH+0*TT0I];
-        rC[0+0*VECTOR_WIDTH+1*TT0I] = rC[1+0*VECTOR_WIDTH+1*TT0I];
-        rC[1+0*VECTOR_WIDTH+1*TT0I] = rC[2+0*VECTOR_WIDTH+1*TT0I];
-        rC[2+0*VECTOR_WIDTH+1*TT0I] = rC[3+0*VECTOR_WIDTH+1*TT0I];
-        rC[0+0*VECTOR_WIDTH+2*TT0I] = rC[1+0*VECTOR_WIDTH+2*TT0I];
-        rC[1+0*VECTOR_WIDTH+2*TT0I] = rC[2+0*VECTOR_WIDTH+2*TT0I];
-        rC[2+0*VECTOR_WIDTH+2*TT0I] = rC[3+0*VECTOR_WIDTH+2*TT0I];
-        rC[0+0*VECTOR_WIDTH+3*TT0I] = rC[1+0*VECTOR_WIDTH+3*TT0I];
-        rC[1+0*VECTOR_WIDTH+3*TT0I] = rC[2+0*VECTOR_WIDTH+3*TT0I];
-        rC[2+0*VECTOR_WIDTH+3*TT0I] = rC[3+0*VECTOR_WIDTH+3*TT0I];
+        c01_0[0] = c01_0[1];
+        c01_0[1] = c23_0[0];
+        c23_0[0] = c23_0[1];
+        c01_1[0] = c01_1[1];
+        c01_1[1] = c23_1[0];
+        c23_1[0] = c23_1[1];
+        c01_2[0] = c01_2[1];
+        c01_2[1] = c23_2[0];
+        c23_2[0] = c23_2[1];
+        c01_3[0] = c01_3[1];
+        c01_3[1] = c23_3[0];
+        c23_3[0] = c23_3[1];
       }
     }
   }
@@ -680,22 +669,23 @@ __global__ void Cij_Aik_Bkj_HB_MT032x032x08_K1(
   unsigned int globalC1J = (wg1J)*MT1J + (serial / SG0I)*VECTOR_WIDTH;
 
   /* not-LocalSplitU: global write */
-  if (globalC0I + 0 + 0*SG0I*VECTOR_WIDTH < size0I) {  if (globalC1J + 0 + 0*SG1J*VECTOR_WIDTH < size1J) {  TYPE_MAC_WRITE( C[ GLOBAL_C( (uint64_t) globalC0I + 0 + 0*SG0I*VECTOR_WIDTH, (uint64_t) globalC1J + 0 + 0*SG1J*VECTOR_WIDTH) ], alpha, rC[0*VECTOR_WIDTH+0 + (0*VECTOR_WIDTH+0)*TT0I], beta) } }
-  if (globalC0I + 1 + 0*SG0I*VECTOR_WIDTH < size0I) {  if (globalC1J + 0 + 0*SG1J*VECTOR_WIDTH < size1J) {  TYPE_MAC_WRITE( C[ GLOBAL_C( (uint64_t) globalC0I + 1 + 0*SG0I*VECTOR_WIDTH, (uint64_t) globalC1J + 0 + 0*SG1J*VECTOR_WIDTH) ], alpha, rC[0*VECTOR_WIDTH+1 + (0*VECTOR_WIDTH+0)*TT0I], beta) } }
-  if (globalC0I + 2 + 0*SG0I*VECTOR_WIDTH < size0I) {  if (globalC1J + 0 + 0*SG1J*VECTOR_WIDTH < size1J) {  TYPE_MAC_WRITE( C[ GLOBAL_C( (uint64_t) globalC0I + 2 + 0*SG0I*VECTOR_WIDTH, (uint64_t) globalC1J + 0 + 0*SG1J*VECTOR_WIDTH) ], alpha, rC[0*VECTOR_WIDTH+2 + (0*VECTOR_WIDTH+0)*TT0I], beta) } }
-  if (globalC0I + 3 + 0*SG0I*VECTOR_WIDTH < size0I) {  if (globalC1J + 0 + 0*SG1J*VECTOR_WIDTH < size1J) {  TYPE_MAC_WRITE( C[ GLOBAL_C( (uint64_t) globalC0I + 3 + 0*SG0I*VECTOR_WIDTH, (uint64_t) globalC1J + 0 + 0*SG1J*VECTOR_WIDTH) ], alpha, rC[0*VECTOR_WIDTH+3 + (0*VECTOR_WIDTH+0)*TT0I], beta) } }
-  if (globalC0I + 0 + 0*SG0I*VECTOR_WIDTH < size0I) {  if (globalC1J + 1 + 0*SG1J*VECTOR_WIDTH < size1J) {  TYPE_MAC_WRITE( C[ GLOBAL_C( (uint64_t) globalC0I + 0 + 0*SG0I*VECTOR_WIDTH, (uint64_t) globalC1J + 1 + 0*SG1J*VECTOR_WIDTH) ], alpha, rC[0*VECTOR_WIDTH+0 + (0*VECTOR_WIDTH+1)*TT0I], beta) } }
-  if (globalC0I + 1 + 0*SG0I*VECTOR_WIDTH < size0I) {  if (globalC1J + 1 + 0*SG1J*VECTOR_WIDTH < size1J) {  TYPE_MAC_WRITE( C[ GLOBAL_C( (uint64_t) globalC0I + 1 + 0*SG0I*VECTOR_WIDTH, (uint64_t) globalC1J + 1 + 0*SG1J*VECTOR_WIDTH) ], alpha, rC[0*VECTOR_WIDTH+1 + (0*VECTOR_WIDTH+1)*TT0I], beta) } }
-  if (globalC0I + 2 + 0*SG0I*VECTOR_WIDTH < size0I) {  if (globalC1J + 1 + 0*SG1J*VECTOR_WIDTH < size1J) {  TYPE_MAC_WRITE( C[ GLOBAL_C( (uint64_t) globalC0I + 2 + 0*SG0I*VECTOR_WIDTH, (uint64_t) globalC1J + 1 + 0*SG1J*VECTOR_WIDTH) ], alpha, rC[0*VECTOR_WIDTH+2 + (0*VECTOR_WIDTH+1)*TT0I], beta) } }
-  if (globalC0I + 3 + 0*SG0I*VECTOR_WIDTH < size0I) {  if (globalC1J + 1 + 0*SG1J*VECTOR_WIDTH < size1J) {  TYPE_MAC_WRITE( C[ GLOBAL_C( (uint64_t) globalC0I + 3 + 0*SG0I*VECTOR_WIDTH, (uint64_t) globalC1J + 1 + 0*SG1J*VECTOR_WIDTH) ], alpha, rC[0*VECTOR_WIDTH+3 + (0*VECTOR_WIDTH+1)*TT0I], beta) } }
-  if (globalC0I + 0 + 0*SG0I*VECTOR_WIDTH < size0I) {  if (globalC1J + 2 + 0*SG1J*VECTOR_WIDTH < size1J) {  TYPE_MAC_WRITE( C[ GLOBAL_C( (uint64_t) globalC0I + 0 + 0*SG0I*VECTOR_WIDTH, (uint64_t) globalC1J + 2 + 0*SG1J*VECTOR_WIDTH) ], alpha, rC[0*VECTOR_WIDTH+0 + (0*VECTOR_WIDTH+2)*TT0I], beta) } }
-  if (globalC0I + 1 + 0*SG0I*VECTOR_WIDTH < size0I) {  if (globalC1J + 2 + 0*SG1J*VECTOR_WIDTH < size1J) {  TYPE_MAC_WRITE( C[ GLOBAL_C( (uint64_t) globalC0I + 1 + 0*SG0I*VECTOR_WIDTH, (uint64_t) globalC1J + 2 + 0*SG1J*VECTOR_WIDTH) ], alpha, rC[0*VECTOR_WIDTH+1 + (0*VECTOR_WIDTH+2)*TT0I], beta) } }
-  if (globalC0I + 2 + 0*SG0I*VECTOR_WIDTH < size0I) {  if (globalC1J + 2 + 0*SG1J*VECTOR_WIDTH < size1J) {  TYPE_MAC_WRITE( C[ GLOBAL_C( (uint64_t) globalC0I + 2 + 0*SG0I*VECTOR_WIDTH, (uint64_t) globalC1J + 2 + 0*SG1J*VECTOR_WIDTH) ], alpha, rC[0*VECTOR_WIDTH+2 + (0*VECTOR_WIDTH+2)*TT0I], beta) } }
-  if (globalC0I + 3 + 0*SG0I*VECTOR_WIDTH < size0I) {  if (globalC1J + 2 + 0*SG1J*VECTOR_WIDTH < size1J) {  TYPE_MAC_WRITE( C[ GLOBAL_C( (uint64_t) globalC0I + 3 + 0*SG0I*VECTOR_WIDTH, (uint64_t) globalC1J + 2 + 0*SG1J*VECTOR_WIDTH) ], alpha, rC[0*VECTOR_WIDTH+3 + (0*VECTOR_WIDTH+2)*TT0I], beta) } }
-  if (globalC0I + 0 + 0*SG0I*VECTOR_WIDTH < size0I) {  if (globalC1J + 3 + 0*SG1J*VECTOR_WIDTH < size1J) {  TYPE_MAC_WRITE( C[ GLOBAL_C( (uint64_t) globalC0I + 0 + 0*SG0I*VECTOR_WIDTH, (uint64_t) globalC1J + 3 + 0*SG1J*VECTOR_WIDTH) ], alpha, rC[0*VECTOR_WIDTH+0 + (0*VECTOR_WIDTH+3)*TT0I], beta) } }
-  if (globalC0I + 1 + 0*SG0I*VECTOR_WIDTH < size0I) {  if (globalC1J + 3 + 0*SG1J*VECTOR_WIDTH < size1J) {  TYPE_MAC_WRITE( C[ GLOBAL_C( (uint64_t) globalC0I + 1 + 0*SG0I*VECTOR_WIDTH, (uint64_t) globalC1J + 3 + 0*SG1J*VECTOR_WIDTH) ], alpha, rC[0*VECTOR_WIDTH+1 + (0*VECTOR_WIDTH+3)*TT0I], beta) } }
-  if (globalC0I + 2 + 0*SG0I*VECTOR_WIDTH < size0I) {  if (globalC1J + 3 + 0*SG1J*VECTOR_WIDTH < size1J) {  TYPE_MAC_WRITE( C[ GLOBAL_C( (uint64_t) globalC0I + 2 + 0*SG0I*VECTOR_WIDTH, (uint64_t) globalC1J + 3 + 0*SG1J*VECTOR_WIDTH) ], alpha, rC[0*VECTOR_WIDTH+2 + (0*VECTOR_WIDTH+3)*TT0I], beta) } }
-  if (globalC0I + 3 + 0*SG0I*VECTOR_WIDTH < size0I) {  if (globalC1J + 3 + 0*SG1J*VECTOR_WIDTH < size1J) {  TYPE_MAC_WRITE( C[ GLOBAL_C( (uint64_t) globalC0I + 3 + 0*SG0I*VECTOR_WIDTH, (uint64_t) globalC1J + 3 + 0*SG1J*VECTOR_WIDTH) ], alpha, rC[0*VECTOR_WIDTH+3 + (0*VECTOR_WIDTH+3)*TT0I], beta) } }
+  if (globalC0I + 0 + 0*SG0I*VECTOR_WIDTH < size0I) {  if (globalC1J + 0 + 0*SG1J*VECTOR_WIDTH < size1J) {  TYPE_MAC_WRITE( C[ GLOBAL_C( (uint64_t) globalC0I + 0 + 0*SG0I*VECTOR_WIDTH, (uint64_t) globalC1J + 0 + 0*SG1J*VECTOR_WIDTH) ], alpha, c01_0[0] , beta) } }
+  if (globalC0I + 1 + 0*SG0I*VECTOR_WIDTH < size0I) {  if (globalC1J + 0 + 0*SG1J*VECTOR_WIDTH < size1J) {  TYPE_MAC_WRITE( C[ GLOBAL_C( (uint64_t) globalC0I + 1 + 0*SG0I*VECTOR_WIDTH, (uint64_t) globalC1J + 0 + 0*SG1J*VECTOR_WIDTH) ], alpha, c01_0[1] , beta) } }
+  if (globalC0I + 2 + 0*SG0I*VECTOR_WIDTH < size0I) {  if (globalC1J + 0 + 0*SG1J*VECTOR_WIDTH < size1J) {  TYPE_MAC_WRITE( C[ GLOBAL_C( (uint64_t) globalC0I + 2 + 0*SG0I*VECTOR_WIDTH, (uint64_t) globalC1J + 0 + 0*SG1J*VECTOR_WIDTH) ], alpha, c23_0[0] , beta) } }
+  if (globalC0I + 3 + 0*SG0I*VECTOR_WIDTH < size0I) {  if (globalC1J + 0 + 0*SG1J*VECTOR_WIDTH < size1J) {  TYPE_MAC_WRITE( C[ GLOBAL_C( (uint64_t) globalC0I + 3 + 0*SG0I*VECTOR_WIDTH, (uint64_t) globalC1J + 0 + 0*SG1J*VECTOR_WIDTH) ], alpha, c23_0[1] , beta) } }
+  if (globalC0I + 0 + 0*SG0I*VECTOR_WIDTH < size0I) {  if (globalC1J + 1 + 0*SG1J*VECTOR_WIDTH < size1J) {  TYPE_MAC_WRITE( C[ GLOBAL_C( (uint64_t) globalC0I + 0 + 0*SG0I*VECTOR_WIDTH, (uint64_t) globalC1J + 1 + 0*SG1J*VECTOR_WIDTH) ], alpha, c01_1[0] , beta) } }
+  if (globalC0I + 1 + 0*SG0I*VECTOR_WIDTH < size0I) {  if (globalC1J + 1 + 0*SG1J*VECTOR_WIDTH < size1J) {  TYPE_MAC_WRITE( C[ GLOBAL_C( (uint64_t) globalC0I + 1 + 0*SG0I*VECTOR_WIDTH, (uint64_t) globalC1J + 1 + 0*SG1J*VECTOR_WIDTH) ], alpha, c01_1[1] , beta) } }
+  if (globalC0I + 2 + 0*SG0I*VECTOR_WIDTH < size0I) {  if (globalC1J + 1 + 0*SG1J*VECTOR_WIDTH < size1J) {  TYPE_MAC_WRITE( C[ GLOBAL_C( (uint64_t) globalC0I + 2 + 0*SG0I*VECTOR_WIDTH, (uint64_t) globalC1J + 1 + 0*SG1J*VECTOR_WIDTH) ], alpha, c23_1[0] , beta) } }
+  if (globalC0I + 3 + 0*SG0I*VECTOR_WIDTH < size0I) {  if (globalC1J + 1 + 0*SG1J*VECTOR_WIDTH < size1J) {  TYPE_MAC_WRITE( C[ GLOBAL_C( (uint64_t) globalC0I + 3 + 0*SG0I*VECTOR_WIDTH, (uint64_t) globalC1J + 1 + 0*SG1J*VECTOR_WIDTH) ], alpha, c23_1[1] , beta) } }
+  if (globalC0I + 0 + 0*SG0I*VECTOR_WIDTH < size0I) {  if (globalC1J + 2 + 0*SG1J*VECTOR_WIDTH < size1J) {  TYPE_MAC_WRITE( C[ GLOBAL_C( (uint64_t) globalC0I + 0 + 0*SG0I*VECTOR_WIDTH, (uint64_t) globalC1J + 2 + 0*SG1J*VECTOR_WIDTH) ], alpha, c01_2[0], beta) } }
+  if (globalC0I + 1 + 0*SG0I*VECTOR_WIDTH < size0I) {  if (globalC1J + 2 + 0*SG1J*VECTOR_WIDTH < size1J) {  TYPE_MAC_WRITE( C[ GLOBAL_C( (uint64_t) globalC0I + 1 + 0*SG0I*VECTOR_WIDTH, (uint64_t) globalC1J + 2 + 0*SG1J*VECTOR_WIDTH) ], alpha, c01_2[1], beta) } }
+  if (globalC0I + 2 + 0*SG0I*VECTOR_WIDTH < size0I) {  if (globalC1J + 2 + 0*SG1J*VECTOR_WIDTH < size1J) {  TYPE_MAC_WRITE( C[ GLOBAL_C( (uint64_t) globalC0I + 2 + 0*SG0I*VECTOR_WIDTH, (uint64_t) globalC1J + 2 + 0*SG1J*VECTOR_WIDTH) ], alpha, c23_2[0], beta) } }
+  if (globalC0I + 3 + 0*SG0I*VECTOR_WIDTH < size0I) {  if (globalC1J + 2 + 0*SG1J*VECTOR_WIDTH < size1J) {  TYPE_MAC_WRITE( C[ GLOBAL_C( (uint64_t) globalC0I + 3 + 0*SG0I*VECTOR_WIDTH, (uint64_t) globalC1J + 2 + 0*SG1J*VECTOR_WIDTH) ], alpha, c23_2[1], beta) } }
+  if (globalC0I + 0 + 0*SG0I*VECTOR_WIDTH < size0I) {  if (globalC1J + 3 + 0*SG1J*VECTOR_WIDTH < size1J) {  TYPE_MAC_WRITE( C[ GLOBAL_C( (uint64_t) globalC0I + 0 + 0*SG0I*VECTOR_WIDTH, (uint64_t) globalC1J + 3 + 0*SG1J*VECTOR_WIDTH) ], alpha, c01_3[0], beta) } }
+  if (globalC0I + 1 + 0*SG0I*VECTOR_WIDTH < size0I) {  if (globalC1J + 3 + 0*SG1J*VECTOR_WIDTH < size1J) {  TYPE_MAC_WRITE( C[ GLOBAL_C( (uint64_t) globalC0I + 1 + 0*SG0I*VECTOR_WIDTH, (uint64_t) globalC1J + 3 + 0*SG1J*VECTOR_WIDTH) ], alpha, c01_3[1], beta) } }
+  if (globalC0I + 2 + 0*SG0I*VECTOR_WIDTH < size0I) {  if (globalC1J + 3 + 0*SG1J*VECTOR_WIDTH < size1J) {  TYPE_MAC_WRITE( C[ GLOBAL_C( (uint64_t) globalC0I + 2 + 0*SG0I*VECTOR_WIDTH, (uint64_t) globalC1J + 3 + 0*SG1J*VECTOR_WIDTH) ], alpha, c23_3[0], beta) } }
+  if (globalC0I + 3 + 0*SG0I*VECTOR_WIDTH < size0I) {  if (globalC1J + 3 + 0*SG1J*VECTOR_WIDTH < size1J) {  TYPE_MAC_WRITE( C[ GLOBAL_C( (uint64_t) globalC0I + 3 + 0*SG0I*VECTOR_WIDTH, (uint64_t) globalC1J + 3 + 0*SG1J*VECTOR_WIDTH) ], alpha, c23_3[1], beta) } }
+
 
 }
 #undef UNROLL

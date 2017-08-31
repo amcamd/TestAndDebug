@@ -572,7 +572,8 @@ bool benchmarkAllSolutionsForSize(
 
     timeNs /= (numSyncsPerBenchmark / numEnqueuesPerSync);
 
-    double gflops = solutionIsValid ? totalFlops / timeNs : 0;
+//  double gflops = solutionIsValid ? totalFlops / timeNs : 0;
+    double gflops =                   totalFlops / timeNs    ;
     bool newFastest = false;
     if (gflops > fastestGFlops) {
       fastestGFlops = gflops;

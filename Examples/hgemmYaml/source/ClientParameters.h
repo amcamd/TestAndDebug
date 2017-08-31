@@ -42,11 +42,14 @@ const unsigned int maxNumIndices = 3;
 const unsigned int totalIndices[numProblemTypes] = { 3 };
 const unsigned int numProblems = 1;
 const unsigned int problemSizes[numProblems][3] = {
-  {   32,   32,   32 }};
+  {  64,  64,  64}};
 /* problem sizes */
-size_t maxSizeC = 1024;
-size_t maxSizeA = 1024;
-size_t maxSizeB = 1024;
+size_t maxSizeC = 4096;
+size_t maxSizeA = 4096;
+size_t maxSizeB = 4096;
+//size_t maxSizeC = 1024;
+//size_t maxSizeA = 1024;
+//size_t maxSizeB = 1024;
 
 /* current problem size */
 
