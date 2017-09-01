@@ -219,12 +219,6 @@ extern "C" half2 __v_pk_fma_f16(half2, half2, half2) __asm("llvm.fma.v2f16");
     rC[2+3*TT0I] = c23_3[0]; \
     rC[3+3*TT0I] = c23_3[1]; \
 
-
-//rC[0+3*TT0I] += rA[0] * rB[3]; \
-//rC[1+3*TT0I] += rA[1] * rB[3]; \
-//rC[2+3*TT0I] += rA[2] * rB[3]; \
-//rC[3+3*TT0I] += rA[3] * rB[3]; \
-
 /* hard-coded initial strides */
 #define strideC0I 1
 #define strideA0I 1
