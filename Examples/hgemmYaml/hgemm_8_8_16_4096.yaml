@@ -1,0 +1,56 @@
+# benchmark fastest kernels for the 5760 size
+GlobalParameters:
+  MinimumRequiredVersion: 3.0.0
+  PrintLevel: 1
+  ForceRedoBenchmarkProblems: True
+  ForceRedoLibraryLogic: True
+  ForceRedoLibraryClient: True
+  CMakeBuildType: Release
+  EnqueuesPerSync: 1
+  SyncsPerBenchmark: 2
+  LibraryPrintDebug: False
+  NumElementsToValidate: 1000
+  ValidationMaxToPrint: 4
+  ValidationPrintValids: False
+  ShortNames: False
+  MergeFiles: True
+  Platform: 0
+  Device: 0
+
+BenchmarkProblems:
+  - # sgemm NN
+    - # ProblemType
+      OperationType: GEMM
+      DataType: h
+      TransposeA: False
+      TransposeB: False
+      UseBeta: True
+      Batched: False
+
+    - # BenchmarkProblemSizeGroup - Standard
+      InitialSolutionParameters:
+      BenchmarkCommonParameters:
+        - ProblemSizes:
+          - Range: [ [4096], 0, 0 ]
+        - LoopDoWhile: [False]
+        - NumLoadsCoalescedA: [1]
+        - NumLoadsCoalescedB: [1]
+        - WorkGroupMapping: [1]
+      ForkParameters:
+        - ThreadTile:
+          - [ 8, 8 ]
+        - WorkGroup:
+          - [  16, 16,  1 ]
+        - LoopTail: [False]
+        - PrefetchGlobalRead: [False]
+        - PrefetchLocalRead: [False]
+        - EdgeType: ["ShiftPtr"]
+        - DepthU: [8]
+        - VectorWidth: [8]
+      BenchmarkForkParameters:
+      JoinParameters:
+        - MacroTile
+      BenchmarkJoinParameters:
+      BenchmarkFinalParameters:
+        - ProblemSizes:
+          - Range: [ [4096], 0, 0 ]
