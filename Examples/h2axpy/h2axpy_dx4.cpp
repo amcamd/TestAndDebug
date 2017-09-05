@@ -41,9 +41,12 @@ void haxpy_half8_mod(int n, const __fp16 alpha, const __fp16 *x, __fp16 *y)
 }
 
 __global__ void 
-haxpy_half8(int n8, half2 alpha, half8 *xx, half8 *yy) 
+haxpy_half8(int n8, half2 alpha, const __fp16 *xx_fp16, __fp16 *yy_fp16) 
 {
     int tid = hipThreadIdx_x + hipBlockIdx_x * hipBlockDim_x;
+
+    half8 *xx = (half8 *)(yy_fp16);
+    half8 *yy = (half8 *)(xx_fp16);
 
     half2 y0, y1, y2, y3;
     half2 x0, x1, x2, x3;
@@ -174,7 +177,7 @@ rocblas_haxpy(rocblas_handle handle,
         dim3 threads(NB, 1, 1);
 
         hipLaunchKernelGGL(haxpy_half8, dim3(grid), dim3(threads), 0, 0, 
-            n8, half2_alpha, (half8*)x, (half8*)y);
+            n8, half2_alpha, x, y);
 
         int mod_threads = n - n8;
 
