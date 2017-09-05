@@ -45,8 +45,8 @@ haxpy_half8(int n8, half2 alpha, const __fp16 *xx_fp16, __fp16 *yy_fp16)
 {
     int tid = hipThreadIdx_x + hipBlockIdx_x * hipBlockDim_x;
 
-    half8 *xx = (half8 *)(yy_fp16);
-    half8 *yy = (half8 *)(xx_fp16);
+    half8 *xx = (half8 *)(xx_fp16);
+    half8 *yy = (half8 *)(yy_fp16);
 
     half2 y0, y1, y2, y3;
     half2 x0, x1, x2, x3;
