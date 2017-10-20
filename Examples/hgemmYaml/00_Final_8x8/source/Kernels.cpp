@@ -140,96 +140,7 @@ __device__ void generalized_z_order(
 #define TYPE_MAC(MULA,MULB,DST) DST = MAC(MULA,MULB,DST);
 #define TYPE_MAC_WRITE(DST,ALPHA,REG,BETA) DST = 0 != (BETA) ? (ALPHA)*(REG) + (BETA)*(DST) : (ALPHA)*(REG);
 
-#define TYPE_MAC_HALF2(MULA0,MULB0,DST0,MULA1,MULB1,DST1)\
-    a_pk_fma[0] = MULA0; \
-    a_pk_fma[1] = MULA1; \
-    b_pk_fma[0] = MULB0; \
-    b_pk_fma[1] = MULB1; \
-    c_pk_fma[0] = DST0; \
-    c_pk_fma[1] = DST1; \
-    c_pk_fma = __v_pk_fma_f16(a_pk_fma, b_pk_fma, c_pk_fma); \
-    DST0 = c_pk_fma[0]; \
-    DST1 = c_pk_fma[1]; \
-
-
 /* 8x8 micro-tile */
-#define MAC_8x8_HALF8\
-  TYPE_MAC_HALF2(rA_half8[0],rB_half8[0],rC[0+0*TT0I] , rA_half8[1],rB_half8[0],rC[1+0*TT0I]); \
-  TYPE_MAC_HALF2(rA_half8[2],rB_half8[0],rC[2+0*TT0I] , rA_half8[3],rB_half8[0],rC[3+0*TT0I]); \
-  TYPE_MAC_HALF2(rA_half8[4],rB_half8[0],rC[4+0*TT0I] , rA_half8[5],rB_half8[0],rC[5+0*TT0I]); \
-  TYPE_MAC_HALF2(rA_half8[6],rB_half8[0],rC[6+0*TT0I] , rA_half8[7],rB_half8[0],rC[7+0*TT0I]); \
-  TYPE_MAC_HALF2(rA_half8[0],rB_half8[1],rC[0+1*TT0I] , rA_half8[1],rB_half8[1],rC[1+1*TT0I]); \
-  TYPE_MAC_HALF2(rA_half8[2],rB_half8[1],rC[2+1*TT0I] , rA_half8[3],rB_half8[1],rC[3+1*TT0I]); \
-  TYPE_MAC_HALF2(rA_half8[4],rB_half8[1],rC[4+1*TT0I] , rA_half8[5],rB_half8[1],rC[5+1*TT0I]); \
-  TYPE_MAC_HALF2(rA_half8[6],rB_half8[1],rC[6+1*TT0I] , rA_half8[7],rB_half8[1],rC[7+1*TT0I]); \
-  TYPE_MAC_HALF2(rA_half8[0],rB_half8[2],rC[0+2*TT0I] , rA_half8[1],rB_half8[2],rC[1+2*TT0I]); \
-  TYPE_MAC_HALF2(rA_half8[2],rB_half8[2],rC[2+2*TT0I] , rA_half8[3],rB_half8[2],rC[3+2*TT0I]); \
-  TYPE_MAC_HALF2(rA_half8[4],rB_half8[2],rC[4+2*TT0I] , rA_half8[5],rB_half8[2],rC[5+2*TT0I]); \
-  TYPE_MAC_HALF2(rA_half8[6],rB_half8[2],rC[6+2*TT0I] , rA_half8[7],rB_half8[2],rC[7+2*TT0I]); \
-  TYPE_MAC_HALF2(rA_half8[0],rB_half8[3],rC[0+3*TT0I] , rA_half8[1],rB_half8[3],rC[1+3*TT0I]); \
-  TYPE_MAC_HALF2(rA_half8[2],rB_half8[3],rC[2+3*TT0I] , rA_half8[3],rB_half8[3],rC[3+3*TT0I]); \
-  TYPE_MAC_HALF2(rA_half8[4],rB_half8[3],rC[4+3*TT0I] , rA_half8[5],rB_half8[3],rC[5+3*TT0I]); \
-  TYPE_MAC_HALF2(rA_half8[6],rB_half8[3],rC[6+3*TT0I] , rA_half8[7],rB_half8[3],rC[7+3*TT0I]); \
-  TYPE_MAC_HALF2(rA_half8[0],rB_half8[4],rC[0+4*TT0I] , rA_half8[1],rB_half8[4],rC[1+4*TT0I]); \
-  TYPE_MAC_HALF2(rA_half8[2],rB_half8[4],rC[2+4*TT0I] , rA_half8[3],rB_half8[4],rC[3+4*TT0I]); \
-  TYPE_MAC_HALF2(rA_half8[4],rB_half8[4],rC[4+4*TT0I] , rA_half8[5],rB_half8[4],rC[5+4*TT0I]); \
-  TYPE_MAC_HALF2(rA_half8[6],rB_half8[4],rC[6+4*TT0I] , rA_half8[7],rB_half8[4],rC[7+4*TT0I]); \
-  TYPE_MAC_HALF2(rA_half8[0],rB_half8[5],rC[0+5*TT0I] , rA_half8[1],rB_half8[5],rC[1+5*TT0I]); \
-  TYPE_MAC_HALF2(rA_half8[2],rB_half8[5],rC[2+5*TT0I] , rA_half8[3],rB_half8[5],rC[3+5*TT0I]); \
-  TYPE_MAC_HALF2(rA_half8[4],rB_half8[5],rC[4+5*TT0I] , rA_half8[5],rB_half8[5],rC[5+5*TT0I]); \
-  TYPE_MAC_HALF2(rA_half8[6],rB_half8[5],rC[6+5*TT0I] , rA_half8[7],rB_half8[5],rC[7+5*TT0I]); \
-  TYPE_MAC_HALF2(rA_half8[0],rB_half8[6],rC[0+6*TT0I] , rA_half8[1],rB_half8[6],rC[1+6*TT0I]); \
-  TYPE_MAC_HALF2(rA_half8[2],rB_half8[6],rC[2+6*TT0I] , rA_half8[3],rB_half8[6],rC[3+6*TT0I]); \
-  TYPE_MAC_HALF2(rA_half8[4],rB_half8[6],rC[4+6*TT0I] , rA_half8[5],rB_half8[6],rC[5+6*TT0I]); \
-  TYPE_MAC_HALF2(rA_half8[6],rB_half8[6],rC[6+6*TT0I] , rA_half8[7],rB_half8[6],rC[7+6*TT0I]); \
-  TYPE_MAC_HALF2(rA_half8[0],rB_half8[7],rC[0+7*TT0I] , rA_half8[1],rB_half8[7],rC[1+7*TT0I]); \
-  TYPE_MAC_HALF2(rA_half8[2],rB_half8[7],rC[2+7*TT0I] , rA_half8[3],rB_half8[7],rC[3+7*TT0I]); \
-  TYPE_MAC_HALF2(rA_half8[4],rB_half8[7],rC[4+7*TT0I] , rA_half8[5],rB_half8[7],rC[5+7*TT0I]); \
-  TYPE_MAC_HALF2(rA_half8[6],rB_half8[7],rC[6+7*TT0I] , rA_half8[7],rB_half8[7],rC[7+7*TT0I]); \
-
-
-/* 8x8 micro-tile */
-#define MAC_8x8\
-  TYPE_MAC_HALF2(rA[0],rB[0],rC[0+0*TT0I] , rA[1],rB[0],rC[1+0*TT0I]); \
-  TYPE_MAC_HALF2(rA[2],rB[0],rC[2+0*TT0I] , rA[3],rB[0],rC[3+0*TT0I]); \
-  TYPE_MAC_HALF2(rA[4],rB[0],rC[4+0*TT0I] , rA[5],rB[0],rC[5+0*TT0I]); \
-  TYPE_MAC_HALF2(rA[6],rB[0],rC[6+0*TT0I] , rA[7],rB[0],rC[7+0*TT0I]); \
-  TYPE_MAC_HALF2(rA[0],rB[1],rC[0+1*TT0I] , rA[1],rB[1],rC[1+1*TT0I]); \
-  TYPE_MAC_HALF2(rA[2],rB[1],rC[2+1*TT0I] , rA[3],rB[1],rC[3+1*TT0I]); \
-  TYPE_MAC_HALF2(rA[4],rB[1],rC[4+1*TT0I] , rA[5],rB[1],rC[5+1*TT0I]); \
-  TYPE_MAC_HALF2(rA[6],rB[1],rC[6+1*TT0I] , rA[7],rB[1],rC[7+1*TT0I]); \
-  TYPE_MAC_HALF2(rA[0],rB[2],rC[0+2*TT0I] , rA[1],rB[2],rC[1+2*TT0I]); \
-  TYPE_MAC_HALF2(rA[2],rB[2],rC[2+2*TT0I] , rA[3],rB[2],rC[3+2*TT0I]); \
-  TYPE_MAC_HALF2(rA[4],rB[2],rC[4+2*TT0I] , rA[5],rB[2],rC[5+2*TT0I]); \
-  TYPE_MAC_HALF2(rA[6],rB[2],rC[6+2*TT0I] , rA[7],rB[2],rC[7+2*TT0I]); \
-  TYPE_MAC_HALF2(rA[0],rB[3],rC[0+3*TT0I] , rA[1],rB[3],rC[1+3*TT0I]); \
-  TYPE_MAC_HALF2(rA[2],rB[3],rC[2+3*TT0I] , rA[3],rB[3],rC[3+3*TT0I]); \
-  TYPE_MAC_HALF2(rA[4],rB[3],rC[4+3*TT0I] , rA[5],rB[3],rC[5+3*TT0I]); \
-  TYPE_MAC_HALF2(rA[6],rB[3],rC[6+3*TT0I] , rA[7],rB[3],rC[7+3*TT0I]); \
-  TYPE_MAC_HALF2(rA[0],rB[4],rC[0+4*TT0I] , rA[1],rB[4],rC[1+4*TT0I]); \
-  TYPE_MAC_HALF2(rA[2],rB[4],rC[2+4*TT0I] , rA[3],rB[4],rC[3+4*TT0I]); \
-  TYPE_MAC_HALF2(rA[4],rB[4],rC[4+4*TT0I] , rA[5],rB[4],rC[5+4*TT0I]); \
-  TYPE_MAC_HALF2(rA[6],rB[4],rC[6+4*TT0I] , rA[7],rB[4],rC[7+4*TT0I]); \
-  TYPE_MAC_HALF2(rA[0],rB[5],rC[0+5*TT0I] , rA[1],rB[5],rC[1+5*TT0I]); \
-  TYPE_MAC_HALF2(rA[2],rB[5],rC[2+5*TT0I] , rA[3],rB[5],rC[3+5*TT0I]); \
-  TYPE_MAC_HALF2(rA[4],rB[5],rC[4+5*TT0I] , rA[5],rB[5],rC[5+5*TT0I]); \
-  TYPE_MAC_HALF2(rA[6],rB[5],rC[6+5*TT0I] , rA[7],rB[5],rC[7+5*TT0I]); \
-  TYPE_MAC_HALF2(rA[0],rB[6],rC[0+6*TT0I] , rA[1],rB[6],rC[1+6*TT0I]); \
-  TYPE_MAC_HALF2(rA[2],rB[6],rC[2+6*TT0I] , rA[3],rB[6],rC[3+6*TT0I]); \
-  TYPE_MAC_HALF2(rA[4],rB[6],rC[4+6*TT0I] , rA[5],rB[6],rC[5+6*TT0I]); \
-  TYPE_MAC_HALF2(rA[6],rB[6],rC[6+6*TT0I] , rA[7],rB[6],rC[7+6*TT0I]); \
-  TYPE_MAC_HALF2(rA[0],rB[7],rC[0+7*TT0I] , rA[1],rB[7],rC[1+7*TT0I]); \
-  TYPE_MAC_HALF2(rA[2],rB[7],rC[2+7*TT0I] , rA[3],rB[7],rC[3+7*TT0I]); \
-  TYPE_MAC_HALF2(rA[4],rB[7],rC[4+7*TT0I] , rA[5],rB[7],rC[5+7*TT0I]); \
-  TYPE_MAC_HALF2(rA[6],rB[7],rC[6+7*TT0I] , rA[7],rB[7],rC[7+7*TT0I]); \
-
-typedef __fp16 half2 __attribute__((ext_vector_type(2)));
-typedef __fp16 half8 __attribute__((ext_vector_type(8)));
-
-extern "C" half2 __v_pk_fma_f16(half2, half2, half2) __asm("llvm.fma.v2f16");
-
-/* 8x8 micro-tile */
-/*
 #define MAC_8x8\
   TYPE_MAC(rA[0],rB[0],rC[0+0*TT0I]); \
   TYPE_MAC(rA[1],rB[0],rC[1+0*TT0I]); \
@@ -295,12 +206,17 @@ extern "C" half2 __v_pk_fma_f16(half2, half2, half2) __asm("llvm.fma.v2f16");
   TYPE_MAC(rA[5],rB[7],rC[5+7*TT0I]); \
   TYPE_MAC(rA[6],rB[7],rC[6+7*TT0I]); \
   TYPE_MAC(rA[7],rB[7],rC[7+7*TT0I]); \
-*/
 
 /* hard-coded initial strides */
 #define strideC0I 1
 #define strideA0I 1
 #define strideBK 1
+
+typedef __fp16 half8 __attribute__((ext_vector_type(8)));
+typedef __fp16 half2 __attribute__((ext_vector_type(2)));
+
+extern "C" half2 __v_pk_fma_f16(half2, half2, half2) __asm("llvm.fma.v2f16");
+
 
   /******************************************/
   /* Begin Kernel                           */
@@ -326,6 +242,39 @@ __global__ void Cij_Aik_Bkj_HB_MT128x128x08_K1(
   unsigned int const sizeK )
 #pragma clang diagnostic pop
  {
+     half8 *xx = (half8 *)(A);
+     half8 *yy = (half8 *)(B);
+
+     half2 y0, y1, y2, y3;
+     half2 x0, x1, x2, x3;
+     half2 z0, z1, z2, z3;
+
+     int tid = 0;
+
+     x0[0] = xx[tid][0];
+     x0[1] = xx[tid][1];
+     x1[0] = xx[tid][2];
+     x1[1] = xx[tid][3];
+     x2[0] = xx[tid][4];
+     x2[1] = xx[tid][5];
+     x3[0] = xx[tid][6];
+     x3[1] = xx[tid][7];
+
+     z0 = __v_pk_fma_f16(alpha, x0, y0);
+     z1 = __v_pk_fma_f16(alpha, x1, y1);
+     z2 = __v_pk_fma_f16(alpha, x2, y2);
+     z3 = __v_pk_fma_f16(alpha, x3, y3);
+
+     yy[tid][0] = z0[0];
+     yy[tid][1] = z0[1];
+     yy[tid][2] = z1[0];
+     yy[tid][3] = z1[1];
+     yy[tid][4] = z2[0];
+     yy[tid][5] = z2[1];
+     yy[tid][6] = z3[0];
+     yy[tid][7] = z3[1];
+
+
 
   /******************************************/
   /* Allocate Resources                     */
@@ -400,13 +349,6 @@ __global__ void Cij_Aik_Bkj_HB_MT128x128x08_K1(
   rC[63] = SCALAR_ZERO;
   DATA_TYPE rA[TT0I];
   DATA_TYPE rB[TT1J];
-
-  half8 rA_half8;
-  half8 rB_half8;
-
-  half2 a_pk_fma;
-  half2 b_pk_fma;
-  half2 c_pk_fma;
 
   /* registers for global->local */
   DATA_TYPE a_0_0_0_0;
@@ -602,11 +544,9 @@ __global__ void Cij_Aik_Bkj_HB_MT128x128x08_K1(
 
   /* local read addresses: init pointers a */
   localReadA = (DATA_TYPE *)(localMemory + localReadOffsetA);
-//half8 localReadA_half8 = (half8)(*localReadA);
 
   /* local read addresses: init pointers b */
   localReadB = (DATA_TYPE *)(localMemory + localReadOffsetB);
-//half8 localReadB_half8 = (half8)(*localReadB);
 
   /* declare loop num iterations */
   unsigned int numIterK;
@@ -663,8 +603,7 @@ __global__ void Cij_Aik_Bkj_HB_MT128x128x08_K1(
 
     /* iter 0 */
 
-    /* local read a and b */
-/*
+    /* local read a */
     rA[0*VECTOR_WIDTH+0] = localReadA[0*SG0I*VECTOR_WIDTH + 0]; 
     rA[0*VECTOR_WIDTH+1] = localReadA[0*SG0I*VECTOR_WIDTH + 1]; 
     rA[0*VECTOR_WIDTH+2] = localReadA[0*SG0I*VECTOR_WIDTH + 2]; 
@@ -672,8 +611,9 @@ __global__ void Cij_Aik_Bkj_HB_MT128x128x08_K1(
     rA[0*VECTOR_WIDTH+4] = localReadA[0*SG0I*VECTOR_WIDTH + 4]; 
     rA[0*VECTOR_WIDTH+5] = localReadA[0*SG0I*VECTOR_WIDTH + 5]; 
     rA[0*VECTOR_WIDTH+6] = localReadA[0*SG0I*VECTOR_WIDTH + 6]; 
-    rA[0*VECTOR_WIDTH+7] = localReadA[0*SG0I*VECTOR_WIDTH + 7];
+    rA[0*VECTOR_WIDTH+7] = localReadA[0*SG0I*VECTOR_WIDTH + 7]; 
 
+    /* local read b */
     rB[0*VECTOR_WIDTH+0] = localReadB[0*SG1J*VECTOR_WIDTH + 0]; 
     rB[0*VECTOR_WIDTH+1] = localReadB[0*SG1J*VECTOR_WIDTH + 1]; 
     rB[0*VECTOR_WIDTH+2] = localReadB[0*SG1J*VECTOR_WIDTH + 2]; 
@@ -681,34 +621,14 @@ __global__ void Cij_Aik_Bkj_HB_MT128x128x08_K1(
     rB[0*VECTOR_WIDTH+4] = localReadB[0*SG1J*VECTOR_WIDTH + 4]; 
     rB[0*VECTOR_WIDTH+5] = localReadB[0*SG1J*VECTOR_WIDTH + 5]; 
     rB[0*VECTOR_WIDTH+6] = localReadB[0*SG1J*VECTOR_WIDTH + 6]; 
-    rB[0*VECTOR_WIDTH+7] = localReadB[0*SG1J*VECTOR_WIDTH + 7];
-*/
-
-    rA_half8[0] = localReadA[0];
-    rA_half8[1] = localReadA[1];
-    rA_half8[2] = localReadA[2];
-    rA_half8[3] = localReadA[3];
-    rA_half8[4] = localReadA[4];
-    rA_half8[5] = localReadA[5];
-    rA_half8[6] = localReadA[6];
-    rA_half8[7] = localReadA[7];
-
-    rB_half8[0] = localReadB[0];
-    rB_half8[1] = localReadB[1];
-    rB_half8[2] = localReadB[2];
-    rB_half8[3] = localReadB[3];
-    rB_half8[4] = localReadB[4];
-    rB_half8[5] = localReadB[5];
-    rB_half8[6] = localReadB[6];
-    rB_half8[7] = localReadB[7];
+    rB[0*VECTOR_WIDTH+7] = localReadB[0*SG1J*VECTOR_WIDTH + 7]; 
 
     /* local read increment a */
     localReadA += LOCAL_SPLITU*(MT0I+PAD);
 
     /* local read increment b */
     localReadB += LOCAL_SPLITU*(MT1J+PAD);
-/*  MAC_8x8 */
-    MAC_8x8_HALF8
+    MAC_8x8
 
     /* iter 1 */
 
