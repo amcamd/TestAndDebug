@@ -18,7 +18,7 @@
 #define BETA 0.3
 #define P_MAX 8
 #define PERFORMANCE_TEST true
-#define CORRECTNESS_TEST true
+#define CORRECTNESS_TEST false
 
 #define CHECK_HIP_ERROR(error) \
     if (error != hipSuccess) { \
@@ -39,6 +39,12 @@
         exit(EXIT_FAILURE); \
      }
 
+typedef enum output_mode_
+{
+    terse = 0,
+    verbose = 1
+} output_mode;
+
 using namespace std;
 
 void usage(char *argv[])
@@ -51,11 +57,13 @@ void usage(char *argv[])
     printf(" -a<gemm lda, default %d>\n", M_DIM);
     printf(" -b<gemm ldb, default %d>\n", K_DIM);
     printf(" -c<gemm ldc, default %d>\n", M_DIM);
+    printf(" -o<output verbose or terse: v or t, default v\n");
+    printf(" -f<output first line: y or n, default y\n");
     exit (8);
 }
 
 int parse_args(int argc, char *argv[], int &M, int &N, int &K, int &lda, int &ldb, int &ldc,
-                rocblas_operation &transA, rocblas_operation &transB)
+                rocblas_operation &transA, rocblas_operation &transB, output_mode &output, bool &first)
 {
     while (argc > 1)
     {
@@ -76,6 +84,26 @@ int parse_args(int argc, char *argv[], int &M, int &N, int &K, int &lda, int &ld
                     } else if(strncmp(&argv[1][2], "TT", 2) == 0) {
                         transA = rocblas_operation_transpose;
                         transB = rocblas_operation_transpose;
+                    }
+                    break;
+                case 'o':
+                    if(strcmp(&argv[1][2], "v") == 0) 
+                    {
+                        output = verbose;
+                    } 
+                    else if(strcmp(&argv[1][2], "t") == 0) 
+                    {
+                        output = terse;
+                    }
+                    break;
+                case 'f':
+                    if(strcmp(&argv[1][2], "y") == 0) 
+                    {
+                        first = true;
+                    } 
+                    else if(strcmp(&argv[1][2], "n") == 0) 
+                    {
+                        first = false;
                     }
                     break;
                 case 'm':
@@ -198,10 +226,40 @@ int main(int argc, char *argv[]) {
     rocblas_int lda = 0, sizeOfA, As1, As2;  rocblas_operation transA = TRANS_A; 
     rocblas_int ldb = 0, sizeOfB, Bs1, Bs2;  rocblas_operation transB = TRANS_B; 
     rocblas_int ldc = 0, sizeOfC, Cs1, Cs2;
+    output_mode output = verbose;
+    bool first = true;
 
-    if( parse_args(argc, argv, M, N, K, lda, ldb, ldc, transA, transB)) {
+    if( parse_args(argc, argv, M, N, K, lda, ldb, ldc, transA, transB, output, first)) {
         usage(argv);
         return -1;
+    }
+
+    if (first == true)
+    {
+        if (output == verbose)
+        {
+            if (M==N && M==K && M==lda && M==ldb && M==ldc)
+            {
+                printf("M==N && M==K && M==lda && M==ldb && M==ldc\n");
+                printf("transA_transB,m,number_iterations,min_gflops,ave_gflops,max_gflops,rsd_gflops\n");
+            }
+            else
+            {
+                printf("transA_transB,m,n,k,lda,ldb,ldc,number_iterations,min_gflops,ave_gflops,max_gflops,rsd_gflops\n");
+            }
+        }
+        if (output == terse)
+        {
+            if (M==N && M==K && M==lda && M==ldb && M==ldc)
+            {
+                printf("M==N && M==K && M==lda && M==ldb && M==ldc\n");
+                printf("transA_transB,m,max_gflops\n");
+            }
+            else
+            {
+                printf("transA_transB,m,n,k,lda,ldb,ldc,max_gflops\n");
+            }
+        }
     }
 
     ldc = M;             // leading dimension of C (gemm argument)
@@ -216,13 +274,27 @@ int main(int argc, char *argv[]) {
         lda = lda >= K ? lda : K; As1 = lda; As2 = 1; sizeOfA = M * lda; printf("T");
     }
     if( transB == rocblas_operation_none){
-        ldb = ldb >= K ? ldb : K; Bs1 = 1; Bs2 = ldb; sizeOfB = N * ldb; printf("N:");
+        ldb = ldb >= K ? ldb : K; Bs1 = 1; Bs2 = ldb; sizeOfB = N * ldb; printf("N,");
     }
     else {
-        ldb = ldb >= N ? ldb : N; Bs1 = ldb; Bs2 = 1; sizeOfB = K * ldb; printf("T: ");
+        ldb = ldb >= N ? ldb : N; Bs1 = ldb; Bs2 = 1; sizeOfB = K * ldb; printf("T,");
     }
- 
-    printf("M, N, K, lda, ldb, ldc = %d, %d, %d, %d, %d, %d\n",M, N, K, lda, ldb, ldc);
+
+    if (output == verbose)
+    {
+        if (M==N && M==K && M==lda && M==ldb && M==ldc)
+        {
+            printf("%d,",M);
+        }
+        else
+        {
+            printf("%d,%d,%d,%d,%d,%d,",M, N, K, lda, ldb, ldc);
+        }
+    }
+    else
+    {
+        printf("%d,",M);
+    }
 
     vector<float> hA(sizeOfA), hB(sizeOfB), hC(sizeOfC), hC_copy(sizeOfC);
     vector<double> hA64(sizeOfA), hB64(sizeOfB), hC64(sizeOfC);
@@ -289,17 +361,23 @@ int main(int argc, char *argv[]) {
 
 #define CHRON_TIMER true
 #if CHRON_TIMER == true
-        printf("CHRON_TIMER == true\n");
+//      printf("CHRON_TIMER == true\n");
         hipDeviceSynchronize();
         start = std::chrono::high_resolution_clock::now();
         hipDeviceSynchronize();
 #else
-        printf("CHRON_TIMER == false\n");
+//      printf("CHRON_TIMER == false\n");
         hipEventRecord(hipStart);
 #endif
 
-        CHECK_ROCBLAS_ERROR(rocblas_sgemm(handle, transA, transB, M, N, K, &alpha, dA, lda, dB, 
+//      CHECK_ROCBLAS_ERROR(rocblas_sgemm(handle, transA, transB, M, N, K, &alpha, dA, lda, dB, 
+//                             ldb, &beta, dC, ldc));
+
+        int ninner = 10;
+        for(int i = 0; i < ninner; i++) {
+            CHECK_ROCBLAS_ERROR(rocblas_sgemm(handle, transA, transB, M, N, K, &alpha, dA, lda, dB, 
                                ldb, &beta, dC, ldc));
+        }
 
 #if CHRON_TIMER == true
         hipDeviceSynchronize();
@@ -312,8 +390,8 @@ int main(int argc, char *argv[]) {
         hipEventElapsedTime(&milliseconds, hipStart, hipStop);
         seconds = (double) milliseconds / 1000.0;
 #endif
-        // number of iterations required to run for 1 second, limit to between 10 and 1000
-        int number_iterations = 1.0 / seconds; 
+        // number of iterations required to run for 100 second, limit to between 10 and 1000
+        int number_iterations = 100.0 / seconds; 
         number_iterations = 10 > number_iterations ? 10 : number_iterations;
         number_iterations = 1000 < number_iterations ? 1000 : number_iterations;
         vector<double> times(number_iterations);
@@ -321,7 +399,6 @@ int main(int argc, char *argv[]) {
         double min_seconds = numeric_limits<double>::max();
         double max_seconds = numeric_limits<double>::min();
         double sum_seconds = 0.0;
-        int ninner = 1;
         for(int i = 0; i < number_iterations; i++){
 #if CHRON_TIMER == true
             hipDeviceSynchronize();
@@ -368,8 +445,16 @@ int main(int argc, char *argv[]) {
         rsd_gflops = rsd_gflops / (double) number_iterations;
         rsd_seconds = sqrt(rsd_seconds) / ave_seconds * 100.0;
         rsd_gflops = sqrt(rsd_gflops) / ave_gflops * 100.0;
-        printf("max,ave,min,rsd_seconds, number_iterations = %f, %f, %f, %.1f%%, %d\n", max_seconds, ave_seconds, min_seconds, rsd_seconds, number_iterations);
-        printf("min,ave,max,rsd_gflops, number_iterations = %.0f, %.0f, %.0f, %.1f%%, %d\n", min_gflops, ave_gflops, max_gflops, rsd_gflops, number_iterations);
+//      printf("number_iterations, max,ave,min,rsd_seconds= %d, %f, %f, %f, %.1f%%\n", number_iterations, max_seconds, ave_seconds, min_seconds, rsd_seconds );
+
+        if (output == verbose)
+        {
+            printf("%d,%.0f,%.0f,%.0f,%.1f%%\n", number_iterations, min_gflops, ave_gflops, max_gflops, rsd_gflops);
+        }
+        if (output == terse)
+        {
+            printf("%.0f\n", max_gflops);
+        }
     }
 
     CHECK_HIP_ERROR(hipFree(dA));

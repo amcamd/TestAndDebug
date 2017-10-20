@@ -122,6 +122,24 @@ th, td {
       <li>export KMDUMPISA=1
     </ul>
   </li>
+  <li><pre>Two changes to prevent terminal freeze</pre>
+    <ul>
+      <li>In the application <code>Software & Updates</code>,<br> 
+          go to <code>Additional Drivers</code><br> 
+          Under the <code>Unknown: Unknown</code> tag select the radio button for<br>
+          <code>Using Processor microcode firmware 
+            for AMD CPUs from amd64-microcode (proprietary)</code> 
+      <li><code>sudo vim /etc/default/grub</code><br>
+          Find the line <code>GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"</code><br>
+          change it to <code>GRUB_CMDLINE_LINUX_DEFAULT="quiet splash intel_idle.max_cstate=1"</code>
+    </ul>
+  </li>
+  <li><pre>extract c++ function name from mangled name</pre>
+    <ul>
+      <li>c++filt -n _ZN7rocblas13device_mallocEm
+    </ul>
+  </li>
+
 </ul>
 
 <h1>ROCM1.6 installation</h1>
@@ -429,10 +447,10 @@ comment in next editor.
 
 <li> <code>cd rocBLAS</code>
 <li> <code>git checkout develop</code>
-<li> change rocBLAS/cmake/build_version.cmake to 0.4.2.0
+<li> change rocBLAS/CMakeLists.txt to 0.4.2.0
 <ul>
-   <li> <code>vim cmake/build-version.cmake</code>
-   <li> <code>git add cmake/build-version.cmake</code>
+   <li> <code>vim CMakeLists.txt
+   <li> <code>git add CMakeLists.txt</code>
    <li> <code>git commit -m"version for master branch release"</code>
 </ul>
 
@@ -441,10 +459,10 @@ comment in next editor.
 <li> <code>git checkout develop</code>
 <li> <code>git merge master --ff-only</code>  # getting the develop branch to include the new merge commit
 
-<li> change rocBLAS/cmake/build_version.cmake to 0.5.2.0
+<li> change rocBLAS/CMakeLists.txt 0.5.2.0
 <ul>
-  <li> <code>vim cmake/build-version.cmake</code>
-  <li> <code>git add cmake/build-version.cmake</code>
+  <li> <code>vim CMakeLists.txt</code>
+  <li> <code>git add CMakeLists.txt</code>
   <li> <code>git commit -m"version for develop branch at release"</code>
 </ul>
 
