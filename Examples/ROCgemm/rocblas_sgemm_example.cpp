@@ -5,6 +5,7 @@
 #include <math.h>
 #include <chrono>
 #include <limits>
+#include <unistd.h>
 #include "rocblas.h"
 #include <hip/hip_runtime.h>
 #include <hip/hip_runtime_api.h>
@@ -241,11 +242,11 @@ int main(int argc, char *argv[]) {
             if (M==N && M==K && M==lda && M==ldb && M==ldc)
             {
                 printf("M==N && M==K && M==lda && M==ldb && M==ldc\n");
-                printf("transA_transB,m,number_iterations,min_gflops,ave_gflops,max_gflops,rsd_gflops\n");
+                printf("transA_transB,m,number_inner_iterations,number_outer_iterations,min_gflops,ave_gflops,max_gflops,rsd_gflops%%\n");
             }
             else
             {
-                printf("transA_transB,m,n,k,lda,ldb,ldc,number_iterations,min_gflops,ave_gflops,max_gflops,rsd_gflops\n");
+                printf("transA_transB,m,n,k,lda,ldb,ldc,number_inner_iterations,number_outer_iterations,min_gflops,ave_gflops,max_gflops,rsd_gflops%%\n");
             }
         }
         if (output == terse)
@@ -358,6 +359,9 @@ int main(int argc, char *argv[]) {
         hipEventCreate(&hipStop);
         float milliseconds = 0.0;
         double seconds = 0.0;
+        useconds_t sleep_micro_sec; 
+
+        int ninner = 5;
 
 #define CHRON_TIMER true
 #if CHRON_TIMER == true
@@ -373,7 +377,6 @@ int main(int argc, char *argv[]) {
 //      CHECK_ROCBLAS_ERROR(rocblas_sgemm(handle, transA, transB, M, N, K, &alpha, dA, lda, dB, 
 //                             ldb, &beta, dC, ldc));
 
-        int ninner = 10;
         for(int i = 0; i < ninner; i++) {
             CHECK_ROCBLAS_ERROR(rocblas_sgemm(handle, transA, transB, M, N, K, &alpha, dA, lda, dB, 
                                ldb, &beta, dC, ldc));
@@ -390,10 +393,19 @@ int main(int argc, char *argv[]) {
         hipEventElapsedTime(&milliseconds, hipStart, hipStop);
         seconds = (double) milliseconds / 1000.0;
 #endif
-        // number of iterations required to run for 100 second, limit to between 10 and 1000
-        int number_iterations = 100.0 / seconds; 
-        number_iterations = 10 > number_iterations ? 10 : number_iterations;
+        sleep_micro_sec = (unsigned int)(seconds * 1000000.0);
+        usleep(sleep_micro_sec * 5);
+
+        // number of inner iterations to run for 0.05 sec, limit to between 1 and 10
+        ninner = (0.05 / seconds) * ninner;
+        ninner = 10 < ninner ? 10 : ninner;
+        ninner = 1 > ninner ? 1 : ninner;
+
+        // number of outer iterations required to run for 50 second, limit to between 100 and 1000
+        int number_iterations = 50.0 / seconds; 
+        number_iterations = 100 > number_iterations ? 100 : number_iterations;
         number_iterations = 1000 < number_iterations ? 1000 : number_iterations;
+
         vector<double> times(number_iterations);
 
         double min_seconds = numeric_limits<double>::max();
@@ -423,6 +435,8 @@ int main(int argc, char *argv[]) {
             hipEventElapsedTime(&milliseconds, hipStart, hipStop);
             seconds = (double) milliseconds / 1000.0 / ninner;
 #endif
+            sleep_micro_sec = (unsigned int)(seconds * ninner * 1000000.0);
+            usleep(sleep_micro_sec * 5);
 
             min_seconds = min_seconds < seconds ? min_seconds : seconds;
             max_seconds = max_seconds > seconds ? max_seconds : seconds;
@@ -449,11 +463,11 @@ int main(int argc, char *argv[]) {
 
         if (output == verbose)
         {
-            printf("%d,%.0f,%.0f,%.0f,%.1f%%\n", number_iterations, min_gflops, ave_gflops, max_gflops, rsd_gflops);
+            printf("%d,%d,%.0f,%.0f,%.0f,%.1f,", ninner, number_iterations, min_gflops, ave_gflops, max_gflops, rsd_gflops);
         }
         if (output == terse)
         {
-            printf("%.0f\n", max_gflops);
+            printf("%.0f,", max_gflops);
         }
     }
 
