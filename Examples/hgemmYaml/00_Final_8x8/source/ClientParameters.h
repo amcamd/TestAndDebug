@@ -40,9 +40,9 @@ const bool complexConjugateB[numProblemTypes] = { false };
 
 const unsigned int maxNumIndices = 3;
 const unsigned int totalIndices[numProblemTypes] = { 3 };
-const unsigned int numProblems = 1;
-const unsigned int problemSizes[numProblems][3] = {
-  { 4096, 4096, 4096 }};
+// const unsigned int numProblems = 1;
+const unsigned int numProblems = 3;
+const unsigned int problemSizes[numProblems][3] = { {1024, 1024, 1024}, {2048, 2048, 2048}, { 4096, 4096, 4096 } };
 /* problem sizes */
 size_t maxSizeC = 16777216;
 size_t maxSizeA = 16777216;
