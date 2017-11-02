@@ -794,6 +794,10 @@ Push to dockerhub repo with:
 sudo docker push sunway513/hipcaffe:rocblas
 </pre>
 
+<h3>To open docker on jenkins-cuda-0</h3>
+
+sudo docker run -it -u 1000:1000 --device=/dev/nvidiactl --device=/dev/nvidia0 --device=/dev/nvidia-uvm --device=/dev/nvidia-uvm-tools --volume-driver=nvidia-docker --volume=nvidia_driver_384.90:/usr/local/nvidia:ro  hipblas/build-hipblas-hip-artifactory:latest
+
 <h3>To install hip on cuda machine</h3>
 <pre>
 wget -qO - http://packages.amd.com/rocm/apt/debian/rocm.gpg.key | sudo apt-key add -
