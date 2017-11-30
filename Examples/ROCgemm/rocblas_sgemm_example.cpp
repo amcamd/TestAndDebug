@@ -20,6 +20,7 @@
 #define P_MAX 8
 #define PERFORMANCE_TEST true
 #define CORRECTNESS_TEST false
+#define SLEEP_MULTIPLIER 0
 
 #define CHECK_HIP_ERROR(error) \
     if (error != hipSuccess) { \
@@ -60,11 +61,13 @@ void usage(char *argv[])
     printf(" -c<gemm ldc, default %d>\n", M_DIM);
     printf(" -o<output verbose or terse: v or t, default v\n");
     printf(" -f<output first line: y or n, default y\n");
+    printf(" -s<sleep_multiplier, default %d>\n", SLEEP_MULTIPLIER);
     exit (8);
 }
 
 int parse_args(int argc, char *argv[], int &M, int &N, int &K, int &lda, int &ldb, int &ldc,
-                rocblas_operation &transA, rocblas_operation &transB, output_mode &output, bool &first)
+                rocblas_operation &transA, rocblas_operation &transB, output_mode &output, bool &first,
+                useconds_t sleep_multiplier)
 {
     while (argc > 1)
     {
@@ -125,6 +128,8 @@ int parse_args(int argc, char *argv[], int &M, int &N, int &K, int &lda, int &ld
                 case 'c':
                     ldc = atoi(&argv[1][2]);
                     break;
+                case 's':
+                    sleep_multiplier = (useconds_t)(atoi(&argv[1][2]));
                 default:
                     printf("Wrong Argument: %s\n", argv[1]);
                     return (1);
@@ -228,9 +233,10 @@ int main(int argc, char *argv[]) {
     rocblas_int ldb = 0, sizeOfB, Bs1, Bs2;  rocblas_operation transB = TRANS_B; 
     rocblas_int ldc = 0, sizeOfC, Cs1, Cs2;
     output_mode output = verbose;
+    useconds_t sleep_multiplier = SLEEP_MULTIPLIER; 
     bool first = true;
 
-    if( parse_args(argc, argv, M, N, K, lda, ldb, ldc, transA, transB, output, first)) {
+    if( parse_args(argc, argv, M, N, K, lda, ldb, ldc, transA, transB, output, first, sleep_multiplier)) {
         usage(argv);
         return -1;
     }
@@ -394,7 +400,10 @@ int main(int argc, char *argv[]) {
         seconds = (double) milliseconds / 1000.0;
 #endif
         sleep_micro_sec = (unsigned int)(seconds * 1000000.0);
-        usleep(sleep_micro_sec * 5);
+	if(sleep_multiplier > 0)
+        {
+            usleep(sleep_micro_sec * sleep_multiplier);
+        }
 
         // number of inner iterations to run for 0.05 sec, limit to between 1 and 10
         ninner = (0.05 / seconds) * ninner;
@@ -437,6 +446,10 @@ int main(int argc, char *argv[]) {
 #endif
             sleep_micro_sec = (unsigned int)(seconds * ninner * 1000000.0);
             usleep(sleep_micro_sec * 5);
+	    if(sleep_multiplier > 0)
+            {
+                usleep(sleep_micro_sec * sleep_multiplier);
+            }
 
             min_seconds = min_seconds < seconds ? min_seconds : seconds;
             max_seconds = max_seconds > seconds ? max_seconds : seconds;
