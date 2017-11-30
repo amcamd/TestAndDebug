@@ -449,7 +449,7 @@ comment in next editor.
 <li> <code>git checkout develop</code>
 <li> change rocBLAS/CMakeLists.txt to 0.4.2.0
 <ul>
-   <li> <code>vim CMakeLists.txt
+    <li> <code>vim CMakeLists.txt</code>
    <li> <code>git add CMakeLists.txt</code>
    <li> <code>git commit -m"version for master branch release"</code>
 </ul>
@@ -850,6 +850,19 @@ or
 <p>
 deb [arch=amd64] http://10.255.8.5/rocm/apt/debian/ xenial main
 
+<h1>clang-format</h1>
+<ul>
+    <li><a href="https://dx13.co.uk/articles/2015/4/3/Setting-up-git-clang-format.html">Setting up git-clang-format</a><br></li>
+    <li><a href="https://clang.llvm.org/docs/ClangFormatStyleOptions.html">clang-format style options</a><br></li>
+    <li><a href="http://clang.llvm.org/docs/ClangFormat.html#vim-integration">clang-format VIM integration</a><br></li>
+</ul>
+<ul>
+    <li>install clang-format with: <code>sudo apt-get update; sudo apt-get install clang-format</code></li>
+    <li><a href="https://llvm.org/svn/llvm-project/cfe/trunk/tools/clang-format/git-clang-format">Download git-clang-format from here</a><br></li>
+    <li>make it executable with chmod +x ~/bin/git-clang-format</li>
+    <li>check its been picked pu by git: <code>git clang-format -h</code></li>
+    <li>Try it out with <code>git clang-format --diff</code></li>
+</ul>
 
 </body>
 </html>
