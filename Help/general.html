@@ -136,7 +136,12 @@ th, td {
   </li>
   <li><pre>extract c++ function name from mangled name</pre>
     <ul>
-      <li>c++filt -n _ZN7rocblas13device_mallocEm
+        <li><code>c++filt -n _ZN7rocblas13device_mallocEm</code>
+    </ul>
+  </li>
+  <li><pre>suspend ubuntu terminal</pre>
+    <ul>
+      <li><code>systemctl suspend</code>
     </ul>
   </li>
 
@@ -681,6 +686,43 @@ To run hcblas/test/benchmark you may need to set the following environment varia
 
 > export HCBLAS_PATH=/home/achapman/hcblasClone/hcblas
 </pre>
+
+<h1>ATITOOL (atitool)</h1>
+
+<ul>
+    <li>get atitool from
+        <ul>
+            <li><a href="http://gpudiagnostics/release">http://gpudiagnostics/release</a>
+            <li>Click <code>diagnostic tools</code> button at top
+            <li>Click <code>ATITool</code> link on left panel, download latest release
+        </ul>
+    <li>put fan on full
+        <ul>
+            <li><code>sudo ./atitool -fancontrol=1</code>
+        </ul>
+
+    <li>set clock to 1500MHz
+        <ul>
+            <li>set soc voltage first
+                <ul>
+                    <li><code>sudo ./atitool --vddcr_soc=1.1</code>
+                </ul>
+            <li>set clock
+                <ul>
+                    <li><code>sudo ./stitool --eng=1500</code>
+                </ul>
+        </ul>
+
+    <li>disable DPM
+        <ul>
+            <li>sudo vi /etc/default/grub
+            <li>add value <code>amdgpu.dpm=0"</code> to <code>GRUB_CMDLINE_LINUX_DEFAULT</code>
+            <li><code>sudo update-grub</code>
+            <li>restart your system</li>
+        </ul>
+</ul>
+
+
 
 <h1>rocm-smi  (ROCm System Management Interface</h1>
 <p>Run <code>rocm-smi --help</code> for information. Below commands set
