@@ -313,14 +313,14 @@ Already on 'develop'
 Your branch is up-to-date with 'origin/develop'.
 </samp></pre>
 
-<li><pre>
+<li>Alternative 1<pre>
 ===: git merge upstream/develop
 <samp>
 Updating db0918e..e4bd4ae
 Fast-forward
 </samp></pre>
 
-<li>Alternative 1:
+<li>Alternative 2:
 <pre>
 ===: git rebase upstream/develop develop
 <samp>
@@ -328,7 +328,7 @@ First, rewinding head to replay your work on top of it...
 Fast-forwarded develop to upstream/develop.
 </samp></pre>
 
-<li>Alternative 2, Merge strategy favors upstream/develop:
+<li>Alternative 3, Merge strategy favors upstream/develop:
 <pre>
 ===: git rebase -s recursive -X ours upstream/develop develop
 </pre>
