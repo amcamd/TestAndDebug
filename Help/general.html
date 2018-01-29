@@ -905,6 +905,10 @@ deb [arch=amd64] http://10.255.8.5/rocm/apt/debian/ xenial main
     <li>check its been picked pu by git: <code>git clang-format -h</code></li>
     <li>Try it out with <code>git clang-format --diff</code></li>
 </ul>
+<ul>
+    <li> To format a file: <code>clang-format-3.8 -style=file -i <path_to_source_file></code>
+    <li> To format at checkin: <code>./.githooks/install</code>
+</ul>
 
 </body>
 </html>
