@@ -76,16 +76,23 @@ int parse_args(int argc, char *argv[], int &M, int &N, int &K, int &lda, int &ld
             switch (argv[1][1])
             {
                 case 't':
-                    if(strcmp(&argv[1][2], "NN") == 0) {
+                    if(strcmp(&argv[1][2], "NN") == 0)
+                    {
                         transA = rocblas_operation_none;
                         transB = rocblas_operation_none;
-                    } else if(strncmp(&argv[1][2], "NT", 2) == 0) {
+                    }
+                    else if(strncmp(&argv[1][2], "NT", 2) == 0)
+                    {
                         transA = rocblas_operation_none;
                         transB = rocblas_operation_transpose;
-                    } else if(strncmp(&argv[1][2], "TN", 2) == 0) {
+                    }
+                    else if(strncmp(&argv[1][2], "TN", 2) == 0)
+                    {
                         transA = rocblas_operation_transpose;
                         transB = rocblas_operation_none;
-                    } else if(strncmp(&argv[1][2], "TT", 2) == 0) {
+                    }
+                    else if(strncmp(&argv[1][2], "TT", 2) == 0)
+                    {
                         transA = rocblas_operation_transpose;
                         transB = rocblas_operation_transpose;
                     }
@@ -148,10 +155,13 @@ int parse_args(int argc, char *argv[], int &M, int &N, int &K, int &lda, int &ld
 }
 
 template <typename T>
-void printMatrix(const char* name, T* A, rocblas_int m, rocblas_int n, rocblas_int lda) {
+void printMatrix(const char* name, T* A, rocblas_int m, rocblas_int n, rocblas_int lda)
+{
     printf("---------- %s ----------\n", name);
-    for( int i = 0; i < m; i++) {
-        for( int j = 0; j < n; j++) {
+    for( int i = 0; i < m; i++)
+    {
+        for( int j = 0; j < n; j++)
+        {
             printf("%f ",A[i + j * lda]);
         }
         printf("\n");
@@ -160,11 +170,15 @@ void printMatrix(const char* name, T* A, rocblas_int m, rocblas_int n, rocblas_i
 
 template <typename T>
 void mat_mat_mult(T alpha, T beta, int M, int N, int K, vector<T> A, int As1, int As2, 
-                  vector<T> B, int Bs1, int Bs2, vector<T> & C, int Cs1, int Cs2) {
-    for(int i1=0; i1<M; i1++) {
-        for(int i2=0; i2<N; i2++) {
+                  vector<T> B, int Bs1, int Bs2, vector<T> & C, int Cs1, int Cs2)
+{
+    for(int i1=0; i1<M; i1++)
+    {
+        for(int i2=0; i2<N; i2++)
+        {
             T t = 0.0;
-            for(int i3=0; i3<K; i3++){
+            for(int i3=0; i3<K; i3++)
+            {
                 t +=  A[i1 * As1 + i3 * As2] * B[i3 * Bs1 + i2 * Bs2]; 
             }
             C[i1*Cs1 +i2*Cs2] = beta * C[i1*Cs1+i2*Cs2] + alpha * t ;
@@ -172,12 +186,16 @@ void mat_mat_mult(T alpha, T beta, int M, int N, int K, vector<T> A, int As1, in
     }
 }
 
-int element_check(int M, int N, int ldc, float tolerance, vector<float>hC, vector<float>hC_copy){
+int element_check(int M, int N, int ldc, float tolerance, vector<float>hC, vector<float>hC_copy)
+{
     float error = 0;
-    for(rocblas_int i1=0; i1<M; i1++) {
-        for(rocblas_int i2=0; i2<N; i2++) {
+    for(rocblas_int i1=0; i1<M; i1++)
+    {
+        for(rocblas_int i2=0; i2<N; i2++)
+        {
             error = fabs(hC[i1+i2*ldc] - hC_copy[i1+i2*ldc]);
-            if(error != error || error > tolerance) {
+            if(error != error || error > tolerance)
+            {
               printf("error %d,%d: %E  CPU=%E, GPU=%E\n",i1,i2,error,hC[i1+i2*ldc],hC_copy[i1+i2*ldc]);
               break;
             }
@@ -185,47 +203,57 @@ int element_check(int M, int N, int ldc, float tolerance, vector<float>hC, vecto
         if(error != error || error > tolerance) break;
     }
 
-    if(error != error || error > tolerance){
+    if(error != error || error > tolerance)
+    {
         return 1;
     }
-    else{
+    else
+    {
         return 0;
     }
 }
 
-double error_norm(int n1, int n2, vector<float> c_float, vector<double> c_double) {
+double error_norm(int n1, int n2, vector<float> c_float, vector<double> c_double)
+{
     double frobenius_norm_error = 0.0;
-    for (int i = 0; i < n1*n2; i++) {
+    for (int i = 0; i < n1*n2; i++)
+    {
         frobenius_norm_error += (c_double[i] - (double)c_float[i]) * (c_double[i] - (double)c_float[i]);
     }
     return(sqrt(frobenius_norm_error));
 }
 
 template <typename T>
-T frobenius_norm(int n1, int n2, vector<T> a) {
+T frobenius_norm(int n1, int n2, vector<T> a)
+{
     T norm;
-    for (int i = 0; i < n1*n2; i++){
+    for (int i = 0; i < n1*n2; i++)
+    {
         norm += a[i] * a[i];
     }
     return sqrt(norm);
 }
 
-int norm_check(int M, int N, double tolerance, vector<float> hc, vector<double>hc64) {
+int norm_check(int M, int N, double tolerance, vector<float> hc, vector<double>hc64)
+{
     float eps = std::numeric_limits<float>::epsilon();
     double frobenius_norm_error = error_norm(M, N, hc, hc64);
     double frobenius_norm_c64 = frobenius_norm<double>(M, N, hc64);
 //  printf("frobenius_norm_error, frobenius_norm_c = %E, %E\n", frobenius_norm_error, frobenius_norm_c64);
     printf("(frobenius_norm_error/frobenius_norm_c) / eps = %E\n", frobenius_norm_error/frobenius_norm_c64/eps);
     double error = (frobenius_norm_error/frobenius_norm_c64) / eps;
-    if (error != error || error > tolerance) {
+    if (error != error || error > tolerance)
+    {
         return 1;
-    } else {
+    }
+    else
+    {
         return 0;
     }
 }
 
-int main(int argc, char *argv[]) {
-
+int main(int argc, char *argv[])
+{
     rocblas_int M = M_DIM;  float alpha = ALPHA;
     rocblas_int N = N_DIM;  float beta  = BETA;
     rocblas_int K = K_DIM; 
@@ -236,7 +264,8 @@ int main(int argc, char *argv[]) {
     useconds_t sleep_multiplier = SLEEP_MULTIPLIER; 
     bool first = true;
 
-    if( parse_args(argc, argv, M, N, K, lda, ldb, ldc, transA, transB, output, first, sleep_multiplier)) {
+    if( parse_args(argc, argv, M, N, K, lda, ldb, ldc, transA, transB, output, first, sleep_multiplier))
+    {
         usage(argv);
         return -1;
     }
@@ -274,16 +303,20 @@ int main(int argc, char *argv[]) {
     Cs1 = 1;             // stride in first index
     Cs2 = ldc;           // stride in second index
     // set leading dimension and strides depending on transA and transB
-    if( transA == rocblas_operation_none){
+    if( transA == rocblas_operation_none)
+    {
         lda = lda >= M ? lda : M; As1 = 1; As2 = lda; sizeOfA = K * lda; printf("N");
     }
-    else {
+    else
+    {
         lda = lda >= K ? lda : K; As1 = lda; As2 = 1; sizeOfA = M * lda; printf("T");
     }
-    if( transB == rocblas_operation_none){
+    if( transB == rocblas_operation_none)
+    {
         ldb = ldb >= K ? ldb : K; Bs1 = 1; Bs2 = ldb; sizeOfB = N * ldb; printf("N,");
     }
-    else {
+    else
+    {
         ldb = ldb >= N ? ldb : N; Bs1 = ldb; Bs2 = 1; sizeOfB = K * ldb; printf("T,");
     }
 
@@ -330,7 +363,8 @@ int main(int argc, char *argv[]) {
     CHECK_HIP_ERROR(hipMemcpy(dB, hB.data(), sizeof(float) * sizeOfB, hipMemcpyHostToDevice));
     CHECK_HIP_ERROR(hipMemcpy(dC, hC.data(), sizeof(float) * sizeOfC, hipMemcpyHostToDevice));
 
-    if(CORRECTNESS_TEST){
+    if(CORRECTNESS_TEST)
+    {
         CHECK_ROCBLAS_ERROR(rocblas_sgemm(handle, transA, transB, M, N, K, &alpha, dA, lda, dB, 
                                ldb, &beta, dC, ldc));
 
@@ -343,31 +377,39 @@ int main(int argc, char *argv[]) {
 //      printMatrix<float>("calculated matrix hC", hC.data(), min(P_MAX,M), min(P_MAX,N), ldc);
 //      printMatrix<float>("reference  matrix hC_copy", hC_copy.data(), min(P_MAX,M), min(P_MAX,N), ldc);
 
-        if( element_check(M, N, ldc, element_tolerance, hC, hC_copy)){
+        if( element_check(M, N, ldc, element_tolerance, hC, hC_copy))
+        {
             printf("GEMM Failed element wise test !\n"); 
-        } else {
+        }
+        else
+        {
             printf("GEMM Success in element wise test!\n");
         }
 
-        if( norm_check(M, N, norm_tolerance, hC, hC64)){
+        if( norm_check(M, N, norm_tolerance, hC, hC64))
+        {
             printf("GEMM Failed norm test !\n");
-        } else {
+        } 
+        else
+        {
             printf("GEMM passed norm test!\n");
         }
     }
 
-    if(PERFORMANCE_TEST) {
-
+    if(PERFORMANCE_TEST)
+    {
         std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
         std::chrono::duration<double> dur;
         hipEvent_t hipStart, hipStop;
+
         hipEventCreate(&hipStart);
         hipEventCreate(&hipStop);
         float milliseconds = 0.0;
         double seconds = 0.0;
         useconds_t sleep_micro_sec; 
 
-        int ninner = 5;
+//      time one rocblas_sgemm call for warmup
+        int ninner = 1;
 
 #define CHRON_TIMER true
 #if CHRON_TIMER == true
@@ -380,10 +422,8 @@ int main(int argc, char *argv[]) {
         hipEventRecord(hipStart);
 #endif
 
-//      CHECK_ROCBLAS_ERROR(rocblas_sgemm(handle, transA, transB, M, N, K, &alpha, dA, lda, dB, 
-//                             ldb, &beta, dC, ldc));
-
-        for(int i = 0; i < ninner; i++) {
+        for(int i = 0; i < ninner; i++)
+        {
             CHECK_ROCBLAS_ERROR(rocblas_sgemm(handle, transA, transB, M, N, K, &alpha, dA, lda, dB, 
                                ldb, &beta, dC, ldc));
         }
@@ -400,9 +440,47 @@ int main(int argc, char *argv[]) {
         seconds = (double) milliseconds / 1000.0;
 #endif
         sleep_micro_sec = (unsigned int)(seconds * 1000000.0);
-	if(sleep_multiplier > 0)
+        if(sleep_multiplier > 0)
         {
             usleep(sleep_micro_sec * sleep_multiplier);
+        }
+
+//      if one call takes less than 1 second, time another 4 calls for warmup
+        if(seconds < 1)
+        {
+            ninner = 4;
+
+#if CHRON_TIMER == true
+            hipDeviceSynchronize();
+            start = std::chrono::high_resolution_clock::now();
+            hipDeviceSynchronize();
+#else
+            hipEventRecord(hipStart);
+#endif
+
+            for(int i = 0; i < ninner; i++)
+            {
+                CHECK_ROCBLAS_ERROR(rocblas_sgemm(handle, transA, transB, M, N, K, &alpha, dA, lda, dB, 
+                                   ldb, &beta, dC, ldc));
+            }
+
+#if CHRON_TIMER == true
+            hipDeviceSynchronize();
+            end = std::chrono::high_resolution_clock::now();
+            hipDeviceSynchronize();
+            dur= end - start;
+            seconds = dur.count();
+#else
+            hipEventRecord(hipStop);
+            hipEventElapsedTime(&milliseconds, hipStart, hipStop);
+            seconds = (double) milliseconds / 1000.0;
+#endif
+            sleep_micro_sec = (unsigned int)(seconds * 1000000.0);
+            if(sleep_multiplier > 0)
+            {
+                usleep(sleep_micro_sec * sleep_multiplier);
+            }
+
         }
 
         // number of inner iterations to run for 0.05 sec, limit to between 1 and 10
@@ -420,7 +498,8 @@ int main(int argc, char *argv[]) {
         double min_seconds = numeric_limits<double>::max();
         double max_seconds = numeric_limits<double>::min();
         double sum_seconds = 0.0;
-        for(int i = 0; i < number_iterations; i++){
+        for(int i = 0; i < number_iterations; i++)
+        {
 #if CHRON_TIMER == true
             hipDeviceSynchronize();
             start = std::chrono::high_resolution_clock::now();
@@ -446,7 +525,7 @@ int main(int argc, char *argv[]) {
 #endif
             sleep_micro_sec = (unsigned int)(seconds * ninner * 1000000.0);
             usleep(sleep_micro_sec * 5);
-	    if(sleep_multiplier > 0)
+            if(sleep_multiplier > 0)
             {
                 usleep(sleep_micro_sec * sleep_multiplier);
             }
