@@ -264,6 +264,40 @@ int main(int argc, char *argv[])
     useconds_t sleep_multiplier = SLEEP_MULTIPLIER; 
     bool first = true;
 
+
+
+    int deviceId;
+    hipCtxGetDevice(&deviceId);
+    hipDeviceProp_t deviceProperties;
+    hipGetDeviceProperties(&deviceProperties, deviceId);
+    std::string name = deviceProperties.name;
+    std::cout << "name =<" << name << ">" << std::endl;
+    if (name == "Device 6860")
+    {
+        std::cout << "--- name = 6860 ---" << std::endl;
+    }
+    else if (name == "Fiji [Radeon R9 FURY / NANO Series]")
+    {
+        std::cout << "--- name = Fiji [Radeon R9 FURY / NANO Series] ---" << std::endl;
+    }
+    else if (name == "Device 6863")
+    {
+        std::cout << "--- name = 6863 ---" << std::endl;
+    }
+    else
+    {
+        std::cout << "--- name = default ---" << std::endl;
+    }
+
+
+
+
+
+
+
+
+
+
     if( parse_args(argc, argv, M, N, K, lda, ldb, ldc, transA, transB, output, first, sleep_multiplier))
     {
         usage(argv);

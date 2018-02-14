@@ -149,6 +149,11 @@ th, td {
       <li><code>export LD_LIBRARY_PATH=/opt/rocm/lib</code>
     </ul>
   </li>
+  <li><pre>to get device information</pre>
+      <ul>
+          <li><code>/opt/rocm/bin/rocm_agent_enumerator</code>
+      </ul>
+  </li>
 
 </ul>
 
@@ -824,7 +829,7 @@ sudo docker pull sunway513/ubuntu14.04:promote-free-v2
 </pre>
 <p>To run docker image sunway13/ubuntu14.04:promote-free-v2</p>
 <pre>
-sudo docker run -it --device "/dev/kfd" sunway513/ubuntu14.04:promote-free-v2 env TERM=xterm-color bash -l
+sudo docker run -it --rm --device "/dev/kfd" sunway513/ubuntu14.04:promote-free-v2 env TERM=xterm-color bash -l
 </pre>
 <p>To remove a docker container, first get CONTAINER ID with 
 <pre>sudo docker ps -a</pre>
