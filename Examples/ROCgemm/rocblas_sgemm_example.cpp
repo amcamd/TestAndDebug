@@ -264,8 +264,6 @@ int main(int argc, char *argv[])
     useconds_t sleep_multiplier = SLEEP_MULTIPLIER; 
     bool first = true;
 
-
-
     int deviceId;
     hipCtxGetDevice(&deviceId);
     hipDeviceProp_t deviceProperties;
@@ -288,15 +286,6 @@ int main(int argc, char *argv[])
     {
         std::cout << "--- name = default ---" << std::endl;
     }
-
-
-
-
-
-
-
-
-
 
     if( parse_args(argc, argv, M, N, K, lda, ldb, ldc, transA, transB, output, first, sleep_multiplier))
     {

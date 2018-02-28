@@ -831,6 +831,9 @@ sudo docker pull sunway513/ubuntu14.04:promote-free-v2
 <pre>
 sudo docker run -it --rm --device "/dev/kfd" sunway513/ubuntu14.04:promote-free-v2 env TERM=xterm-color bash -l
 </pre>
+<pre>
+sudo docker run -it --rm --device "/dev/kfd" --device "/dev/dri" sunway513/ubuntu14.04:promote-free-v2
+</pre>
 <p>To remove a docker container, first get CONTAINER ID with 
 <pre>sudo docker ps -a</pre>
 Next use command 
@@ -919,6 +922,17 @@ deb [arch=amd64] http://10.255.8.5/rocm/apt/debian/ xenial main
     <li> To format a file: <code>clang-format-3.8 -style=file -i <path_to_source_file></code>
     <li> To format at checkin: <code>./.githooks/install</code>
 </ul>
+
+<h1>Visual Studio Code</h1>
+<ul>
+    <li>to start, click on icon, or search for "Visual Studio Code"
+    <li>directory .vscode is added
+    <li>gear wheel brings up .vscode/launch.json file. Add the following to configurations in .vscode/launch.json</li>
+    <li><pre> "args": [
+                "./Tensile/Tensile/Configs/rocblas_sgemm_asm_single_kernel.yaml", "~/tensile-gen"
+            ]</pre></li>
+    <li>bug icon brings up debug view</li>
+    <li>you need to be viewing the file Tensile.py when you start debugging</li>
 
 </body>
 </html>
