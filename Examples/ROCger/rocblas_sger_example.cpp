@@ -2,6 +2,10 @@
 #include <stdio.h>
 #include <vector>
 #include <math.h>
+#include <fstream>
+#include <string>
+#include <unistd.h>
+#include <sys/param.h>
 #include "rocblas.h"
 
 #define M_DIM 1031
@@ -71,8 +75,52 @@ int parse_args(int argc, char *argv[], int &M, int &N, int &lda, int &incx, int 
     return (0);
 }
 
+void use_fp(std::ostream &os)
+{
+    os << "===== intended cerr from use_fp =====" << std::endl;
+}
 
-int main(int argc, char *argv[]) {
+
+void open_fp(std::ostream** fp, std::ofstream* fout, std::string environment_variable_name, std::string filename)
+{
+    *fp = &cerr;
+
+    char const* tmp = getenv(environment_variable_name.c_str());
+    if(tmp != NULL)
+    {
+        std::string logfile_pathname = (std::string)tmp;
+        fout->open(logfile_pathname);
+        *fp = fout;
+
+
+        if(fout->is_open() == false)
+        {
+            char temp[MAXPATHLEN];
+            std::string curr_work_dir =
+            (getcwd(temp, MAXPATHLEN) ? std::string(temp) : std::string(""));
+            logfile_pathname = curr_work_dir + "/" + filename;
+            fout->open(logfile_pathname);
+        }
+
+
+
+    }
+}
+
+
+int main(int argc, char *argv[])
+{
+
+    std::ostream* fp;
+    std::ofstream fout;
+
+    open_fp(&fp, &fout, "ROCBLAS_LOG_TRACE_PATH", "default_filename");
+
+    *fp << "----- intended cout output -----" << std::endl;
+
+    use_fp(*fp);
+
+
 
     rocblas_int M = M_DIM;
     rocblas_int N = N_DIM;

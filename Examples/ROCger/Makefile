@@ -1,10 +1,16 @@
-#rocBLAS is built in the directory $(HOME)/repos/rocBLAS/build
+#Assumes rocBLAS is installed in the directory ROCBLAS_INSTALL_DIR
+
 HIP_INCLUDE=/opt/rocm/hip/include
-ROCBLAS_INCLUDE=$(HOME)/repos/rocBLAS/build/library-package/include
-ROCBLAS_LIB_PATH=$(HOME)/repos/rocBLAS/build/library-package/lib
-ROCBLAS_LIB=rocblas-hcc
-TENSILE_LIB=tensile-rocblas
-LDFLAGS=-lm -L$(ROCBLAS_LIB_PATH) -l$(ROCBLAS_LIB) -l$(TENSILE_LIB)
+
+#ROCBLAS_INSTALL_DIR=$(HOME)/repos/rocBLAS/build/library-package
+ROCBLAS_INSTALL_DIR=/opt/rocm/rocblas
+
+ROCBLAS_INCLUDE=$(ROCBLAS_INSTALL_DIR)/include
+ROCBLAS_LIB_PATH=$(ROCBLAS_INSTALL_DIR)/lib
+
+ROCBLAS_LIB=rocblas
+
+LDFLAGS=-lm -L$(ROCBLAS_LIB_PATH) -l$(ROCBLAS_LIB)
 #LDFLAGS=-lm -L$(ROCBLAS_LIB_PATH) -l$(ROCBLAS_LIB)
 LD=hipcc
 CFLAGS=-I$(ROCBLAS_INCLUDE) -I$(HIP_INCLUDE)
