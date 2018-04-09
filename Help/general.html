@@ -122,6 +122,11 @@ th, td {
       <li>export KMDUMPISA=1
     </ul>
   </li>
+  <li><pre>list hip kernels at runtime</pre>
+    <ul>
+      <li>export HCC_PROFILE=2
+    </ul>
+  </li>
   <li><pre>Two changes to prevent terminal freeze</pre>
     <ul>
       <li>In the application <code>Software & Updates</code>,<br> 
@@ -815,7 +820,8 @@ vi Kernels.cpp
 <h1>Docker</h1>
 <p>https://hub.docker.com  account is   amcamd
 <p>On Ubuntu machine, can log in with <pre>sudo docker login</pre>
-<p>To see all docker containers</p>
+<p>To see all available docker images on machine <pre>sudo docker images</pre></p>
+<p>To see all running docker containers</p>
 <pre>
 sudo docker ps -a
 </pre>
@@ -832,7 +838,7 @@ sudo docker pull sunway513/ubuntu14.04:promote-free-v2
 sudo docker run -it --rm --device "/dev/kfd" sunway513/ubuntu14.04:promote-free-v2 env TERM=xterm-color bash -l
 </pre>
 <pre>
-sudo docker run -it --rm --device "/dev/kfd" --device "/dev/dri" sunway513/ubuntu14.04:promote-free-v2
+sudo docker run -it --rm --device "/dev/kfd" --device "/dev/dri" --group-add video sunway513/ubuntu14.04:promote-free-v2
 </pre>
 <p>To remove a docker container, first get CONTAINER ID with 
 <pre>sudo docker ps -a</pre>
