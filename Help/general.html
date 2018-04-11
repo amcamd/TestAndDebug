@@ -459,7 +459,7 @@ comment in next editor.
 </ul>
 </ul>
 
-<h4>Merge develop into master and release</h4>
+<h4>Merge rocBLAS develop into master and release</h4>
 <ul>
 <li> <code>mkdir -p ~/repos/rocBLASmergeDevelop; cd ~/repos/rocBLASmergeDevelop</code>
 
@@ -467,7 +467,7 @@ comment in next editor.
 
 <li> <code>cd rocBLAS</code>
 <li> <code>git checkout develop</code>
-<li> change rocBLAS/CMakeLists.txt to 0.4.2.0
+<li> change rocBLAS/CMakeLists.txt to 0.12.2.0, and tensile_tag in CMakeLists.txt to v4.0.1
 <ul>
     <li> <code>vim CMakeLists.txt</code>
    <li> <code>git add CMakeLists.txt</code>
@@ -479,7 +479,7 @@ comment in next editor.
 <li> <code>git checkout develop</code>
 <li> <code>git merge master --ff-only</code>  # getting the develop branch to include the new merge commit
 
-<li> change rocBLAS/CMakeLists.txt 0.5.2.0
+<li> change rocBLAS/CMakeLists.txt 0.13.2.0, and tensile_tag in CMakeLists.txt to develop
 <ul>
   <li> <code>vim CMakeLists.txt</code>
   <li> <code>git add CMakeLists.txt</code>
@@ -489,6 +489,42 @@ comment in next editor.
 <li> <code>git push --all</code>
 
 <li> go to  https://github.com/ROCmSoftwarePlatform/rocBLAS.git
+
+<li> under repository name click &lt;Releases&gt;
+
+<li> click &lt;Draft a new release&gt;
+</ul>
+
+<h4>Merge Tensile develop into master and release</h4>
+<ul>
+<li> <code>mkdir -p ~/repos/Tensile_merge_develop; cd ~/repos/Tensile_merge_develop</code>
+
+<li> <code>git clone https://github.com/ROCmSoftwarePlatform/Tensile.git</code>
+
+<li> <code>cd Tensile</code>
+<li> <code>git checkout develop</code>
+<li> change version in Tensile/__init__.py to master version (even leading digit)
+<ul>
+    <li> <code>vim Tensile/__init__.py</code>
+   <li> <code>git add Tensile/__init__.py</code>
+   <li> <code>git commit -m"version for master branch release"</code>
+</ul>
+
+<li> <code>git checkout master</code>
+<li> <code>git merge develop</code>
+<li> <code>git checkout develop</code>
+<li> <code>git merge master --ff-only</code>  # getting the develop branch to include the new merge commit
+
+<li> change version in Tensile/__init__.py to develop version (odd leading digit)
+<ul>
+    <li> <code>vim Tensile/__init__.py</code>
+   <li> <code>git add Tensile/__init__.py</code>
+   <li> <code>git commit -m"version for develop branch release"</code>
+</ul>
+
+<li> <code>git push --all</code>
+
+<li> go to  https://github.com/ROCmSoftwarePlatform/Tensile.git
 
 <li> under repository name click &lt;Releases&gt;
 
