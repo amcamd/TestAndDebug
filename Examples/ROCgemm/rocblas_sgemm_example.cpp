@@ -264,29 +264,6 @@ int main(int argc, char *argv[])
     useconds_t sleep_multiplier = SLEEP_MULTIPLIER; 
     bool first = true;
 
-    int deviceId;
-    hipCtxGetDevice(&deviceId);
-    hipDeviceProp_t deviceProperties;
-    hipGetDeviceProperties(&deviceProperties, deviceId);
-    std::string name = deviceProperties.name;
-    std::cout << "name =<" << name << ">" << std::endl;
-    if (name == "Device 6860")
-    {
-        std::cout << "--- name = 6860 ---" << std::endl;
-    }
-    else if (name == "Fiji [Radeon R9 FURY / NANO Series]")
-    {
-        std::cout << "--- name = Fiji [Radeon R9 FURY / NANO Series] ---" << std::endl;
-    }
-    else if (name == "Device 6863")
-    {
-        std::cout << "--- name = 6863 ---" << std::endl;
-    }
-    else
-    {
-        std::cout << "--- name = default ---" << std::endl;
-    }
-
     if( parse_args(argc, argv, M, N, K, lda, ldb, ldc, transA, transB, output, first, sleep_multiplier))
     {
         usage(argv);
@@ -297,14 +274,23 @@ int main(int argc, char *argv[])
     {
         if (output == verbose)
         {
+            int deviceId;
+            hipCtxGetDevice(&deviceId);
+            hipDeviceProp_t deviceProperties;
+            hipGetDeviceProperties(&deviceProperties, deviceId);
+            std::string name = deviceProperties.name;
+            std::cout << "name =<" << name << ">" << std::endl;
+
             if (M==N && M==K && M==lda && M==ldb && M==ldc)
             {
                 printf("M==N && M==K && M==lda && M==ldb && M==ldc\n");
-                printf("transA_transB,m,number_inner_iterations,number_outer_iterations,min_gflops,ave_gflops,max_gflops,rsd_gflops%%\n");
+                printf("transAB,m,num_inner_calls,number_repeats,min,ave,max,rsd_gflops");
+                printf(",max,ave,min,rsd_seconds%%\n" );
             }
             else
             {
-                printf("transA_transB,m,n,k,lda,ldb,ldc,number_inner_iterations,number_outer_iterations,min_gflops,ave_gflops,max_gflops,rsd_gflops%%\n");
+                printf("transAB, m,n,k, lda,ldb,ldc, num_inner_calls,num_repeats, min,ave,max,rsd_gflops");
+                printf(", max,ave,min,rsd_seconds%%\n");
             }
         }
         if (output == terse)
@@ -351,7 +337,7 @@ int main(int argc, char *argv[])
         }
         else
         {
-            printf("%d,%d,%d,%d,%d,%d,",M, N, K, lda, ldb, ldc);
+            printf("%5d,%5d,%5d,%5d,%5d,%5d,",M, N, K, lda, ldb, ldc);
         }
     }
     else
@@ -578,7 +564,8 @@ int main(int argc, char *argv[])
 
         if (output == verbose)
         {
-            printf("%d,%d,%.0f,%.0f,%.0f,%.1f,", ninner, number_iterations, min_gflops, ave_gflops, max_gflops, rsd_gflops);
+            printf(" %2d,%4d, %5.0f,%5.0f,%5.0f,%4.1f%%", ninner, number_iterations, min_gflops, ave_gflops, max_gflops, rsd_gflops);
+            printf(", %9.6f,%9.6f,%9.6f,%4.1f%%", max_seconds, ave_seconds, min_seconds, rsd_seconds );
         }
         if (output == terse)
         {

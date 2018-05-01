@@ -117,6 +117,11 @@ th, td {
       <li>focus follows mouse
     </ul>
   </li>
+  <li><pre>Adding achapman to video group <font color="red">need to log out and log back in</font></pre>
+    <ul>
+      <li>sudo usermod -a -G video achapman
+    </ul>
+  </li>
   <li><pre>dumping isa while compiling by exporting environment variable</pre>
     <ul>
       <li>export KMDUMPISA=1
@@ -282,6 +287,21 @@ sudo apt-get install hsa-ext-rocr-dev hsakmt-roct-dev hsa-rocr-dev
         interactive = auto
         status = auto
 </pre>
+<h4>Add modified and deleted files</h4>
+<code>git add -u</code>
+<h4>Undo the last commit</h4>
+<ul>
+    <li> <code>git reset --hard HEAD~1</code></li>
+        <ul>
+            <li>--hard discards changes</li>
+        </ul>
+    <li> <code>git reset --soft HEAD~1</code></li>
+        <ul>
+            <li>--soft preserves changes, and you may be able to <code>git stash</code> and <code>git stach pop</code> them.</li>
+        </ul>
+    <li><code>git push --force</code>
+</ul>
+
 <h4>Configuring a remote for a fork</h4>
 <ul>
 <li><pre>
@@ -461,83 +481,87 @@ comment in next editor.
 
 <h4>Merge rocBLAS develop into master and release</h4>
 <ul>
-<li> <code>mkdir -p ~/repos/rocBLASmergeDevelop; cd ~/repos/rocBLASmergeDevelop</code>
+    <li> <code>mkdir -p ~/repos/rocBLASmergeDevelop; cd ~/repos/rocBLASmergeDevelop</code></li>
 
-<li> <code>git clone https://github.com/ROCmSoftwarePlatform/rocBLAS.git</code>
+    <li> <code>git clone https://github.com/ROCmSoftwarePlatform/rocBLAS.git</code></li>
 
-<li> <code>cd rocBLAS</code>
-<li> <code>git checkout develop</code>
-<li> change rocBLAS/CMakeLists.txt to 0.12.2.0, and tensile_tag in CMakeLists.txt to v4.0.1
-<ul>
-    <li> <code>vim CMakeLists.txt</code>
-   <li> <code>git add CMakeLists.txt</code>
-   <li> <code>git commit -m"version for master branch release"</code>
-</ul>
+    <li> <code>cd rocBLAS</code></li>
+    <li> <code>git checkout develop</code></li>
+    <li> edit both bump_develop_version.sh and bump_master_version.sh</li>
+    <li> <code>./bump_master_version.sh</code></li>
+    <ul>
+        <li> check changes are correct with    <code>git status</code> and look at CMakeLists.txt and other files.
+        <li> <code> git add -u
+        <li> <code>git commit -m"version for master branch release"</code>
+    </ul>
 
-<li> <code>git checkout master</code>
-<li> <code>git merge develop</code>
-<li> <code>git checkout develop</code>
-<li> <code>git merge master --ff-only</code>  # getting the develop branch to include the new merge commit
+    <li> <code>git checkout master</code></li>
+    <li> <code>git merge develop</code></li>
+    <li> <code>git checkout develop</code></li>
+    <li> <code>git merge master --ff-only</code>  # getting the develop branch to include the new merge commit</li>
 
-<li> change rocBLAS/CMakeLists.txt 0.13.2.0, and tensile_tag in CMakeLists.txt to develop
-<ul>
-  <li> <code>vim CMakeLists.txt</code>
-  <li> <code>git add CMakeLists.txt</code>
-  <li> <code>git commit -m"version for develop branch at release"</code>
-</ul>
+    <li> <code>./bump_develop_version.sh</code></li>
+    <ul>
+        <li> check changes are correct with    <code>git status</code> and look at CMakeLists.txt and other files.</li>
+        <li> <code> git add -u</code></li>
+        <li> <code>git commit -m"version for develop branch release"</code></li>
+    </ul>
 
-<li> <code>git push --all</code>
+    <li> <code>git push --all</code></li>
 
-<li> go to  https://github.com/ROCmSoftwarePlatform/rocBLAS.git
+    <li> go to  https://github.com/ROCmSoftwarePlatform/rocBLAS.git</li>
 
-<li> under repository name click &lt;Releases&gt;
+    <li> under repository name click &lt;Releases&gt;</li>
 
-<li> click &lt;Draft a new release&gt;
+    <li> click &lt;Draft a new release&gt;</li>
+    <ul>
+        <li> select MASTER branch</li>
+        <li>enter <a href="http://semver.org">Semantic Versioning</a> version tag</li>
+        <li>enter Title and notes</li>
+        <li>add .deb and .rpm files from Jenkins. 
+            You may need to use Chrome browser in place of Firefox for adding .deb and .rpm.</li>
+        <li> click &lt;Publish release&gt;</li>
+    </ul>
 </ul>
 
 <h4>Merge Tensile develop into master and release</h4>
 <ul>
-<li> <code>mkdir -p ~/repos/Tensile_merge_develop; cd ~/repos/Tensile_merge_develop</code>
+    <li> <code>mkdir -p ~/repos/Tensile_merge_develop; cd ~/repos/Tensile_merge_develop</code></li>
 
-<li> <code>git clone https://github.com/ROCmSoftwarePlatform/Tensile.git</code>
+    <li> <code>git clone https://github.com/ROCmSoftwarePlatform/Tensile.git</code></li>
 
-<li> <code>cd Tensile</code>
-<li> <code>git checkout develop</code>
-<li> change version in Tensile/__init__.py to master version (even leading digit)
-<ul>
-    <li> <code>vim Tensile/__init__.py</code>
-   <li> <code>git add Tensile/__init__.py</code>
-   <li> <code>git commit -m"version for master branch release"</code>
-</ul>
+    <li> <code>cd Tensile</code></li>
+    <li> <code>git checkout develop</code></li>
+    <li> edit bump-version.h</li>
+    <li> <code>./bump_version.sh</code></li>
+    <ul>
+        <li> check to see that Tensile/__init__.py has changed</li>
+        <li> check version in .yaml files with  <code>grep MinimumRequiredVersion Tensile/Configs/*yaml</code></li>
+        <li> <code>git add -u</code></li>
+        <li> <code>git commit -m"change version for new release"</code></li>
+    </ul>
 
-<li> <code>git checkout master</code>
-<li> <code>git merge develop</code>
-<li> <code>git checkout develop</code>
-<li> <code>git merge master --ff-only</code>  # getting the develop branch to include the new merge commit
+    <li> <code>git checkout master</code></li>
+    <li> <code>git merge develop</code></li>
+    <li> <code>git checkout develop</code></li>
+    <li> <code>git merge master --ff-only  # getting the develop branch to include the new merge commit</code></li>
+    <li> check that there is the correct Tensile/__init__.py in develop and master</li>
 
-<li> change version in Tensile/__init__.py to develop version (odd leading digit)
-<ul>
-    <li> <code>vim Tensile/__init__.py</code>
-   <li> <code>git add Tensile/__init__.py</code>
-   <li> <code>git commit -m"version for develop branch release"</code>
-</ul>
+    <li> <code>git push --all</code></li>
 
-<li> <code>git push --all</code>
+    <li> go to  https://github.com/ROCmSoftwarePlatform/Tensile.git</li>
 
-<li> go to  https://github.com/ROCmSoftwarePlatform/Tensile.git
+    <li> under repository name click &lt;Releases&gt;</li>
 
-<li> under repository name click &lt;Releases&gt;
-
-<li> click &lt;Draft a new release&gt;
-<ul>
-
-<li> select MASTER branch 
-<li>enter <a href="http://semver.org">Semantic Versioning</a> version tag
-<li>enter Title and notes
-<li>add .deb and .rpm files from Jenkins. You may need to use Chrome browser
-  in place of Firefox for adding .deb and .rpm.
-<li> click &lt;Publish release&gt;
-</ul>
+    <li> click &lt;Draft a new release&gt;</li>
+    <ul>
+        <li> select MASTER branch</li>
+        <li>enter <a href="http://semver.org">Semantic Versioning</a> version tag</li>
+        <li>enter Title and notes</li>
+        <li>add .deb and .rpm files from Jenkins.
+            You may need to use Chrome browser in place of Firefox for adding .deb and .rpm.</li>
+        <li> click &lt;Publish release&gt;</li>
+    </ul>
 </ul>
 
 
@@ -854,6 +878,8 @@ vi Kernels.cpp
 </pre>
 
 <h1>Docker</h1>
+<p> http://compute-artifactory/artifactory/webapp/#/artifacts/browse/tree/General/rocm-docker-github/rocm-developer-tools/hip/master/hip-hcc-ctu-ubuntu-16.04
+<p> https://hub.docker.com/r/rocm/rocm-terminal/tags/
 <p>https://hub.docker.com  account is   amcamd
 <p>On Ubuntu machine, can log in with <pre>sudo docker login</pre>
 <p>To see all available docker images on machine <pre>sudo docker images</pre></p>
