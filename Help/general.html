@@ -43,8 +43,8 @@ th, td {
     <td><a href="https://github.com/ecrc/kblas-gpu">KBLAS</a><br></td>
     <td>https://github.com/ecrc/kblas-gpu</td>
 </tr><tr>
-    <td><a href="http://hsautil.amd.com/job/ROCmSoftwarePlatform/">hsUtil</a><br></td>
-    <td>http://hsautil.amd.com/job/ROCmSoftwarePlatform/</td>
+    <td><a href="http://10.236.10.38/">hsUtil</a><br></td>
+    <td>http://10.236.10.38/ or  http://hsautil.amd.com/job/ROCmSoftwarePlatform/</td>
 </tr><tr>
     <td><a href="https://github.com/amcamd/TestAndDebug">TestAndDebug</a><br></td>
     <td>https://github.com/amcamd/TestAndDebug</td>
@@ -79,6 +79,10 @@ th, td {
     <ul>
       <li>print distribution-specific information (Linux Standard Base)
     </ul>
+  <li><pre>dpkg --list | grep -i rocm</pre>
+    <ul>
+      <li>get rocm package version
+    </ul>
   <li><pre>lspci</pre>
     <ul>
       <li>list all PCI devices
@@ -108,7 +112,7 @@ th, td {
   </li>
   <li>adduser
     <ul>
-      <li><pre>sudo useradd --create-home -G sudo --shell /bin/bash &lt;username&gt;</pre>
+      <li><pre>sudo useradd --create-home -G sudo,video --shell /bin/bash &lt;username&gt;</pre>
       <li><pre>sudo passwd &lt;username&gt;</pre>
     </ul>
   </li>
