@@ -306,6 +306,21 @@ sudo apt-get install hsa-ext-rocr-dev hsakmt-roct-dev hsa-rocr-dev
     <li><code>git push --force</code>
 </ul>
 
+<h4>Get upstream branch into local repository then into origin</h4>
+<ul>
+    <li> <code>git fetch upstream</code></li>
+    <li> <code>git checkout -b new_local_branch_name upstream/upstream_branch_name</code></li>
+        <ul>
+            <li>gets upstream_branch_name into local repository</li>
+            <li>have only tried this where new_local_branch_name == upstream_branch_name</li>
+        </ul>
+    <li> <code>git push -u origin new_local_branch_name</code></li>
+        <ul>
+            <li>pushes new_local_branch_name from local repository to origin</li>
+        </ul>
+    <li><code>git push --force</code>
+</ul>
+
 <h4>Configuring a remote for a fork</h4>
 <ul>
 <li><pre>
