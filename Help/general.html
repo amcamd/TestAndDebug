@@ -509,9 +509,9 @@ comment in next editor.
     <li> edit both bump_develop_version.sh and bump_master_version.sh</li>
     <li> <code>./bump_master_version.sh</code></li>
     <ul>
-        <li> check changes are correct with    <code>git status</code> and look at CMakeLists.txt and other files.
-        <li> <code> git add -u
-        <li> <code>git commit -m"version for master branch release"</code>
+        <li> check changes are correct with    <code>git status</code> and look at CMakeLists.txt and other files.</li>
+        <li> <code> git add -u</code></li>
+        <li> <code>git commit -m"version for master branch release"</code></li>
     </ul>
 
     <li> <code>git checkout master</code></li>
@@ -669,52 +669,10 @@ make
     call the routine to be timed.
 </ul>
 <h1>Tensile</h1>
-<pre>
-mkdir -p ~/repos/TensileWalkthrough; cd ~/repos/TensileWalkthrough
-git clone https://github.com/ROCmSoftwarePlatform/Tensile.git repo
-mkdir build; cd build; cmake ../repo
+<p>To run tests: 
+<code> PYTHONPATH=. py.test -v  Tensile/Tests/pre_checkin/</code>
+</p>
 
-line 103 of ~/repos/TensileWalkthrough/repo/clients/gemm/gemm.cpp
-Convert if to #if 1 so list of dimensions used, not combinatorics
-
-In file below list dimensions and num_gemm_params in line 19 "const unsigned int num_gemm_params = 1;"
-~/repos/TensileWalkthrough/repo/clients/gemm/dnn_gemms.h
-
-in directory ~/repos/TensileWalkthrough/build: 
-make gemm; clients/gemm/gemm
-
-only training data file GEMM.xml from previous command should be in directory build/ProblemXMLs
-
-Train with the command:
-python ../repo/TensileGen/Tensile.py benchmark --backend hip --problems-path ~/repos/TensileWalkthrough/build/ProblemXMLs --solutions-path ~/repos/TensileWalkthrough/build/Solution
-
-Output will be in above directory --solutions-path in a file like:
-Fiji__Radeon_R9_FURY___NANO_Series__CT_SSSSS_Cij_Aki_Bkj_O0.xml
-
-To build rocBLAS library librocblas-hcc.a copy above xml file to directory
-~/clone3-rocBLAS/rocBLAS/library/src/blas3/Tensile/SolutionXMLs/Fiji_ROCm_1.4
-
-when running rocBLAS ccmake, specify Fiji_ROCm_1.4, this will use .xml file you just copied
-
-To build Tensile library (not the rocBLAS library):
-
-Edit ~/repos/TensileWalkthrough/repo/clients/gemm/CMakeLists.txt 
-and remove # below
-add_tensile_lib(TensileLib_GEMM EXCLUDE_FROM_ALL
-  PROBLEMS ${Tensile_DIR_PROBLEMS}
-  #SOLUTIONS ${Tensile_DIR_PROBLEMS}/../SolutionXMLs
-  BACKEND ${Tensile_BACKEND}
-  ENABLE_LOGGER
-)
-
-Rebuild gemm with full backend with:
-~/repos/TensileWalkthrough/build  cmake --build . --target gemm
-
-This will build the library
-
-~/repos/TensileWalkthrough/build/clients/gemm/libTensileLib_GEMM.a
-
-</pre>
 <h1>Timing with C++11</h1>
 <pre>
 #include &lt;chrono&gt;
@@ -912,6 +870,14 @@ Docker containers used in Jenkins.
 <pre>
 sudo docker ps -a
 </pre>
+<p>For the error message below</p>
+<code>error creating overlay mount to /var/lib/docker/overlay2/...N.../merged: no such file or directory</code>
+<p>Try the following commands</p>
+<ul>
+    <li><code>docker system df</code></li>
+    <li><code>docker system prune</code></li>
+    <li><code>docker system prune -a</code></li>
+</ul>
 <p>To attach to docker container</p>
 <pre>
 sudo docker attach &lt;docker number&gt;
@@ -1026,6 +992,50 @@ deb [arch=amd64] http://10.255.8.5/rocm/apt/debian/ xenial main
             ]</pre></li>
     <li>bug icon brings up debug view</li>
     <li>you need to be viewing the file Tensile.py when you start debugging</li>
+</ul>
+
+<h1>Downgrade Linux Kernel</h1>
+<ul>
+    <li>To get to grub menue press <code>Esc</code> or <code>Shift</code> while rebooting</li>
+    <li>select: Advanced options for Ubuntu</li>
+    <li>In grub menue, select previous kernel, and note names of more recent kernels</li>
+
+    <li>To make it easier to get to grub menue:</li>
+    <li><pre> <code>sudo vim /etc/default/grub</code>
+comment out the lines 
+#GRUB_HIDDEN_TIMEOUT=0
+#GRUB_HIDDEN_TIMEOUT_QUIET=true
+run grub-update to update grub after editing
+        </pre>
+    </li>
+
+    <li>To list kernels: <code>dpkg -l | grep linux</code></li>
+
+
+    <li>To remove kernels, purge header and image like below:
+        <pre>
+<code>sudo apt-get purge linux-headers-4.15.0-29-generic</code>
+<code>sudo apt-get purge linux-image-4.15.0-29-generic</code>
+        </pre>
+    </li>
+
+    <li>To disable kernel updates
+        <pre>
+<code> sudo apt-mark hold linux-headers-4.13.0-45-generic linux-image-4.13.0-45-generic linux-image-extra-4.13.0-45-generic</code>
+To enable kernel updates
+<code> sudo apt-mark unhold linux-headers-4.13.0-45-generic linux-image-4.13.0-45-generic linux-image-extra-4.13.0-45-generic</code>
+To see all packages on hold
+<code>apt-mark showhold</code>
+        </pre>
+    </li>
+</ul>
+
+
+
+
+
+
+
 
 </body>
 </html>
