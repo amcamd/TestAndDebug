@@ -3,10 +3,10 @@
 #include<hip/hip_runtime_api.h>
 #include "rocblas.h"
 
-typedef __fp16 half8 __attribute__((ext_vector_type(8)));
-typedef __fp16 half2 __attribute__((ext_vector_type(2)));
+typedef _Float16 half8 __attribute__((ext_vector_type(8)));
+typedef _Float16 half2 __attribute__((ext_vector_type(2)));
 
-extern "C" half2 __v_pk_fma_f16(half2, half2, half2) __asm("llvm.fma.v2f16");
+extern "C" __device__ half2 __v_pk_fma_f16(half2, half2, half2) __asm("llvm.fma.v2f16");
 
 #define NB 128
 #define NB_X 256
@@ -31,7 +31,7 @@ if (error != rocblas_status_success) { \
 }
 
 __global__
-void haxpy_half8_mod(int n, const __fp16 alpha, const __fp16 *x, __fp16 *y)
+void haxpy_half8_mod(int n, const _Float16 alpha, const _Float16 *x, _Float16 *y)
 {
     int tid = hipBlockIdx_x * hipBlockDim_x + hipThreadIdx_x;
 
@@ -41,7 +41,7 @@ void haxpy_half8_mod(int n, const __fp16 alpha, const __fp16 *x, __fp16 *y)
 }
 
 __global__ void 
-haxpy_half8(int n8, half2 alpha, const __fp16 *xx_fp16, __fp16 *yy_fp16) 
+haxpy_half8(int n8, half2 alpha, const _Float16 *xx_fp16, _Float16 *yy_fp16) 
 {
     int tid = hipThreadIdx_x + hipBlockIdx_x * hipBlockDim_x;
 
@@ -131,11 +131,11 @@ axpy_kernel_host_scalar(hipLaunchParm lp,
 
 extern "C"
 rocblas_status
-rocblas_haxpy(rocblas_handle handle,
+test_haxpy(rocblas_handle handle,
     rocblas_int n,
-    const __fp16 *alpha,
-    const __fp16 *x, rocblas_int incx,
-          __fp16 *y,  rocblas_int incy)
+    const _Float16 *alpha,
+    const _Float16 *x, rocblas_int incx,
+          _Float16 *y,  rocblas_int incy)
 {
     if (nullptr == alpha)
         return rocblas_status_invalid_pointer;
@@ -234,7 +234,7 @@ void usage(char *argv[])
 int main(int argc, char *argv[]) 
 {
     int n=0, incx=1, incy=1;
-    __fp16 alpha = 3.0;
+    _Float16 alpha = 3.0;
     if (parse_args(argc, argv, n, incx, incy))
     {
         usage(argv);
@@ -244,21 +244,21 @@ int main(int argc, char *argv[])
     std::cout << "      NB, n/NB, n%NB = " << NB << ", " << n/NB << ", " << n%NB;
     std::cout << "      incx, incy = " << incx << ", " << incy << std::endl;
         
-    std::vector<__fp16> X(n*incx), Y(n*incy), Ycopy(n*incy);
+    std::vector<_Float16> X(n*incx), Y(n*incy), Ycopy(n*incy);
 
     for(int i = 0; i < X.size(); i++)
     { 
-        X[i] = __fp16((i+4)%64);
+        X[i] = _Float16((i+4)%64);
     }
     for(int i = 0; i < Y.size(); i++)
     { 
-        Y[i] = __fp16(i%128); 
+        Y[i] = _Float16(i%128); 
     }
 
     Ycopy = Y;
-    int sizeX = n * incx * sizeof(__fp16);
-    int sizeY = n * incy * sizeof(__fp16);
-    __fp16 *Xd, *Yd;
+    int sizeX = n * incx * sizeof(_Float16);
+    int sizeY = n * incy * sizeof(_Float16);
+    _Float16 *Xd, *Yd;
     CHECK_HIP_ERROR(hipMalloc(&Xd, sizeX));
     CHECK_HIP_ERROR(hipMalloc(&Yd, sizeY));
     CHECK_HIP_ERROR(hipMemcpy(Xd, X.data(), sizeX, hipMemcpyHostToDevice));
@@ -271,7 +271,7 @@ int main(int argc, char *argv[])
 
     auto start = std::chrono::high_resolution_clock::now();
 
-    CHECK_ROCBLAS_ERROR(rocblas_haxpy( handle, n, &alpha, Xd, incx, Yd, incy));
+    CHECK_ROCBLAS_ERROR(test_haxpy( handle, n, &alpha, Xd, incx, Yd, incy));
 
     CHECK_HIP_ERROR(hipDeviceSynchronize());
 
