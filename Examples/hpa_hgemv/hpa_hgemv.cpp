@@ -184,30 +184,34 @@ test_hgemv(rocblas_handle handle,
             dim3(blocks), dim3(threads), 0, 0,
             n1, n2, a, lda, x, y);
 
-
     return rocblas_status_success;
 }
 
 int parse_args(int argc, char *argv[], int &n, int &incx, int &incy)
 {
-     while (argc > 1)
-     {
-         if (argv[1][0] == '-')
-         {
-             switch (argv[1][1])
-             {
-                 case 'n':
-                     n = atoi(&argv[1][2]);
-                     break;
-                 case 'x':
-                     incx = atoi(&argv[1][2]);
-                     break;
-                 case 'y': 
-                     incy= atoi(&argv[1][2]);
-                     break;
-                 default:
-                     printf("Wrong Argument: %s\n", argv[1]);
-                     return (1);
+    // default values
+    n = 4;
+    incx = 1;
+    incy = 1;
+
+    while (argc > 1)
+    {
+        if (argv[1][0] == '-')
+        {
+            switch (argv[1][1])
+            {
+                case 'n':
+                    n = atoi(&argv[1][2]);
+                    break;
+                case 'x':
+                    incx = atoi(&argv[1][2]);
+                    break;
+                case 'y': 
+                    incy= atoi(&argv[1][2]);
+                    break;
+                default:
+                    printf("Wrong Argument: %s\n", argv[1]);
+                    return (1);
             }
         }
         else
@@ -215,7 +219,6 @@ int parse_args(int argc, char *argv[], int &n, int &incx, int &incy)
             printf("Wrong Argument: %s\n", argv[1]);
             return (1);
         }
-
         ++argv;
         --argc;
     }
@@ -231,15 +234,13 @@ void usage(char *argv[])
 int main(int argc, char *argv[]) 
 {
     int n=0, incx=1, incy=1;
-    _Float16 alpha = 3.0;
+    _Float16 alpha = 1.0;
     if (parse_args(argc, argv, n, incx, incy))
     {
         usage(argv);
         return -1;
     }
-    std::cout << "n, n%8 = " << n << ", " << n%8;
-    std::cout << "      NB, n/NB, n%NB = " << NB << ", " << n/NB << ", " << n%NB;
-    std::cout << "      incx, incy = " << incx << ", " << incy << std::endl;
+    std::cout << "n, incx, incy = " << n << ", " << incx << ", " << incy << std::endl;
         
     int n1 = n;
     int n2 = n;
@@ -249,13 +250,18 @@ int main(int argc, char *argv[])
     int sizeY = Y.size() * sizeof(_Float16);
     int sizeA = A.size() * sizeof(_Float16);
 
-
     for(int i1 = 0; i1 < n; i1++)
     {
         for(int i2 = 0; i2 < n; i2++)
         {
             A[i1+i2*lda] = static_cast<_Float16>(1);
         }
+    }
+    std::cout << "-----------A[" << n1 << "," << n2 << "]-------------------" << std::endl;
+    for(int i1 = 0; i1 < n1; i1++)
+    {
+        for(int i2 = 0; i2 < n2-1; i2++){std::cout << static_cast<float>(A[i1+i2*lda]) << ",";}
+        std::cout << static_cast<float>(A[i1+(n2-1)*lda]) << std::endl;
     }
 
     for(int i = 0; i < X.size(); i++)
@@ -275,8 +281,14 @@ int main(int argc, char *argv[])
         {
             t += A[i1+i2*lda] * X[i2];
         }
-        Y_gold[i1] += t;
+        Y_gold[i1] += alpha * t;
     }
+
+    std::cout << "--------------x,y,y_gold---------------------" << std::endl;
+    for(int i = 0; i < X.size(); i++){std::cout << static_cast<float>(X[i]) << ",";}; std::cout << std::endl;
+    for(int i = 0; i < Y.size(); i++){std::cout << static_cast<float>(Y[i]) << ",";}; std::cout << std::endl;
+    for(int i = 0; i < Y_gold.size(); i++){std::cout << static_cast<float>(Y_gold[i]) << ",";}; std::cout << std::endl;
+//  std::cout << "---------------------------------------------" << std::endl;
 
     _Float16 *Ad, *Xd, *Yd;
     CHECK_HIP_ERROR(hipMalloc(&Ad, sizeA));
@@ -291,16 +303,22 @@ int main(int argc, char *argv[])
 
     hipSetDevice(1);
 
-//  CHECK_ROCBLAS_ERROR(test_hgemv( handle, n1, n2, Ad, lda, Xd, Yd));
+    CHECK_ROCBLAS_ERROR(test_hgemv( handle, n1, n2, Ad, lda, Xd, Yd));
 
     CHECK_HIP_ERROR(hipMemcpy(Y.data(), Yd, sizeY, hipMemcpyDeviceToHost));
+
+    std::cout << "----------------y----------------------------" << std::endl;
+    for(int i = 0; i < Y.size(); i++){std::cout << static_cast<float>(Y[i]) << ",";}; std::cout << std::endl;
+    std::cout << "---------------------------------------------" << std::endl;
+
 
     _Float16 max_error = 0;
     for(int i = 0; i < n1; i++)
     {
         _Float16 error = (Y[i] - Y_gold[i]) / Y_gold[i];
         _Float16 abs_error = error >= 0 ? error : -error;
-        max_error = max_error > error ? max_error : error;
+        max_error = max_error > abs_error ? max_error : abs_error;
+//      std::cout << "error, abs_error, max_error = " << static_cast<float>(error) << ", " << static_cast<float>(abs_error) << ", " << static_cast<float>(max_error) << std::endl;
     }
     std::cout << "max_error = " << static_cast<float>(max_error) << std::endl;
 
