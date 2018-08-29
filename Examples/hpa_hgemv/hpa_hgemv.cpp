@@ -8,7 +8,8 @@ typedef _Float16 half2 __attribute__((ext_vector_type(2)));
 
 extern "C" __device__ half2 __v_pk_fma_f16(half2, half2, half2) __asm("llvm.fma.v2f16");
  
-// extern "C" __device__ float __builtin_amdgcn_fdot2(half2, half2, float) __asm("v_dot2_f32_f16");
+extern "C" __device__ float __builtin_amdgcn_fdot2(half2, half2, float) __asm("v_dot2_f32_f16");
+//extern "C" __device__ float __builtin_amdgcn_fdot2(half2, half2, float);
 
 #define NB 128
 #define NB_X 256
@@ -33,15 +34,15 @@ if (error != rocblas_status_success) { \
 }
 
 
-template<typename T>
-__global__ void
-gemv_kernel_host_scalar(hipLaunchParm lp,
-                        rocblas_int   n1, 
-                        rocblas_int   n2,
-                        const T       *a,
-                        rocblas_int   lda,
-                        const T       *x,
-                        T             *y)
+
+__global__
+void gemv_kernel_host_scalar(hipLaunchParm   lp,
+                        rocblas_int     n1, 
+                        rocblas_int     n2,
+                        const _Float16  *a,
+                        rocblas_int     lda,
+                        const _Float16  *x,
+                        _Float16        *y)
 {
     float alpha = 1.0;
     float beta = 1.0;
@@ -84,12 +85,13 @@ gemv_kernel_host_scalar(hipLaunchParm lp,
             x3[0] = 1.0; //  xx[i8][6];
             x3[1] = 1.0; //  xx[i8][7];
 
-            d = __builtin_amdgcn_fdot2(a0, x0, c, true);
+//          d = my_fdot2(a0, x0, c);
+            d = __builtin_amdgcn_fdot2(a0, x0, c);
 //          c = __builtin_amdgcn_fdot2(a1, x1, c, true);
 //          c = __builtin_amdgcn_fdot2(a2, x2, c, true);
 //          c = __builtin_amdgcn_fdot2(a3, x3, c, true);
         }
-        y[tid] = static_cast<T>(alpha * c) + static_cast<T>(beta * y[tid]);
+        y[tid] = static_cast<_Float16>(alpha * c) + static_cast<_Float16>(beta * y[tid]);
     }
 }
 
