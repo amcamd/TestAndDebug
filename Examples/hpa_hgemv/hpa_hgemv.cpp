@@ -7,6 +7,8 @@ typedef _Float16 half8 __attribute__((ext_vector_type(8)));
 typedef _Float16 half2 __attribute__((ext_vector_type(2)));
 
 extern "C" __device__ half2 __v_pk_fma_f16(half2, half2, half2) __asm("llvm.fma.v2f16");
+ 
+// extern "C" __device__ float __builtin_amdgcn_fdot2(half2, half2, float) __asm("v_dot2_f32_f16");
 
 #define NB 128
 #define NB_X 256
@@ -30,126 +32,66 @@ if (error != rocblas_status_success) { \
     exit(EXIT_FAILURE); \
 }
 
-//__global__
-//void haxpy_half8_mod(int n, const _Float16 alpha, const _Float16 *x, _Float16 *y)
-//{
-//    int tid = hipBlockIdx_x * hipBlockDim_x + hipThreadIdx_x;
-//
-//    int index = ((n / 8) * 8) + tid;
-//
-//    if (index < n) y[index] = alpha * x[index] + y[index];
-//}
-//
-//__global__ void 
-//haxpy_half8(int n8, half2 alpha, const _Float16 *xx_fp16, _Float16 *yy_fp16) 
-//{
-//    int tid = hipThreadIdx_x + hipBlockIdx_x * hipBlockDim_x;
-//
-//    half8 *xx = (half8 *)(xx_fp16);
-//    half8 *yy = (half8 *)(yy_fp16);
-//
-//    half2 y0, y1, y2, y3;
-//    half2 x0, x1, x2, x3;
-//    half2 z0, z1, z2, z3;
-//
-//    if(tid*8 < n8) 
-//    {
-//        y0[0] = yy[tid][0];
-//        y0[1] = yy[tid][1];
-//        y1[0] = yy[tid][2];
-//        y1[1] = yy[tid][3];
-//        y2[0] = yy[tid][4];
-//        y2[1] = yy[tid][5];
-//        y3[0] = yy[tid][6];
-//        y3[1] = yy[tid][7];
-//
-//        x0[0] = xx[tid][0];
-//        x0[1] = xx[tid][1];
-//        x1[0] = xx[tid][2];
-//        x1[1] = xx[tid][3];
-//        x2[0] = xx[tid][4];
-//        x2[1] = xx[tid][5];
-//        x3[0] = xx[tid][6];
-//        x3[1] = xx[tid][7];
-//
-//        z0 = __v_pk_fma_f16(alpha, x0, y0);
-//        z1 = __v_pk_fma_f16(alpha, x1, y1);
-//        z2 = __v_pk_fma_f16(alpha, x2, y2);
-//        z3 = __v_pk_fma_f16(alpha, x3, y3);
-//
-//        yy[tid][0] = z0[0];
-//        yy[tid][1] = z0[1];
-//        yy[tid][2] = z1[0];
-//        yy[tid][3] = z1[1];
-//        yy[tid][4] = z2[0];
-//        yy[tid][5] = z2[1];
-//        yy[tid][6] = z3[0];
-//        yy[tid][7] = z3[1];
-//    }
-//}
-//
-//template<typename T>
-//__global__ void
-//axpy_kernel_host_scalar(hipLaunchParm lp,
-//    int n,
-//    const T alpha,
-//    const T *x, rocblas_int incx,
-//    T *y,  rocblas_int incy)
-//{
-//    int tid = hipBlockIdx_x * hipBlockDim_x + hipThreadIdx_x;
-//    if(incx >= 0 && incy >= 0)
-//    {
-//        if ( tid < n )
-//        {
-//            y[tid*incy] +=  (alpha) * x[tid * incx];
-//        }
-//    }
-//    else if(incx < 0 && incy < 0)
-//    {
-//        if (tid < n)
-//        {
-//            y[(1 - n + tid) * incy] +=  (alpha) * x[(1 - n + tid) * incx];
-//        }
-//    }
-//    else if (incx >=0)
-//    {
-//        if (tid < n)
-//        {
-//            y[(1 - n + tid) * incy] +=  (alpha) * x[tid * incx];
-//        }
-//    }
-//    else
-//    {
-//        if (tid < n)
-//        {
-//            y[tid * incy] +=  (alpha) * x[(1 - n + tid) * incx];
-//        }
-//    }
-//}
-//  
 
 template<typename T>
 __global__ void
 gemv_kernel_host_scalar(hipLaunchParm lp,
-        rocblas_int n1, 
-        rocblas_int n2,
-        const T *a,
-        rocblas_int lda,
-        const T *x,
-        T *y)
+                        rocblas_int   n1, 
+                        rocblas_int   n2,
+                        const T       *a,
+                        rocblas_int   lda,
+                        const T       *x,
+                        T             *y)
 {
+    float alpha = 1.0;
+    float beta = 1.0;
     int tid = hipBlockIdx_x * hipBlockDim_x + hipThreadIdx_x;
     if(tid < n1)
     {
-        for(int i = 0; i < n2; i++)
+//      for(int i = 0; i < n2; i++)
+//      {
+//          y[tid] += a[tid + i*lda] * x[i];
+//      }
+
+        half8 *aa = (half8 *)(&(a[tid*lda]));
+        half8 *xx = (half8 *)(x);
+
+        float c = 10.0;
+        float d = 0.0;
+        for(int i8 = 0; i8 < n2; i8 += 8)
         {
-            y[tid] += a[tid + i*lda] * x[i];
+            half8 *xx = (half8 *)(&(xx[i8]));
+            half8 *aa = (half8 *)(&(aa[i8]));
+
+            half2 a0, a1, a2, a3;
+            half2 x0, x1, x2, x3;
+
+            a0[0] = 1.0; //  aa[i8][0];
+            a0[1] = 1.0; //  aa[i8][1];
+            a1[0] = 1.0; //  aa[i8][2];
+            a1[1] = 1.0; //  aa[i8][3];
+            a2[0] = 1.0; //  aa[i8][4];
+            a2[1] = 1.0; //  aa[i8][5];
+            a3[0] = 1.0; //  aa[i8][6];
+            a3[1] = 1.0; //  aa[i8][7];
+
+            x0[0] = 1.0; //  xx[i8][0];
+            x0[1] = 1.0; //  xx[i8][1];
+            x1[0] = 1.0; //  xx[i8][2];
+            x1[1] = 1.0; //  xx[i8][3];
+            x2[0] = 1.0; //  xx[i8][4];
+            x2[1] = 1.0; //  xx[i8][5];
+            x3[0] = 1.0; //  xx[i8][6];
+            x3[1] = 1.0; //  xx[i8][7];
+
+            d = __builtin_amdgcn_fdot2(a0, x0, c, true);
+//          c = __builtin_amdgcn_fdot2(a1, x1, c, true);
+//          c = __builtin_amdgcn_fdot2(a2, x2, c, true);
+//          c = __builtin_amdgcn_fdot2(a3, x3, c, true);
         }
+        y[tid] = static_cast<T>(alpha * c) + static_cast<T>(beta * y[tid]);
     }
-
 }
-
-//  CHECK_ROCBLAS_ERROR(test_hgemv( handle, n1, n2, Ad, lda, Xd, Yd));
 
 extern "C"
 rocblas_status
@@ -190,7 +132,7 @@ test_hgemv(rocblas_handle handle,
 int parse_args(int argc, char *argv[], int &n, int &incx, int &incy)
 {
     // default values
-    n = 4;
+    n = 8;
     incx = 1;
     incy = 1;
 
@@ -233,7 +175,7 @@ void usage(char *argv[])
 
 int main(int argc, char *argv[]) 
 {
-    int n=0, incx=1, incy=1;
+    int n=8, incx=1, incy=1;
     _Float16 alpha = 1.0;
     if (parse_args(argc, argv, n, incx, incy))
     {
