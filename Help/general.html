@@ -71,69 +71,99 @@ th, td {
 <h1>Ubuntu setup</h1>
 
 <ul>
-  <li><pre>uname -a</pre>
+  <li><code>uname -a</code>
     <ul>
       <li>print system information, all
     </ul>
-  <li><pre>lsb_release -a</pre>
+  <li><code>lsb_release -a</code>
     <ul>
       <li>print distribution-specific information (Linux Standard Base)
     </ul>
-  <li><pre>dpkg --list | grep -i rocm</pre>
+  <li><code>dpkg --list | grep -i rocm</code>
     <ul>
       <li>get rocm package version
     </ul>
-  <li><pre>lspci</pre>
+  <li><code>lspci</code>
     <ul>
       <li>list all PCI devices
     </ul>
-  <li><pre>sudo apt-get update</pre>
+  <li><code>sudo apt-get update</code>
     <ul>
       <li>APT package handling utility (Advanced Package Tool).
       <li>Downloads the package lists from the repositories and "updates" them to get information on the newest versions of packages and their dependencies.
     </ul>
-  <li><pre>sudo apt-get upgrade</pre>
+  <li><code>sudo apt-get upgrade</code>
     <ul>
       <li>fetch new versions of packages existing on the machine if APT knows about these new versions by way of apt-get update
     </ul>
-  <li><pre>ip route get 8.8.8.8 | awk '{print $NF; exit}'</pre>
+  <li><code>ip route get 8.8.8.8 | awk '{print $NF; exit}'</code>
     <ul>
       <li>get the ip address, alternative command is ifconfig
     </ul>
-  <li><pre>sudo lsblk, sudo blkid, ls -l /dev/disk/bu-uuid, </pre>
+  <li><code>sudo lsblk, sudo blkid, ls -l /dev/disk/bu-uuid, </code>
     <ul>
       <li>disk information
     </ul>
   </li>
-  <li><pre>hipconfig</pre>
+  <li><code>hipconfig</code>
     <ul>
       <li>hip information
     </ul>
   </li>
-  <li>adduser
+  <li><code>sudo useradd --create-home -G sudo,video --shell /bin/bash &lt;username&gt;</code>
     <ul>
-      <li><pre>sudo useradd --create-home -G sudo,video --shell /bin/bash &lt;username&gt;</pre>
-      <li><pre>sudo passwd &lt;username&gt;</pre>
+      <li>adduser
     </ul>
   </li>
-  <li><pre>gsettings set org.gnome.desktop.wm.preferences focus-mode 'mouse'</pre>
+  <li><code>sudo passwd &lt;username&gt;</code>
+    <ul>
+      <li>change password
+    </ul>
+  </li>
+  <li><code>groups</code>
+      <ul>
+            <li>check membership of groups</li>
+      </ul>
+  </li>
+  <li><code>sudo usermod -a -G video achapman</code>
+      <ul>
+          <li>Adding achapman to video group</li>
+          <li> <font color="red">need to log out and log back in</font></li>
+      </ul>
+  </li>
+  <li><code>export KMDUMPISA=1</code>
+    <ul>
+        <li>dumping isa while compiling by exporting environment variable</li>
+    </ul>
+  </li>
+  <li><code>export HCC_PROFILE=2</code>
+    <ul>
+        <li>list hip kernels at runtime</li>
+    </ul>
+  </li>
+  <li><code>c++filt -n _ZN7rocblas13device_mallocEm</code>
+    <ul>
+        <li>extract c++ function name from mangled name</li>
+    </ul>
+  </li>
+  <li><code>systemctl suspend</code>
+    <ul>
+      <li>suspend ubuntu terminal</li>
+    </ul>
+  </li>
+  <li><code>export LD_LIBRARY_PATH=/opt/rocm/lib</code>
+    <ul>
+        <li>for message  libmcwamp_cpu.so: cannot open shared object file</li>
+    </ul>
+  </li>
+  <li><code>/opt/rocm/bin/rocm_agent_enumerator</code>
+      <ul>
+          <li>to get device information</li>
+      </ul>
+  </li>
+  <li><code>gsettings set org.gnome.desktop.wm.codeferences focus-mode 'mouse'</code>
     <ul>
       <li>focus follows mouse
-    </ul>
-  </li>
-  <li><pre>Adding achapman to video group <font color="red">need to log out and log back in</font></pre>
-    <ul>
-      <li>sudo usermod -a -G video achapman
-    </ul>
-  </li>
-  <li><pre>dumping isa while compiling by exporting environment variable</pre>
-    <ul>
-      <li>export KMDUMPISA=1
-    </ul>
-  </li>
-  <li><pre>list hip kernels at runtime</pre>
-    <ul>
-      <li>export HCC_PROFILE=2
     </ul>
   </li>
   <li><pre>Two changes to prevent terminal freeze</pre>
@@ -147,26 +177,6 @@ th, td {
           Find the line <code>GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"</code><br>
           change it to <code>GRUB_CMDLINE_LINUX_DEFAULT="quiet splash intel_idle.max_cstate=1"</code>
     </ul>
-  </li>
-  <li><pre>extract c++ function name from mangled name</pre>
-    <ul>
-        <li><code>c++filt -n _ZN7rocblas13device_mallocEm</code>
-    </ul>
-  </li>
-  <li><pre>suspend ubuntu terminal</pre>
-    <ul>
-      <li><code>systemctl suspend</code>
-    </ul>
-  </li>
-  <li><pre>for message  libmcwamp_cpu.so: cannot open shared object file: </pre>
-    <ul>
-      <li><code>export LD_LIBRARY_PATH=/opt/rocm/lib</code>
-    </ul>
-  </li>
-  <li><pre>to get device information</pre>
-      <ul>
-          <li><code>/opt/rocm/bin/rocm_agent_enumerator</code>
-      </ul>
   </li>
 
 </ul>
@@ -632,91 +642,6 @@ comment in next editor.
 <h1>Useful commands</h1>
 <p>find ./rocBLAS-develop -type f -exec grep -l gemv {} \; 
 
-<h1>Build rocBLAS</h1>
-<p>
-cmake-gui 2.8 does not work. Use ccmake or cmake-gui 3.5. Get ccmake with: "sudo apt-get install cmake-curses-gui"
-<p>
-To avoid compiling tensor
-<ul><li> comment out gemm lines in file: ~/repos/rocBLAS-develop/clients/benchmarks/client.cpp
-<pre>
-/* #include "testing_gemm.hpp" */
-
-/*  else if (function == "gemm"){
-        if (precision == 's')
-            testing_gemm<float>( argus );
-        else if (precision == 'd')
-            testing_gemm<double>( argus );
-    } */
-</pre>
-<li>In file clients/gtest/CMakeLists.txt comment out the lines for gemm and trsm as below
-<pre>
- set(Tensile_TEST_SRC
-#    gemm_gtest.cpp
-#    trsm_gtest.cpp
-     )
-</pre>
-</ul>
-<p>
-Choose Tensile_REPO in rocBLAS/cmake/external-Tensile.cmake
-</p>
-
-
-<pre>
-cd ~/repos/rocBLAS-develop-build
-rm -rf *
-ccmake ../rocBLAS -DHIP_ROOT=/opt/rocm/hip -DBOOST_ROOT=/usr/local -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -DCMAKE_C_COMPILER=/usr/bin/clang
-
-can also set 
--DCMAKE_BUILD_TYPE=Release 
--DBUILD_WITH_TENSILE=OFF 
--DCMAKE_CXX_FLAGS='fPIC'
-
-Fiji_ROCm_1.4
-
-make -j                (option make VERBOSE=1 >& make.out)
-cd clients-build
-cd benchmarks-build
-make
-</pre>
-<p>
-Library will be in:<br>
-~/repos/rocBLAS-develop-build/library-package/lib/x86_64-linux-gnu/librocblas-hcc.a<br>
-~/repos/rocBLAS-develop-build/library-build/src/librocblas-hcc.a
-<p>
-Samples are in: ~/repos/rocBLAS-develop-build/clients-build/samples-build<br>
-To run sample: ./example-sscal
-<p>
-To run tests:
-<pre>
-cd clients-build/tests-build
-make
-staging/rocblas-test
-</pre>
-<p>To run only tests with name matching ger
-<code>staging/rocblas-test --gtest_filter=*ger*</code>
-<p>
-To run benchmarks:
-<pre>
-cd ~repos/rocBLAS-develop-build/clients-build/benchmarks-build
-make
-./client -h
-./client  -f gemv -r s -m 1024 -n 256
-./client  -f gemv -r s
-./client -v 1
-./client -f gemm -r s -m 1024 -n 1024 -k 1024 --transposeB T
-</pre>
-<h1>Benchmark Code</h1>
-<p>
-<ul><li> The code for the executable is in clients/benchmarks/client.cpp. 
-<li>boost::program_options is used for parsing the command line. 
-<li>The instance argus of the class Arguments is from the file clients/include/utility.h. 
-<li>client.cpp contains include files like clients/include/testing_ger.hpp that 
-    call the routine to be timed.
-</ul>
-<h1>Tensile</h1>
-<p>To run tests: 
-<code> PYTHONPATH=. py.test -v  Tensile/Tests/pre_checkin/</code>
-</p>
 
 <h1>Timing with C++11</h1>
 <pre>
@@ -761,28 +686,6 @@ The event timer can also be used. It gives results similar to C++11 chrono.
 
 </pre>
 
-
-
-<h1>Building hcBLAS</h1>
-<p> To build hcBLAS I needed to change the following line in /lib/src/CMakeLists.txt
-<pre>
-set (HCC_LDFLAGS "${HCC_LDFLAGS} -L${HIP_PATH}/lib -lhip_hcc -Wl,-rpath-link,${HIP_PATH}/lib")
-</pre>
-to 
-<pre>
-set (HCC_LDFLAGS "${HCC_LDFLAGS} -L${HIP_PATH}/lib /opt/rocm/lib/libCXLActivityLogger.so -lhip_hcc -Wl,-rpath-link,${HIP_PATH}/lib")
-</pre>
-note the addition of /opt/rocm/lib/libCXLActivityLogger.so   
-<p>
-To run hcblas/test/benchmark you may need to set the following environment variables:
-<pre>
-> export CODEXL_PATH=/opt/rocm/profiler/bin
-
-> LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/achapman/hcblasClone/hcblas/test/benchmark
-> export LD_LIBRARY_PATH
-
-> export HCBLAS_PATH=/home/achapman/hcblasClone/hcblas
-</pre>
 
 <h1>ATITOOL (atitool)</h1>
 
@@ -861,43 +764,6 @@ Reverse the changes to get back to runlevel N 2.
 For Ubuntu 16 see
 <a href="http://askubuntu.com/questions/788323/change-runlevel-on-16-04">http://askubuntu.com/questions/788323/change-runlevel-on-16-04</a><br>
 
-<h1>Tensile V2</h1>
-
-<pre>
-
-cd repos
-mkdir Version2
-cd Version2
-git clone https://github.com/ROCmSoftwarePlatform/Tensile.git
-
-cd Tensile
-
-git checkout develop
-
-sudo apt-get python-pip
-sudo apt-get install python-pip 
-* sudo python setup.py install 
-pip install .
-pip list
-
-tensile -h
-mkdir ../tempDir
-cd ../tempDir
-tensile ../Tensile/Tensile/Configs/rocblas_sgemm.yaml .
-
-alternative: python ../Tensile/Tensile/Tensile.py ../Tensile/Tensile/Configs/rocblas_sgemm.yaml .
-
-cd 4_LibraryClient/
-cd build/
-./client 
-./client 0 128 129 130
-./client 0 128 129 130 0
-./client 0 128 129 130 -1
-
-cd Tensile/
-ls
-vi Kernels.cpp 
-</pre>
 
 <h1>Docker</h1>
 Docker containers used in Jenkins.
