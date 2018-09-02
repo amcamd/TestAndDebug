@@ -1,4 +1,5 @@
 #include<iostream>
+#include<limits>
 #include<hip/hip_runtime.h>
 #include<hip/hip_runtime_api.h>
 #include "rocblas.h"
@@ -9,7 +10,7 @@ typedef __fp16 half2 __attribute__((__vector_size__(2*sizeof(__fp16))));
 extern "C" __device__ float __builtin_amdgcn_fdot2(half2, half2, float);
 
 #define NB 128
-#define NB_X 256
+#define NB_x_16 256
 
 #define CHECK_HIP_ERROR(error) \
 if (error != hipSuccess) { \
@@ -19,7 +20,7 @@ if (error != hipSuccess) { \
 
 #define CHECK_ROCBLAS_ERROR(error) \
 if (error != rocblas_status_success) { \
-    fprintf(stderr, "rocBLAS ERROR: "); \
+    fprintf(stderr, "rocBLa_16S ERROR: "); \
     if(error == rocblas_status_invalid_handle)fprintf(stderr, "rocblas_status_invalid_handle"); \
     if(error == rocblas_status_not_implemented)fprintf(stderr, " rocblas_status_not_implemented"); \
     if(error == rocblas_status_invalid_pointer)fprintf(stderr, "rocblas_status_invalid_pointer"); \
@@ -29,7 +30,6 @@ if (error != rocblas_status_success) { \
     fprintf(stderr, "\n"); \
     exit(EXIT_FAILURE); \
 }
-
 
 __global__
 void gemv_kernel_host_scalar(hipLaunchParm   lp,
@@ -74,7 +74,7 @@ void gemv_kernel_host_scalar(hipLaunchParm   lp,
             c = __builtin_amdgcn_fdot2(a2, x2, c);
             c = __builtin_amdgcn_fdot2(a3, x3, c);
         }
-        yy[tid] = static_cast<__fp16>(alpha * c) + static_cast<__fp16>(beta * yy[tid]);
+        yy[tid] = static_cast<__fp16>((alpha * c) + (beta * static_cast<float>(yy[tid])));
     }
 }
 
@@ -100,14 +100,14 @@ test_hgemv(rocblas_handle handle,
         return rocblas_status_invalid_handle;
 
     /*
-     * Quick return if possible. Not Argument error
+     * Quick return if possible. Not a_16rgument error
      */
     if ( n1 <= 0 || n2 <= 0 ) return rocblas_status_success;
 
-    int blocks = (n1-1)/ NB_X + 1;
+    int blocks = (n1-1)/ NB_x_16 + 1;
 
     dim3 grid( blocks, 1, 1 );
-    dim3 threads(NB_X, 1, 1);
+    dim3 threads(NB_x_16, 1, 1);
 
     hipLaunchKernel(HIP_KERNEL_NAME(gemv_kernel_host_scalar),
                                     dim3(blocks), dim3(threads), 0, 0,
@@ -123,140 +123,184 @@ test_hgemv(rocblas_handle handle,
     return rocblas_status_success;
 }
 
-int parse_args(int argc, char *argv[], int &n, int &incx, int &incy)
+int parse_args(int argc, char *argv[], int &n1, int &n2, int &incx, int &incy, int &lda)
 {
-    // default values
-
-    while (argc > 1)
+    if(argc >= 2)
     {
-        if (argv[1][0] == '-')
+        for(int i = 1; i < argc; ++i)
         {
-            switch (argv[1][1])
+            std::string arg = argv[i];
+
+            if((arg.at(0) == '-') || ((arg.at(0) == '-') && (arg.at(1) == '-')))
             {
-                case 'n':
-                    n = atoi(&argv[1][2]);
-                    break;
-                case 'x':
-                    incx = atoi(&argv[1][2]);
-                    break;
-                case 'y': 
-                    incy= atoi(&argv[1][2]);
-                    break;
-                default:
-                    printf("Wrong Argument: %s\n", argv[1]);
-                    return (1);
+                if((arg == "-n1") && (i + 1 < argc))
+                {
+                    n1 = atoi(argv[++i]);
+                }
+                else if((arg == "-n2") && (i + 1 < argc))
+                {
+                    n2 = atoi(argv[++i]);
+                }
+                else if((arg == "-incx") && (i + 1 < argc))
+                {
+                    incx = atoi(argv[++i]);
+                }
+                else if((arg == "-incy") && (i + 1 < argc))
+                {
+                    incy = atoi(argv[++i]);
+                }
+                else if((arg == "--lda") && (i + 1 < argc))
+                {
+                    lda = atoi(argv[++i]);
+                }
+                else
+                {
+                    std::cerr << "error with " << arg << std::endl;
+                    std::cerr << "do not recognize option" << std::endl << std::endl;
+                    return EXIT_FAILURE;
+                }
+            }
+            else
+            {
+                std::cerr << "error with " << arg << std::endl;
+                std::cerr << "option must start with - or --" << std::endl << std::endl;
+                return EXIT_FAILURE;
             }
         }
-        else
-        {
-            printf("Wrong Argument: %s\n", argv[1]);
-            return (1);
-        }
-        ++argv;
-        --argc;
     }
-    return (0);
+    return EXIT_SUCCESS;
 }
 
 void usage(char *argv[])
 {
     std::cout << "Usage: " << argv[0];
-    std::cout << " -n<dimension> -x<incx> -y<incy>" << std::endl;
+    std::cout << " --n1<a dimension 1> --n2<a dimention 2> --incx<incx> --incy<incy> --lda<leading dimension a>" << std::endl;
 }
 
 int main(int argc, char *argv[]) 
 {
-    int n=16, incx=1, incy=1;
+    int n1 = 16; int incx=1;
+    int n2 = 16; int incy=1;
     float alpha = 1.0;
     float beta  = 2.0;
-    if (parse_args(argc, argv, n, incx, incy))
+    int lda = n1;
+    if (parse_args(argc, argv, n1, n2, incx, incy, lda))
     {
         usage(argv);
         return -1;
     }
-    std::cout << "n, incx, incy, alpha, beta = " << n << ", " << incx << ", " << incy << ", " 
+    std::cout << "n1, n2, incx, incy, alpha, beta = " << n1 << ", " << n2 << ", " << incx << ", " << incy << ", " 
               << alpha << ", " << beta << ", " << std::endl;
         
-    int n1 = n;
-    int n2 = n;
-    int lda = n1;
-    std::vector<__fp16> A(lda*n2), X(n2), Y(n2), Y_gold(n2);
-    int sizeX = X.size() * sizeof(__fp16);
-    int sizeY = Y.size() * sizeof(__fp16);
-    int sizeA = A.size() * sizeof(__fp16);
+    int size_x = n2 * incx;
+    int size_y = n1 * incy;
+    int size_a = lda * n2;
+    std::vector<__fp16> a_16(size_a), x_16(size_x), y_16(size_y), y_16_gold(size_y);
+    std::vector<float> a_32(size_a), x_32(size_x), y_32(size_y), y_32_gold(size_y);
 
-    for(int i1 = 0; i1 < n; i1++)
-    {
-        for(int i2 = 0; i2 < n; i2++)
-        {
-            A[i1+i2*lda] = static_cast<__fp16>(rand()%10);
-        }
-    }
-    std::cout << "-----------A[" << n1 << "," << n2 << "]-------------------" << std::endl;
+    // initialize a, x, y
     for(int i1 = 0; i1 < n1; i1++)
     {
-        for(int i2 = 0; i2 < n2-1; i2++){std::cout << static_cast<float>(A[i1+i2*lda]) << ",";}
-        std::cout << static_cast<float>(A[i1+(n2-1)*lda]) << std::endl;
-    }
-
-    for(int i = 0; i < X.size(); i++)
-    { 
-        X[i] = static_cast<__fp16>(rand()%10);
-    }
-    for(int i = 0; i < Y.size(); i++)
-    { 
-        Y[i] = static_cast<__fp16>(rand()%10); 
-    }
-
-    Y_gold = Y;
-    for(int i1 = 0; i1 < n; i1++)
-    {
-        float t = 0.0;
-        for(int i2 = 0; i2 < n; i2++)
+        for(int i2 = 0; i2 < n2; i2++)
         {
-            t += static_cast<float>(A[i1*lda+i2]) * static_cast<float>(X[i2]);
+            a_32[i1+i2*lda] = rand()%10;
+            a_16[i1+i2*lda] = static_cast<__fp16>(a_32[i1+i2*lda]);
         }
-        Y_gold[i1] = static_cast<__fp16>(beta * static_cast<float>(Y_gold[i1]) + alpha * t);
     }
 
-    std::cout << "--------------x,y,y_gold---------------------" << std::endl;
-    for(int i = 0; i < X.size(); i++){std::cout << static_cast<float>(X[i]) << ",";}; std::cout << std::endl;
-    for(int i = 0; i < Y.size(); i++){std::cout << static_cast<float>(Y[i]) << ",";}; std::cout << std::endl;
-    for(int i = 0; i < Y_gold.size(); i++){std::cout << static_cast<float>(Y_gold[i]) << ",";}; std::cout << std::endl;
+    for(int i = 0; i < x_16.size(); i++)
+    { 
+        x_32[i] = rand()%10;
+        x_16[i] = static_cast<__fp16>(x_32[i]);
+    }
+    for(int i = 0; i < y_16.size(); i++)
+    { 
+        y_32[i] = rand()%10; 
+        y_16[i] = static_cast<__fp16>(y_32[i]); 
+    }
 
-    __fp16 *Ad, *Xd, *Yd;
-    CHECK_HIP_ERROR(hipMalloc(&Ad, sizeA));
-    CHECK_HIP_ERROR(hipMalloc(&Xd, sizeX));
-    CHECK_HIP_ERROR(hipMalloc(&Yd, sizeY));
-    CHECK_HIP_ERROR(hipMemcpy(Ad, A.data(), sizeA, hipMemcpyHostToDevice));
-    CHECK_HIP_ERROR(hipMemcpy(Xd, X.data(), sizeX, hipMemcpyHostToDevice));
-    CHECK_HIP_ERROR(hipMemcpy(Yd, Y.data(), sizeY, hipMemcpyHostToDevice));
+    x_16[0] = 65503.0;
+    x_16[n2-1] = x_16[0];
+    x_32[0] = static_cast<float>(x_16[0]);
+    x_32[n2-1] = static_cast<float>(x_16[n2-1]);
 
+    for(int i1 = 0; i1 < n1; i1++)
+    {
+        a_16[0+(lda*i1)] = 4.0;
+        a_16[(n2-1)+(lda*i1)] =-4.0;
+
+        a_32[0+(lda*i1)] = static_cast<float>(a_16[0+(lda*i1)]);
+        a_32[(n2-1)+(lda*i1)] = static_cast<float>(a_16[(n2-1)+(lda*i1)]);
+    }
+
+    // calculate gold result on cpu
+    y_16_gold = y_16;
+    y_32_gold = y_32;
+    for(int i1 = 0; i1 < n1; i1++)
+    {
+        __fp16  t_16 = 0.0;
+        float   t_32 = 0.0;
+        for(int i2 = 0; i2 < n2; i2++)
+        {
+            t_16 += a_16[i2+i1*lda] * x_16[i2];
+            t_32 += a_16[i2+i1*lda] * x_16[i2];
+        }
+        y_16_gold[i1] = (static_cast<__fp16>(beta) * y_16_gold[i1]) + (static_cast<__fp16>(alpha) * t_16);
+        y_32_gold[i1] = (beta * y_32_gold[i1]) + (alpha * t_32);
+    }
+
+    // print a, x, y, y_gold
+    std::cout << "-----------a_16[" << n1 << "," << n2 << "]-------------------" << std::endl;
+    for(int i1 = 0; i1 < n1; i1++)
+    {
+        for(int i2 = 0; i2 < n2-1; i2++)
+        {
+            std::cout << static_cast<float>(a_16[i1+i2*lda]) << ",";
+        }
+        std::cout << static_cast<float>(a_16[i1+(n2-1)*lda]) << std::endl;
+    }
+    std::cout << "--------------x,y,y_16_gold,y_32_gold-----------" << std::endl;
+    for(int i = 0; i < x_16.size(); i++){std::cout << static_cast<float>(x_16[i]) << ",";}; std::cout << std::endl;
+    for(int i = 0; i < y_16.size(); i++){std::cout << static_cast<float>(y_16[i]) << ",";}; std::cout << std::endl;
+    for(int i = 0; i < y_16_gold.size(); i++){std::cout << static_cast<float>(y_16_gold[i]) << ",";}; std::cout << std::endl;
+    for(int i = 0; i < y_32_gold.size(); i++){std::cout << static_cast<float>(y_32_gold[i]) << ",";}; std::cout << std::endl;
+
+    // allocate a, x, y on device, and copy to device
+    __fp16 *a1_16_d, *x_16_d, *y_16_d;
+    CHECK_HIP_ERROR(hipMalloc(&a1_16_d, size_a * sizeof(__fp16)));
+    CHECK_HIP_ERROR(hipMalloc(&x_16_d, size_x * sizeof(__fp16)));
+    CHECK_HIP_ERROR(hipMalloc(&y_16_d, size_y * sizeof(__fp16)));
+    CHECK_HIP_ERROR(hipMemcpy(a1_16_d, a_16.data(), size_a * sizeof(__fp16), hipMemcpyHostToDevice));
+    CHECK_HIP_ERROR(hipMemcpy(x_16_d, x_16.data(), size_x * sizeof(__fp16), hipMemcpyHostToDevice));
+    CHECK_HIP_ERROR(hipMemcpy(y_16_d, y_16.data(), size_y * sizeof(__fp16), hipMemcpyHostToDevice));
+
+    // calculate y on gpu using hpa
     rocblas_handle handle;
     CHECK_ROCBLAS_ERROR(rocblas_create_handle(&handle));
 
     hipSetDevice(1);
 
-    CHECK_ROCBLAS_ERROR(test_hgemv( handle, n1, n2, Ad, lda, Xd, Yd, alpha, beta));
+    CHECK_ROCBLAS_ERROR(test_hgemv( handle, n1, n2, a1_16_d, lda, x_16_d, y_16_d, alpha, beta));
 
-    CHECK_HIP_ERROR(hipMemcpy(Y.data(), Yd, sizeY, hipMemcpyDeviceToHost));
+    CHECK_HIP_ERROR(hipMemcpy(y_16.data(), y_16_d, size_y * sizeof(__fp16), hipMemcpyDeviceToHost));
 
     std::cout << "----------------y----------------------------" << std::endl;
-    for(int i = 0; i < Y.size(); i++){std::cout << static_cast<float>(Y[i]) << ",";}; std::cout << std::endl;
+    for(int i = 0; i < y_16.size(); i++){std::cout << static_cast<float>(y_16[i]) << ",";}; std::cout << std::endl;
     std::cout << "---------------------------------------------" << std::endl;
 
 
     __fp16 max_error = 0;
     for(int i = 0; i < n1; i++)
     {
-        __fp16 error = (Y[i] - Y_gold[i]) / Y_gold[i];
+        __fp16 y_32_to_16_gold = static_cast<__fp16>(y_32_gold[i]);
+        __fp16 error = (y_16[i] - y_32_to_16_gold) / y_32_to_16_gold;
         __fp16 abs_error = error >= 0 ? error : -error;
         max_error = max_error > abs_error ? max_error : abs_error;
 //      std::cout << "error, abs_error, max_error = " << static_cast<float>(error) << ", " << static_cast<float>(abs_error) << ", " << static_cast<float>(max_error) << std::endl;
     }
     std::cout << "max_error = " << static_cast<float>(max_error) << std::endl;
 
-    CHECK_HIP_ERROR(hipFree(Ad));
-    CHECK_HIP_ERROR(hipFree(Xd));
-    CHECK_HIP_ERROR(hipFree(Yd));
+    CHECK_HIP_ERROR(hipFree(a1_16_d));
+    CHECK_HIP_ERROR(hipFree(x_16_d));
+    CHECK_HIP_ERROR(hipFree(y_16_d));
 }
