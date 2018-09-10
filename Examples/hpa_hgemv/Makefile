@@ -7,10 +7,9 @@ ROCBLAS_LIB_PATH=$(ROCBLAS_INSTALL_DIR)/lib
 
 ROCBLAS_LIB=rocblas
 
-LDFLAGS=-L$(ROCBLAS_LIB_PATH) -l$(ROCBLAS_LIB) -fPIC --amdgpu-target=gfx906
-#LD=hipcc
-LD=/opt/rocm/bin/hcc
-CFLAGS=-I$(ROCBLAS_INCLUDE) -fPIC --amdgpu-target=gfx906
+LDFLAGS=-L$(ROCBLAS_LIB_PATH) -l$(ROCBLAS_LIB) -fPIC -mcpu=gfx906
+LD=hipcc
+CFLAGS=-I$(ROCBLAS_INCLUDE) -fPIC -mcpu=gfx906
 CPP=hipcc
 OBJ=hpa_hgemv.o
 EXE=hpa_hgemv
