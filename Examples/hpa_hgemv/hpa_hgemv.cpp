@@ -4,12 +4,12 @@
 #include "rocblas.h"
 
 typedef _Float16 half8 __attribute__((ext_vector_type(8)));
-typedef _Float16 half2 __attribute__((ext_vector_type(2)));
+typedef __fp16 half2 __attribute__((ext_vector_type(2)));
 
 extern "C" __device__ half2 __v_pk_fma_f16(half2, half2, half2) __asm("llvm.fma.v2f16");
  
-extern "C" __device__ float __builtin_amdgcn_fdot2(half2, half2, float) __asm("v_dot2_f32_f16");
-//extern "C" __device__ float __builtin_amdgcn_fdot2(half2, half2, float);
+// extern "C" __device__ float __builtin_amdgcn_fdot2(half2, half2, float) __asm("v_dot2_f32_f16");
+// extern "C" __device__ float __builtin_amdgcn_fdot2(half2, half2, float);
 
 #define NB 128
 #define NB_X 256
