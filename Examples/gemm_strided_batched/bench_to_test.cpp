@@ -425,7 +425,7 @@ int main(int argc, char* argv[])
                   << stride_a << ", " << stride_b << ", " << stride_c << "}, "
                   << "{" << alpha << ", " << beta << "}, "
                   << "{'" << trans_a << "', '" << trans_b << "'}, "
-                  << batch_count << "}};"
+                  << batch_count << "};"
                   << std::endl;
     }
     else if (gemm)

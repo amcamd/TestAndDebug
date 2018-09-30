@@ -14,13 +14,13 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("in_filename",help="input filename")
-    parser.add_argument("dataset",help="dataset name")
+    parser.add_argument("dataset",help="dataset name; like conv_resnet50_fwd_fp32")
     parser.add_argument("datatype",help="datatype, half | float | double")
     args = parser.parse_args()
 
 #   get filename from command line arguments
     input_filename = args.in_filename
-    dataset = args.dataset
+    dataset = args.dataset + "_sb"
     datatype = args.datatype
 
 #   open input file and read from it into lines
@@ -38,13 +38,12 @@ def main():
     iterator = 0
     for line in lines:
         iterator = iterator + 1
-        f_out.write("gemm_tuple %s_%03d %s" % (dataset,iterator,line))
+        f_out.write("gemm_strided_batched_tuple %s_%03d %s" % (dataset,iterator,line))
 
 #   write vector of tuples
     num_lines = file_len(input_filename)
-    f_out.write("\nconst vector<gemm_tuple> %s = {\n" % (dataset))
+    f_out.write("\nconst vector<gemm_strided_batched_tuple> %s = {\n" % (dataset))
     for i in range(1,num_lines+1):
-#       f_out.write("conv_resnet50_fwd_fp32_%03d, " % (i))
         f_out.write("%s_%03d, " % (dataset,i))
         if i%4 == 0:
             f_out.write("\n")
@@ -52,7 +51,7 @@ def main():
         f_out.write("\n")
     f_out.write("};\n")
 
-    f_out.write("\nINSTANTIATE_TEST_CASE_P(nightly_%s, parameterized_gemm_%s, ValuesIn(%s));" % (dataset, datatype, dataset))
+    f_out.write("\nINSTANTIATE_TEST_CASE_P(nightly_%s, gemm_strided_batched_%s, ValuesIn(%s));" % (dataset, datatype, dataset))
 
 if __name__ == "__main__":
     main()
