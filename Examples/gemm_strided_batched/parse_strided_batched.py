@@ -45,9 +45,9 @@ def main():
     f_out.write("\nconst vector<gemm_strided_batched_tuple> %s = {\n" % (dataset))
     for i in range(1,num_lines+1):
         f_out.write("%s_%03d, " % (dataset,i))
-        if i%4 == 0:
+        if i%2 == 0:
             f_out.write("\n")
-    if num_lines%4 != 0:
+    if num_lines%2 != 0:
         f_out.write("\n")
     f_out.write("};\n")
 

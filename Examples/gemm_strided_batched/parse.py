@@ -46,9 +46,9 @@ def main():
     for i in range(1,num_lines+1):
 #       f_out.write("conv_resnet50_fwd_fp32_%03d, " % (i))
         f_out.write("%s_%03d, " % (dataset,i))
-        if i%4 == 0:
+        if i%2 == 0:
             f_out.write("\n")
-    if num_lines%4 != 0:
+    if num_lines%2 != 0:
         f_out.write("\n")
     f_out.write("};\n")
 
