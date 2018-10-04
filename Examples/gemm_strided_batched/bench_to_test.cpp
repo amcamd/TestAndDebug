@@ -4,6 +4,7 @@
 #include <limits>
 #include <iostream>
 #include <cstring>
+#include <fstream>
 
 // default sizes
 #define DIM1 127
@@ -250,6 +251,39 @@ bool bad_argument(char trans_a,
 
 int main(int argc, char* argv[])
 {
+/*
+    string in_file = "";
+    ifstream in_stream;
+    if(argc == 2)
+    {
+        in_stream.open(argv[1]);
+    }
+    else
+    {
+        cout << "Usage: " << argv[0] << " input_file_name" << std::endl;
+        return 1;
+    }
+
+    int array_length = 5000;
+    char char_array[array_length];
+
+    std::string line;
+//  while(std::getline(cin, line))
+    while(std::getline(in_stream, line))
+    {
+        std::cout << line << std::endl;
+
+                line.c_str()
+
+    }
+
+    in_stream.close();
+
+    return 0;
+*/
+
+
+
     // initialize parameters with default values
     char trans_a = 'N';
     char trans_b = 'T';
@@ -353,39 +387,40 @@ int main(int argc, char* argv[])
     int size_a1, size_b1, size_c1 = ldc * n;
     if(trans_a == 'N')
     {
-        cout << 'N';
+//      cout << 'N';
         a_stride_1 = 1;
         a_stride_2 = lda;
         size_a1    = lda * k;
     }
     else
     {
-        cout << 'T';
+//      cout << 'T';
         a_stride_1 = lda;
         a_stride_2 = 1;
         size_a1    = lda * m;
     }
     if(trans_b == 'N')
     {
-        cout << "N, ";
+//      cout << "N, ";
         b_stride_1 = 1;
         b_stride_2 = ldb;
         size_b1    = ldb * n;
     }
     else
     {
-        cout << "T, ";
+//      cout << "T, ";
         b_stride_1 = ldb;
         b_stride_2 = 1;
         size_b1    = ldb * k;
     }
 
-    std::cout << std::endl;
-    std::cout << "gemm                 = " << gemm << std::endl;
-    std::cout << "gemm_strided_batched = " << gemm_strided_batched << std::endl;
+//  std::cout << std::endl;
+//  std::cout << "gemm                 = " << gemm << std::endl;
+//  std::cout << "gemm_strided_batched = " << gemm_strided_batched << std::endl;
     if(gemm_strided_batched)
     {
-        std::cout << "gemm_strided_gatched_tuple  db_sb{ {"
+//      std::cout << "gemm_tuple conv_resnet50_fwd_fp32{{"
+        std::cout << "{{"
                   << m << ", " << n << ", " << k << ", " << lda << ", " << ldb << ", " << ldc << ", "
                   << stride_a << ", " << stride_b << ", " << stride_c << "}, "
                   << "{" << alpha << ", " << beta << "}, "
@@ -395,7 +430,8 @@ int main(int argc, char* argv[])
     }
     else if (gemm)
     {
-        std::cout << "gemm_tuple  db_sb{ {"
+//      std::cout << "gemm_tuple conv_resnet50_fwd_fp32{{"
+        std::cout << "{{"
                   << m << ", " << n << ", " << k << ", " << lda << ", " << ldb << ", " << ldc << "}, "
                   << "{" << alpha << ", " << beta << "}, "
                   << "{'" << trans_a << "', '" << trans_b << "'}};"
