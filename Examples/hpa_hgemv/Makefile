@@ -1,6 +1,7 @@
 
 #ROCBLAS_INSTALL_DIR=$(HOME)/repos/rocBLAS/build/library-package
-ROCBLAS_INSTALL_DIR=/opt/rocm/rocblas
+#ROCBLAS_INSTALL_DIR=/opt/rocm/rocblas
+ROCBLAS_INSTALL_DIR=$(HOME)/repos/rocBLAS/build/release/rocblas-install
 
 ROCBLAS_INCLUDE=$(ROCBLAS_INSTALL_DIR)/include
 ROCBLAS_LIB_PATH=$(ROCBLAS_INSTALL_DIR)/lib
