@@ -179,6 +179,12 @@ void usage(char *argv[])
 
 int main(int argc, char *argv[]) 
 {
+    std::cout << "__hcc_major__      = " << __hcc_major__ << std::endl;
+    std::cout << "__hcc_minor__      = " << __hcc_minor__ << std::endl;
+    std::cout << "__hcc_patchlevel__ = " << __hcc_patchlevel__ << std::endl;
+    std::cout << "__hcc_version__    = " << __hcc_version__ << std::endl;
+
+
     int n1 = 16; int incx=1;
     int n2 = 16; int incy=1;
     float alpha = 1.0;
