@@ -1,5 +1,6 @@
 #include<iostream>
 #include<limits>
+#include <typeinfo>
 #include<hip/hip_runtime.h>
 #include<hip/hip_runtime_api.h>
 #include "rocblas.h"
@@ -204,41 +205,95 @@ int main(int argc, char *argv[])
     std::vector<__fp16> a_16(size_a), x_16(size_x), y_16(size_y), y_16_gold(size_y);
     std::vector<float> a_32(size_a), x_32(size_x), y_32(size_y), y_32_gold(size_y);
 
-    // initialize a, x, y
+template <typename Td, typename Tc>
+void initialize_a_x_y(
+    rocblas_int n1, 
+    rocblas_int n2, 
+    rocblas_int lda, 
+    std::vector<Td> &x_16, 
+    std::vector<Tc> &x_32, 
+    std::vector<Td> &y_16, 
+    std::vector<Tc> &y_32, 
+    std::vector<Td> &a_16,
+    std::vector<Tc> &a_32)
+{
+    // initialize a_32 and a_16
     for(int i1 = 0; i1 < n1; i1++)
     {
         for(int i2 = 0; i2 < n2; i2++)
         {
-            a_32[i1+i2*lda] = rand()%10;
-            a_16[i1+i2*lda] = static_cast<__fp16>(a_32[i1+i2*lda]);
+            Tc t = rand()%10;
+            a_32[i1 + i2*lda] = t;
+            a_16[i1 + i2*lda] = static_cast<Td>(t);
         }
     }
 
+    // initialize x_32, x_16, y_32, and y_16
     for(int i = 0; i < x_16.size(); i++)
     { 
-        x_32[i] = rand()%10;
-        x_16[i] = static_cast<__fp16>(x_32[i]);
+        Tc t    = rand()%10;
+        x_32[i] = t;
+        x_16[i] = static_cast<Td>(t);
     }
     for(int i = 0; i < y_16.size(); i++)
     { 
-        y_32[i] = rand()%10; 
-        y_16[i] = static_cast<__fp16>(y_32[i]); 
+        Tc t    = rand()%10;
+        y_32[i] = t;
+        y_16[i] = static_cast<Td>(t); 
     }
 
-    x_16[0] = 65503.0;
-    x_16[n2-1] = x_16[0];
-    x_32[0] = static_cast<float>(x_16[0]);
-    x_32[n2-1] = static_cast<float>(x_16[n2-1]);
+    // check that compute is done using extended precision Tc not datatype Td
+    Td close_to_max = 0;
+    Td multiplyer   = 0;
+    if(std::is_same<Td, __fp16>::value && std::is_same<Tc, float>::value)
+    {
+        close_to_max = 65503.0;
+        multiplyer   = 4.0;
+    }
+    else
+    {
+        printf ("add initialization for compute type and data type");
+        exit (EXIT_FAILURE);
+    }
+    x_16[   0] = close_to_max;
+    x_16[n2-1] = close_to_max;
+    x_32[   0] = static_cast<Tc>(close_to_max);
+    x_32[n2-1] = static_cast<Tc>(close_to_max);
 
     for(int i1 = 0; i1 < n1; i1++)
     {
-        a_16[0+(lda*i1)] = 4.0;
-        a_16[(n2-1)+(lda*i1)] =-4.0;
+        a_16[     0 + (lda*i1)] =  multiplyer;
+        a_16[(n2-1) + (lda*i1)] = -multiplyer;
 
-        a_32[0+(lda*i1)] = static_cast<float>(a_16[0+(lda*i1)]);
-        a_32[(n2-1)+(lda*i1)] = static_cast<float>(a_16[(n2-1)+(lda*i1)]);
+        a_32[     0+(lda*i1)] = static_cast<Tc>( multiplyer);
+        a_32[(n2-1)+(lda*i1)] = static_cast<Tc>(-multiplyer);
     }
+}
 
+int main(int argc, char *argv[]) 
+{
+    int n1 = 16; int incx=1;
+    int n2 = 16; int incy=1;
+    float alpha = 1.0;
+    float beta  = 2.0;
+    int lda = n1;
+    if (parse_args(argc, argv, n1, n2, incx, incy, lda))
+    {
+        usage(argv);
+        return -1;
+    }
+    std::cout << "n1, n2, incx, incy, alpha, beta = " << n1 << ", " << n2 << ", " << incx << ", " << incy << ", " 
+              << alpha << ", " << beta << ", " << std::endl;
+        
+    int size_x =  n2 * incx;
+    int size_y =  n1 * incy;
+    int size_a = lda * n2;
+    std::vector<__fp16> a_16(size_a), x_16(size_x), y_16(size_y), y_16_gold(size_y);
+    std::vector<float>  a_32(size_a), x_32(size_x), y_32(size_y), y_32_gold(size_y);
+
+
+    initialize_a_x_y<__fp16, float>(n1, n2, lda, x_16, x_32, y_16, y_32, a_16, a_32);
+    
     // calculate gold result on cpu
     y_16_gold = y_16;
     y_32_gold = y_32;
@@ -266,19 +321,19 @@ int main(int argc, char *argv[])
         std::cout << static_cast<float>(a_16[i1+(n2-1)*lda]) << std::endl;
     }
     std::cout << "--------------x,y,y_16_gold,y_32_gold-----------" << std::endl;
-    for(int i = 0; i < x_16.size(); i++){std::cout << static_cast<float>(x_16[i]) << ",";}; std::cout << std::endl;
-    for(int i = 0; i < y_16.size(); i++){std::cout << static_cast<float>(y_16[i]) << ",";}; std::cout << std::endl;
+    for(int i = 0; i <      x_16.size(); i++){std::cout << static_cast<float>(     x_16[i]) << ",";}; std::cout << std::endl;
+    for(int i = 0; i <      y_16.size(); i++){std::cout << static_cast<float>(     y_16[i]) << ",";}; std::cout << std::endl;
     for(int i = 0; i < y_16_gold.size(); i++){std::cout << static_cast<float>(y_16_gold[i]) << ",";}; std::cout << std::endl;
     for(int i = 0; i < y_32_gold.size(); i++){std::cout << static_cast<float>(y_32_gold[i]) << ",";}; std::cout << std::endl;
 
     // allocate a, x, y on device, and copy to device
     __fp16 *a1_16_d, *x_16_d, *y_16_d;
     CHECK_HIP_ERROR(hipMalloc(&a1_16_d, size_a * sizeof(__fp16)));
-    CHECK_HIP_ERROR(hipMalloc(&x_16_d, size_x * sizeof(__fp16)));
-    CHECK_HIP_ERROR(hipMalloc(&y_16_d, size_y * sizeof(__fp16)));
+    CHECK_HIP_ERROR(hipMalloc( &x_16_d, size_x * sizeof(__fp16)));
+    CHECK_HIP_ERROR(hipMalloc( &y_16_d, size_y * sizeof(__fp16)));
     CHECK_HIP_ERROR(hipMemcpy(a1_16_d, a_16.data(), size_a * sizeof(__fp16), hipMemcpyHostToDevice));
-    CHECK_HIP_ERROR(hipMemcpy(x_16_d, x_16.data(), size_x * sizeof(__fp16), hipMemcpyHostToDevice));
-    CHECK_HIP_ERROR(hipMemcpy(y_16_d, y_16.data(), size_y * sizeof(__fp16), hipMemcpyHostToDevice));
+    CHECK_HIP_ERROR(hipMemcpy( x_16_d, x_16.data(), size_x * sizeof(__fp16), hipMemcpyHostToDevice));
+    CHECK_HIP_ERROR(hipMemcpy( y_16_d, y_16.data(), size_y * sizeof(__fp16), hipMemcpyHostToDevice));
 
     // calculate y on gpu using hpa
     rocblas_handle handle;

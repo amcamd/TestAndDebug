@@ -872,5 +872,36 @@ deb [arch=amd64] http://10.255.8.5/rocm/apt/debian/ xenial main
     </li>
 </ul>
 
+<h1>Upgrade ROCm</h1>
+<pre>
+# update gpg key
+wget -qO - http://repo.radeon.com/rocm/apt/debian/rocm.gpg.key | sudo apt-key add -
+echo 'deb [arch=amd64] http://repo.radeon.com/rocm/apt/debian/ xenial main' | sudo tee /etc/apt/sources.list.d/rocm.list
+
+sudo apt update
+sudo apt -y autoremove rocm-dkms
+# I don't think hee next four did anything, but it's worth a shot to make sure all old installations were purged
+sudo apt purge hsakmt-roct
+sudo apt purge hakmt-roct-dev
+sudo apt purge compute-firmware
+sudo apt purge $(dpkg -l | grep 'kfd\|rocm' | grep linux | grep -v libc | awk '{print $2}')
+
+#This was required
+sudo dkms remove rock/1.7.137-ubuntu --all
+sudo apt upgrade
+sudo reboot
+
+# After the reboot
+sudo apt -y install rocm-dkms
+echo 'ADD_EXTRA_GROUPS=1' | sudo tee -a /etc/adduser.conf
+echo 'EXTRA_GROUPS=video' | sudo tee -a /etc/adduser.conf
+echo 'export PATH=$PATH:/opt/rocm/bin:/opt/rocm/profiler/binop/rocm/opencl/bin/x86_64' | sudo tee -a /etc/profile.d/rocm.sh
+
+# you may need to add the following line to /etc/modprobe.d/amd.conf or /etc/modprobe.d/dkms.conf
+options amdgpu exp_hw_support=1
+# and sudo reboot
+
+</pre>
+
 </body>
 </html>
