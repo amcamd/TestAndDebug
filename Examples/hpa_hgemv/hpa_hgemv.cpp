@@ -178,33 +178,6 @@ void usage(char *argv[])
     std::cout << " --n1<a dimension 1> --n2<a dimention 2> --incx<incx> --incy<incy> --lda<leading dimension a>" << std::endl;
 }
 
-int main(int argc, char *argv[]) 
-{
-    std::cout << "__hcc_major__      = " << __hcc_major__ << std::endl;
-    std::cout << "__hcc_minor__      = " << __hcc_minor__ << std::endl;
-    std::cout << "__hcc_patchlevel__ = " << __hcc_patchlevel__ << std::endl;
-    std::cout << "__hcc_version__    = " << __hcc_version__ << std::endl;
-
-
-    int n1 = 16; int incx=1;
-    int n2 = 16; int incy=1;
-    float alpha = 1.0;
-    float beta  = 2.0;
-    int lda = n1;
-    if (parse_args(argc, argv, n1, n2, incx, incy, lda))
-    {
-        usage(argv);
-        return -1;
-    }
-    std::cout << "n1, n2, incx, incy, alpha, beta = " << n1 << ", " << n2 << ", " << incx << ", " << incy << ", " 
-              << alpha << ", " << beta << ", " << std::endl;
-        
-    int size_x = n2 * incx;
-    int size_y = n1 * incy;
-    int size_a = lda * n2;
-    std::vector<__fp16> a_16(size_a), x_16(size_x), y_16(size_y), y_16_gold(size_y);
-    std::vector<float> a_32(size_a), x_32(size_x), y_32(size_y), y_32_gold(size_y);
-
 template <typename Td, typename Tc>
 void initialize_a_x_y(
     rocblas_int n1, 
