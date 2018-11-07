@@ -250,7 +250,7 @@ th, td {
         <ul>
             <li>--soft preserves changes, and you may be able to <code>git stash</code> and <code>git stach pop</code> them.</li>
         </ul>
-    <li><code>git push --force</code>
+    <li><code>git push --force-with-lease</code>
 </ul>
 
 <h4>Get upstream branch into local repository then into origin</h4>
@@ -265,7 +265,7 @@ th, td {
         <ul>
             <li>pushes new_local_branch_name from local repository to origin</li>
         </ul>
-    <li><code>git push --force</code>
+    <li><code>git push --force-with-lease</code>
 </ul>
 
 <h4>Configuring a remote for a fork</h4>
@@ -402,7 +402,7 @@ git push -f
 comment in next editor. 
 <li>If you have already pushed commits then force push with:
 
-<pre>git push --force    (or git push origin branch-name --force)</pre>
+<pre>git push --force-with-lease    (or git push origin branch-name --force-with-lease)</pre>
 </ul>
 
 
@@ -429,7 +429,7 @@ comment in next editor.
 <p>For the latest commit
 <ul>
 <li><code>git commit --amend</code>
-<li>If commit has been pushed, force push with:  <code>git push --force</code>
+<li>If commit has been pushed, force push with:  <code>git push --force-with-lease</code>
 </ul>
 
 <p>For an older commit, say second last
@@ -441,7 +441,7 @@ comment in next editor.
 <li><code>git commit --amend</code>
 
 <li><code>git rebase --continue</code>
-<li>you will likely also need <code>git push --force</code>
+<li>you will likely also need <code>git push --force-with-lease</code>
 </ul>
 </ul>
 
