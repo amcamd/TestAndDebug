@@ -245,6 +245,14 @@ void initialize_a_x_y(
 
 int main(int argc, char *argv[]) 
 {
+
+    int deviceId;
+    hipGetDevice(&deviceId);
+    hipDeviceProp_t deviceProperties;
+    hipGetDeviceProperties(&deviceProperties, deviceId);
+    int gcn_arch = deviceProperties.gcnArch;
+    std::cout << "gcnArch = " << gcn_arch << std::endl;
+
     int n1 = 16; int incx=1;
     int n2 = 16; int incy=1;
     float alpha = 1.0;
