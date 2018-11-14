@@ -197,9 +197,29 @@ th, td {
 <p>Instructions at <a href="https://rocm.github.io/ROCmInstall.html">ROCm</a>
 
 <h1>VIM</h1>
-<p>To substitute new line use \r. For example: <pre>1,$s/newline/\r/</pre>
-<p>To insert tab when expandtab option is ON: <pre>i , &lt;CTRL&gt;&lt;v&gt; , &lt;tab&gt;  (i is for insert mode)</pre>
-<p>Visual Block Mode: Ctrl V, move cursor to highlight block, y or d (for yank or delete), move cursor to pup block, p (for put)
+<dl>
+<dt>To substitute new line use \r. For example: </dt>
+<dd><pre>1,$s/newline/\r/</pre></dd>
+
+<dt>To insert tab when expandtab option is ON: </dt>
+<dd><pre>i , &lt;CTRL&gt;&lt;v&gt; , &lt;tab&gt;  (i is for insert mode)</pre></dd>
+
+<dt>Visual Block Mode: </dt>
+<dd>Ctrl V, move cursor to highlight block, y or d (for yank or delete)</dd> 
+<dd>move cursor to put block, p (for put)</dd>
+
+<dt>split windows</dt>
+<dd><table>
+    <tr>
+        <td><code> :split filename </code></td>
+        <td> split window and load filename </td>
+    </tr>
+    <tr>
+        <td><code> ctrl-w, ctrl-w </code></td>
+        <td> move cursor to another window </td>
+    </tr>
+</table></dd> 
+</dl>
 
 <h1>Excel row-by-row conditional formatting</h1>
 <p>Select (or high-light) the block of rows and columns
@@ -874,7 +894,10 @@ deb [arch=amd64] http://10.255.8.5/rocm/apt/debian/ xenial main
 
 <h1>Upgrade ROCm</h1>
 <pre>
-# update gpg key
+# you can check gpg key with
+apt-key list
+
+# if ROCm Release Manager key has expired,  update gpg key with
 wget -qO - http://repo.radeon.com/rocm/apt/debian/rocm.gpg.key | sudo apt-key add -
 echo 'deb [arch=amd64] http://repo.radeon.com/rocm/apt/debian/ xenial main' | sudo tee /etc/apt/sources.list.d/rocm.list
 
