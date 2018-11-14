@@ -253,6 +253,17 @@ int main(int argc, char *argv[])
     int gcn_arch = deviceProperties.gcnArch;
     std::cout << "gcnArch = " << gcn_arch << std::endl;
 
+    std::cout << "__hcc_major__      = " << __hcc_major__ << std::endl;
+    std::cout << "__hcc_minor__      = " << __hcc_minor__ << std::endl;
+    std::cout << "__hcc_patchlevel__ = " << __hcc_patchlevel__ << std::endl;
+    std::cout << "__hcc_version__    = " << __hcc_version__ << std::endl;
+
+#if __hcc_minor_ < 3 && __hcc_major__ == 1
+    std::cout << "__hcc_minor_ < 3, two arguments" << std::endl;
+#else
+    std::cout << " ! __hcc_minor_ < 3, three arguments" << std::endl;
+#endif
+
     int n1 = 16; int incx=1;
     int n2 = 16; int incy=1;
     float alpha = 1.0;

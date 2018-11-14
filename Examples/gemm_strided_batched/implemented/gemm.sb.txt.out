@@ -1,0 +1,64 @@
+gemm_strided_batched_tuple conv_ctest_bwddata_fp16_sb_sb_001 {{121, 2048, 1, 121, 2048, 121, 121, 0, 247808}, {15360, 0}, {'N', 'T'}, 1};
+gemm_strided_batched_tuple conv_ctest_bwddata_fp16_sb_sb_002 {{12544, 64, 1, 12544, 64, 12544, 12544, 0, 802816}, {15360, 0}, {'N', 'T'}, 1};
+gemm_strided_batched_tuple conv_ctest_bwddata_fp16_sb_sb_003 {{144, 1024, 1, 144, 1024, 144, 144, 0, 147456}, {15360, 0}, {'N', 'T'}, 1};
+gemm_strided_batched_tuple conv_ctest_bwddata_fp16_sb_sb_004 {{144, 256, 1, 144, 256, 144, 144, 0, 36864}, {15360, 0}, {'N', 'T'}, 1};
+gemm_strided_batched_tuple conv_ctest_bwddata_fp16_sb_sb_005 {{144, 512, 1, 144, 512, 144, 144, 0, 73728}, {15360, 0}, {'N', 'T'}, 1};
+gemm_strided_batched_tuple conv_ctest_bwddata_fp16_sb_sb_006 {{169, 256, 1, 169, 256, 169, 169, 0, 43264}, {15360, 0}, {'N', 'T'}, 1};
+gemm_strided_batched_tuple conv_ctest_bwddata_fp16_sb_sb_007 {{16, 512, 1, 16, 512, 16, 16, 0, 8192}, {15360, 0}, {'N', 'T'}, 1};
+gemm_strided_batched_tuple conv_ctest_bwddata_fp16_sb_sb_008 {{16, 528, 1, 16, 528, 16, 16, 0, 8448}, {15360, 0}, {'N', 'T'}, 1};
+gemm_strided_batched_tuple conv_ctest_bwddata_fp16_sb_sb_009 {{16, 576, 1, 16, 576, 16, 16, 0, 9216}, {15360, 0}, {'N', 'T'}, 1};
+gemm_strided_batched_tuple conv_ctest_bwddata_fp16_sb_sb_010 {{16, 608, 1, 16, 608, 16, 16, 0, 9728}, {15360, 0}, {'N', 'T'}, 1};
+gemm_strided_batched_tuple conv_ctest_bwddata_fp16_sb_sb_011 {{196, 128, 1, 196, 128, 196, 196, 0, 25088}, {15360, 0}, {'N', 'T'}, 1};
+gemm_strided_batched_tuple conv_ctest_bwddata_fp16_sb_sb_012 {{196, 192, 1, 196, 192, 196, 196, 0, 37632}, {15360, 0}, {'N', 'T'}, 1};
+gemm_strided_batched_tuple conv_ctest_bwddata_fp16_sb_sb_013 {{196, 256, 1, 196, 256, 196, 196, 0, 50176}, {15360, 0}, {'N', 'T'}, 1};
+gemm_strided_batched_tuple conv_ctest_bwddata_fp16_sb_sb_014 {{196, 480, 1, 196, 480, 196, 196, 0, 94080}, {15360, 0}, {'N', 'T'}, 1};
+gemm_strided_batched_tuple conv_ctest_bwddata_fp16_sb_sb_015 {{196, 512, 1, 196, 512, 196, 196, 0, 100352}, {15360, 0}, {'N', 'T'}, 1};
+gemm_strided_batched_tuple conv_ctest_bwddata_fp16_sb_sb_016 {{196, 528, 1, 196, 528, 196, 196, 0, 103488}, {15360, 0}, {'N', 'T'}, 1};
+gemm_strided_batched_tuple conv_ctest_bwddata_fp16_sb_sb_017 {{196, 576, 1, 196, 576, 196, 196, 0, 112896}, {15360, 0}, {'N', 'T'}, 1};
+gemm_strided_batched_tuple conv_ctest_bwddata_fp16_sb_sb_018 {{196, 608, 1, 196, 608, 196, 196, 0, 119168}, {15360, 0}, {'N', 'T'}, 1};
+gemm_strided_batched_tuple conv_ctest_bwddata_fp16_sb_sb_019 {{196, 64, 1, 196, 64, 196, 196, 0, 12544}, {15360, 0}, {'N', 'T'}, 1};
+gemm_strided_batched_tuple conv_ctest_bwddata_fp16_sb_sb_020 {{3136, 128, 1, 3136, 128, 3136, 3136, 0, 401408}, {15360, 0}, {'N', 'T'}, 1};
+gemm_strided_batched_tuple conv_ctest_bwddata_fp16_sb_sb_021 {{3136, 256, 1, 3136, 256, 3136, 3136, 0, 802816}, {15360, 0}, {'N', 'T'}, 1};
+gemm_strided_batched_tuple conv_ctest_bwddata_fp16_sb_sb_022 {{3136, 64, 1, 3136, 64, 3136, 3136, 0, 200704}, {15360, 0}, {'N', 'T'}, 1};
+gemm_strided_batched_tuple conv_ctest_bwddata_fp16_sb_sb_023 {{32768, 480, 1, 32768, 480, 32768, 32768, 0, 15728640}, {15360, 0}, {'N', 'T'}, 1};
+gemm_strided_batched_tuple conv_ctest_bwddata_fp16_sb_sb_024 {{49, 1024, 1, 49, 1024, 49, 49, 0, 50176}, {15360, 0}, {'N', 'T'}, 1};
+gemm_strided_batched_tuple conv_ctest_bwddata_fp16_sb_sb_025 {{49, 1056, 1, 49, 1056, 49, 49, 0, 51744}, {15360, 0}, {'N', 'T'}, 1};
+gemm_strided_batched_tuple conv_ctest_bwddata_fp16_sb_sb_026 {{49, 192, 1, 49, 192, 49, 49, 0, 9408}, {15360, 0}, {'N', 'T'}, 1};
+gemm_strided_batched_tuple conv_ctest_bwddata_fp16_sb_sb_027 {{49, 512, 1, 49, 512, 49, 49, 0, 25088}, {15360, 0}, {'N', 'T'}, 1};
+gemm_strided_batched_tuple conv_ctest_bwddata_fp16_sb_sb_028 {{49, 832, 1, 49, 832, 49, 49, 0, 40768}, {15360, 0}, {'N', 'T'}, 1};
+gemm_strided_batched_tuple conv_ctest_bwddata_fp16_sb_sb_029 {{729, 64, 1, 729, 64, 729, 729, 0, 46656}, {15360, 0}, {'N', 'T'}, 1};
+gemm_strided_batched_tuple conv_ctest_bwddata_fp16_sb_sb_030 {{784, 128, 1, 784, 128, 784, 784, 0, 100352}, {15360, 0}, {'N', 'T'}, 1};
+gemm_strided_batched_tuple conv_ctest_bwddata_fp16_sb_sb_031 {{784, 192, 1, 784, 192, 784, 784, 0, 150528}, {15360, 0}, {'N', 'T'}, 1};
+gemm_strided_batched_tuple conv_ctest_bwddata_fp16_sb_sb_032 {{784, 256, 1, 784, 256, 784, 784, 0, 200704}, {15360, 0}, {'N', 'T'}, 1};
+gemm_strided_batched_tuple conv_ctest_bwddata_fp16_sb_sb_033 {{784, 320, 1, 784, 320, 784, 784, 0, 250880}, {15360, 0}, {'N', 'T'}, 1};
+gemm_strided_batched_tuple conv_ctest_bwddata_fp16_sb_sb_034 {{784, 512, 1, 784, 512, 784, 784, 0, 401408}, {15360, 0}, {'N', 'T'}, 1};
+gemm_strided_batched_tuple conv_ctest_bwddata_fp16_sb_sb_035 {{784, 64, 1, 784, 64, 784, 784, 0, 50176}, {15360, 0}, {'N', 'T'}, 1};
+gemm_strided_batched_tuple conv_ctest_bwddata_fp16_sb_sb_036 {{8192, 480, 1, 8192, 480, 8192, 8192, 0, 3932160}, {15360, 0}, {'N', 'T'}, 1};
+gemm_strided_batched_tuple conv_ctest_bwddata_fp16_sb_sb_037 {{8192, 512, 1, 8192, 512, 8192, 8192, 0, 4194304}, {15360, 0}, {'N', 'T'}, 1};
+gemm_strided_batched_tuple conv_ctest_bwddata_fp16_sb_sb_038 {{8192, 528, 1, 8192, 528, 8192, 8192, 0, 4325376}, {15360, 0}, {'N', 'T'}, 1};
+gemm_strided_batched_tuple conv_ctest_bwddata_fp16_sb_sb_039 {{8192, 832, 1, 8192, 832, 8192, 8192, 0, 6815744}, {15360, 0}, {'N', 'T'}, 1};
+
+const vector<gemm_strided_batched_tuple> conv_ctest_bwddata_fp16_sb_sb = {
+conv_ctest_bwddata_fp16_sb_sb_001, conv_ctest_bwddata_fp16_sb_sb_002, 
+conv_ctest_bwddata_fp16_sb_sb_003, conv_ctest_bwddata_fp16_sb_sb_004, 
+conv_ctest_bwddata_fp16_sb_sb_005, conv_ctest_bwddata_fp16_sb_sb_006, 
+conv_ctest_bwddata_fp16_sb_sb_007, conv_ctest_bwddata_fp16_sb_sb_008, 
+conv_ctest_bwddata_fp16_sb_sb_009, conv_ctest_bwddata_fp16_sb_sb_010, 
+conv_ctest_bwddata_fp16_sb_sb_011, conv_ctest_bwddata_fp16_sb_sb_012, 
+conv_ctest_bwddata_fp16_sb_sb_013, conv_ctest_bwddata_fp16_sb_sb_014, 
+conv_ctest_bwddata_fp16_sb_sb_015, conv_ctest_bwddata_fp16_sb_sb_016, 
+conv_ctest_bwddata_fp16_sb_sb_017, conv_ctest_bwddata_fp16_sb_sb_018, 
+conv_ctest_bwddata_fp16_sb_sb_019, conv_ctest_bwddata_fp16_sb_sb_020, 
+conv_ctest_bwddata_fp16_sb_sb_021, conv_ctest_bwddata_fp16_sb_sb_022, 
+conv_ctest_bwddata_fp16_sb_sb_023, conv_ctest_bwddata_fp16_sb_sb_024, 
+conv_ctest_bwddata_fp16_sb_sb_025, conv_ctest_bwddata_fp16_sb_sb_026, 
+conv_ctest_bwddata_fp16_sb_sb_027, conv_ctest_bwddata_fp16_sb_sb_028, 
+conv_ctest_bwddata_fp16_sb_sb_029, conv_ctest_bwddata_fp16_sb_sb_030, 
+conv_ctest_bwddata_fp16_sb_sb_031, conv_ctest_bwddata_fp16_sb_sb_032, 
+conv_ctest_bwddata_fp16_sb_sb_033, conv_ctest_bwddata_fp16_sb_sb_034, 
+conv_ctest_bwddata_fp16_sb_sb_035, conv_ctest_bwddata_fp16_sb_sb_036, 
+conv_ctest_bwddata_fp16_sb_sb_037, conv_ctest_bwddata_fp16_sb_sb_038, 
+conv_ctest_bwddata_fp16_sb_sb_039, 
+};
+
+INSTANTIATE_TEST_CASE_P(nightly_conv_ctest_bwddata_fp16_sb_sb, gemm_strided_batched_half, ValuesIn(conv_ctest_bwddata_fp16_sb_sb));
