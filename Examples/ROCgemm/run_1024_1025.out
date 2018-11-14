@@ -1,0 +1,40 @@
+
+
+====================    ROCm System Management Interface    ====================
+GPU[0] 		: Successfully set GPU Clock frequency mask to Level 7
+====================           End of ROCm SMI Log          ====================
+
+
+
+====================    ROCm System Management Interface    ====================
+GPU[0] 		: Successfully set fan speed to Level 255
+====================           End of ROCm SMI Log          ====================
+
+
+
+====================    ROCm System Management Interface    ====================
+================================================================================
+GPU[0] 		: GPU Clock Level: 7 (1600Mhz)
+================================================================================
+====================           End of ROCm SMI Log          ====================
+
+name =<Device 6863>
+transAB, m,n,k, lda,ldb,ldc, num_inner_calls,num_repeats, min,ave,max,rsd_gflops, max,ave,min,rsd_seconds%
+NT, 1024, 1024, 1024, 1025, 1025, 1024, 10,1000,  1983, 8104, 8614, 3.7%,  0.001083, 0.000265, 0.000249,10.2%GPU[0] 		: GPU Clock Level: 7 (1600Mhz)
+NN, 1024, 1024, 1024, 1025, 1025, 1024, 10,1000,  1687, 7738, 8281, 4.5%,  0.001273, 0.000278, 0.000259,16.1%GPU[0] 		: GPU Clock Level: 7 (1600Mhz)
+TT, 1024, 1024, 1024, 1025, 1025, 1024, 10,1000,  1578, 7627, 8069, 4.7%,  0.001361, 0.000282, 0.000266,14.9%GPU[0] 		: GPU Clock Level: 7 (1600Mhz)
+TN, 1024, 1024, 1024, 1025, 1025, 1024, 10,1000,  6041, 7109, 7607, 2.6%,  0.000355, 0.000302, 0.000282, 2.6%GPU[0] 		: GPU Clock Level: 7 (1600Mhz)
+
+
+====================    ROCm System Management Interface    ====================
+================================================================================
+GPU[0] 		: GPU Clock Level: 7 (1600Mhz)
+================================================================================
+====================           End of ROCm SMI Log          ====================
+
+
+
+====================    ROCm System Management Interface    ====================
+GPU[0] 		: Successfully set fan speed to Level 50
+====================           End of ROCm SMI Log          ====================
+
