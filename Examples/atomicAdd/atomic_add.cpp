@@ -11,7 +11,7 @@
     }\
 }
 
-template <typename T>
+template <typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr>
 __device__ inline void atomic_add(T *fPtr, T operand)
 {
     std::atomic<T> *aPtr = reinterpret_cast<std::atomic<T>*>(fPtr);
@@ -38,38 +38,51 @@ test_atomic_add(hipLaunchParm lp, T *accumulator, T increment)
 
 int main()
 {
-    const unsigned blocks = 32;
-    const unsigned threadsPerBlock = 64;
+    const unsigned blocks = 256;
+    const unsigned threadsPerBlock = 256;
+    int increment = 1;
 
     dim3 grid(blocks,1,1);
     dim3 threads(threadsPerBlock,1,1);
     hipStream_t kernel_stream;
 
-    float  h_acc_32 = 0, h_inc_32 = 1;
-    double h_acc_64 = 0, h_inc_64 = 1;
-    float  *d_acc_32;
-    double *d_acc_64;
+    int    h_acc_i32 = 0, h_inc_i32 = static_cast<int>(increment);
+    float  h_acc_f32 = 0, h_inc_f32 = static_cast<float>(increment);
+    double h_acc_f64 = 0, h_inc_f64 = static_cast<double>(increment);
+    int    *d_acc_i32;
+    float  *d_acc_f32;
+    double *d_acc_f64;
 
-    CHECK(hipMalloc(&d_acc_32, sizeof(float)));
-    CHECK(hipMalloc(&d_acc_64, sizeof(double)));
+    CHECK(hipMalloc(&d_acc_i32, sizeof(int)));
+    CHECK(hipMalloc(&d_acc_f32, sizeof(float)));
+    CHECK(hipMalloc(&d_acc_f64, sizeof(double)));
 
-    CHECK(hipMemcpy(d_acc_32, &h_acc_32, sizeof(float), hipMemcpyHostToDevice));
-    CHECK(hipMemcpy(d_acc_64, &h_acc_64 , sizeof(double), hipMemcpyHostToDevice));
+    CHECK(hipMemcpy(d_acc_i32, &h_acc_i32, sizeof(int), hipMemcpyHostToDevice));
+    CHECK(hipMemcpy(d_acc_f32, &h_acc_f32, sizeof(float), hipMemcpyHostToDevice));
+    CHECK(hipMemcpy(d_acc_f64, &h_acc_f64 , sizeof(double), hipMemcpyHostToDevice));
 
     //kernelCall
     hipLaunchKernel(test_atomic_add, dim3(grid), dim3(threads), 0, 0,
-                d_acc_32, h_inc_32);
+                d_acc_i32, h_inc_i32);
 
     //kernelCall
     hipLaunchKernel(test_atomic_add, dim3(grid), dim3(threads), 0, 0,
-                d_acc_64, h_inc_64);
+                d_acc_f32, h_inc_f32);
 
-    CHECK(hipMemcpy(&h_acc_32, d_acc_32, sizeof(float), hipMemcpyDeviceToHost));
-    CHECK(hipMemcpy(&h_acc_64, d_acc_64, sizeof(double), hipMemcpyDeviceToHost));
+    //kernelCall
+    hipLaunchKernel(test_atomic_add, dim3(grid), dim3(threads), 0, 0,
+                d_acc_f64, h_inc_f64);
 
-    CHECK(hipFree(d_acc_32));
-    CHECK(hipFree(d_acc_64));
+    CHECK(hipMemcpy(&h_acc_i32, d_acc_i32, sizeof(int), hipMemcpyDeviceToHost));
+    CHECK(hipMemcpy(&h_acc_f32, d_acc_f32, sizeof(float), hipMemcpyDeviceToHost));
+    CHECK(hipMemcpy(&h_acc_f64, d_acc_f64, sizeof(double), hipMemcpyDeviceToHost));
 
-    std::cout << "h_inc_32, h_acc_32 = " << h_inc_32 << "  " << h_acc_32 << std::endl;
-    std::cout << "h_inc_64, h_acc_64 = " << h_inc_64 << "  " << h_acc_64 << std::endl;
+    CHECK(hipFree(d_acc_i32));
+    CHECK(hipFree(d_acc_f32));
+    CHECK(hipFree(d_acc_f64));
+
+    std::cout << "expected result      = " << increment << "  " << increment * blocks * threadsPerBlock << std::endl;
+    std::cout << "h_inc_i32, h_acc_i32 = " << h_inc_i32 << "  " << h_acc_i32 << std::endl;
+    std::cout << "h_inc_f32, h_acc_f32 = " << h_inc_f32 << "  " << h_acc_f32 << std::endl;
+    std::cout << "h_inc_f64, h_acc_f64 = " << h_inc_f64 << "  " << h_acc_f64 << std::endl;
 }
