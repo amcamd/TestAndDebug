@@ -13,7 +13,7 @@ if( NOT (CMAKE_CXX_COMPILER MATCHES ".*/hipcc$"))
     message(STATUS "-----------------------------------------------------------")
 endif()
 
-SET(CXX_BUILTIN "-mcpu=gfx906")
+SET(CXX_BUILTIN "")
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX_BUILTIN}")
 

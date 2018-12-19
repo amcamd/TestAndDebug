@@ -4,7 +4,7 @@
 #include <hip/hip_runtime.h>
 #include <hip/hip_runtime_api.h>
 
-extern "C" __device__ int __builtin_amdgcn_sdot4(int, int, int);
+// extern "C" __device__ int __builtin_amdgcn_sdot4(int, int, int, int );
 
 typedef struct
 {
@@ -20,10 +20,23 @@ typedef union
 __global__ void dot4kernel(const int *a, const int *b, const int *c, int *d)
 {
     int i = hipThreadIdx_x;
+    int clamping = 0;
 
     if(i == 0)
     {
-        d[i] = __builtin_amdgcn_sdot4(a[i], b[i], c[i]);
+//      d[i] = __builtin_amdgcn_sdot4(a[i], b[i], c[i], clamping);
+        if (__oclc_ISA_version == 906) 
+        {
+            d[i] = (float)__llvm_amdgcn_sdot4(a[i], b[i], c[i], true);
+        }
+        else
+        {
+            d[i] = c[i] 
+                 + static_cast<int32_t>( a[i] & 0X000000FF      ) * static_cast<int32_t>( b[i] & 0X000000FF      )
+                 + static_cast<int32_t>((a[i] & 0X0000FF00) >> 8) * static_cast<int32_t>((b[i] & 0X0000FF00) >> 8)
+                 + static_cast<int32_t>((a[i] & 0X00FF0000) >>16) * static_cast<int32_t>((b[i] & 0X00FF0000) >> 16)
+                 + static_cast<int32_t>((a[i] & 0XFF000000) >>24) * static_cast<int32_t>((b[i] & 0XFF000000) >> 24);
+        }
     }
 }
 
@@ -33,17 +46,17 @@ int main()
     int32_t d,c,b[4],a[4];
 
     vd.i = d = 0x0;
-    vc.i = c = 0x99999999;
+    vc.i = c = 0x00000001;
 
-    vb.c4.c0 = b[0] = 0x2;
-    vb.c4.c1 = b[1] = 0x3;
-    vb.c4.c2 = b[2] = 0x4;
-    vb.c4.c3 = b[3] = 0x5;
+    vb.c4.c0 = b[0] = 0x1;
+    vb.c4.c1 = b[1] = 0x2;
+    vb.c4.c2 = b[2] = 0x3;
+    vb.c4.c3 = b[3] = 0x4;
 
-    va.c4.c0 = a[0] = 0x6;
-    va.c4.c1 = a[1] = 0x5;
-    va.c4.c2 = a[2] = 0x4;
-    va.c4.c3 = a[3] = 0x3;
+    va.c4.c0 = a[0] = 0x5;
+    va.c4.c1 = a[1] = 0x6;
+    va.c4.c2 = a[2] = 0x7;
+    va.c4.c3 = a[3] = 0x8;
 
     printf("va: %08x\n", va.i);
     printf("vb: %08x\n", vb.i);

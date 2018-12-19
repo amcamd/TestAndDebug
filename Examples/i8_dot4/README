@@ -1,5 +1,5 @@
 
 export KMDUMPISA=1
 
-/opt/rocm/bin/hipcc -mcpu=gfx906 main.cpp
+/opt/rocm/bin/hipcc main.cpp
 
