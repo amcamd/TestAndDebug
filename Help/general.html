@@ -55,6 +55,12 @@ th, td {
     <td><a href="https://github.com/hyln9/GCNGEMM">hgemm gcngemm</a><br></td>
     <td>https://github.com/hyln9/GCNGEMM</td>
 </tr><tr>
+    <td><a href="http://32ipi028l5q82yhj72224m8j-wpengine.netdna-ssl.com/wp-content/uploads/2016/08/AMD_GCN3_Instruction_Set_Architecture_rev1.1.pdf">Reference Guide</a><br></td>
+    <td>Reference Guide, Gen 3 gfx 2016</td>
+</tr><tr>
+    <td><a href="https://github.com/CLRX/CLRX-mirror/wiki/GcnIsa">AMD GCN ISA</a><br></td>
+    <td>GCN instruction description</td>
+</tr><tr>
     <td><a href="http://developer.amd.com/wordpress/media/2017/08/Vega_Shader_ISA_28July2017.pdf">Vega10 ISA</a><br></td>
     <td>Instruct Set Architecture for Vega 10</td>
 </tr><tr>
@@ -765,6 +771,20 @@ sudo docker run -it --rm --device "/dev/kfd" --device "/dev/dri" --group-add vid
 <pre>sudo docker ps -a</pre>
 Next use command 
 <pre>docker rm &lt;CONTAINER ID&gt;</pre>
+
+<p>To connect to a running docker container
+
+<ul>
+    <li> first get <code>container</code> with: <code>sudo docker ps</code></li>
+    <li> next use: <code>docker exec -e COLUMNS="`tput cols`" -e LINES="`tput lines`" -ti container /bin/bash</code></li>
+</ul>
+
+<p>to copy a file to a docker container
+<ul>
+    <li> first get <code>container</code> with: <code>sudo docker ps</code></li>
+    <li> next get <code>ID</code> with: <code>sudo docker inspect -f   '{{.Id}}' container</code></li>
+    <li> copy file with: <code> sudo docker cp file_name ID:file_path_in_container</code></li>
+</ul>
 
 <h3>To commit a docker image as: sunway513/hipcaffe:rocblas</h3>
 <pre>In another terminal on the host machine find the docker image #ID with: sudo docker ps
