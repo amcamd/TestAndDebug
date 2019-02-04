@@ -735,42 +735,49 @@ Docker containers used in Jenkins.
 
     <li><a href="https://hub.docker.com/r/rocm/rocm-terminal/tags/">Released Docker for rocm/rocm-terminal</a><br></td>
 </ul>
-<p> http://compute-artifactory/artifactory/webapp/#/artifacts/browse/tree/General/rocm-docker-github/rocm-developer-tools/hip/master/hip-hcc-ctu-ubuntu-16.04
-<p> https://hub.docker.com/r/rocm/rocm-terminal/tags/
-<p>https://hub.docker.com  account is   amcamd
-<p>On Ubuntu machine, can log in with <pre>sudo docker login</pre>
-<p>To see all available docker images on machine <pre>sudo docker images</pre></p>
-<p>To see all running docker containers</p>
-<pre>
-sudo docker ps -a
-</pre>
-<p>For the error message below</p>
-<code>error creating overlay mount to /var/lib/docker/overlay2/...N.../merged: no such file or directory</code>
-<p>Try the following commands</p>
+<p>On Ubuntu machine, can log in with
+<ul>
+	<li><code>sudo docker login</code></li>
+	<li> https://hub.docker.com  account is   amcamd</li>
+</ul>
+<p>To see all available docker images on machine 
+<ul>
+	<li><code>sudo docker images</code></li>
+</ul>
+</p>
+<p>To see all running docker containers
+<ul>
+	<li>sudo docker ps -a</li>
+</ul>
+</p>
+<p>For the error message below
+<ul>
+	<li><code>error creating overlay mount to /var/lib/docker/overlay2/...N.../merged: no such file or directory</code></li>
+</ul>
+<p>Try the following commands
 <ul>
     <li><code>docker system df</code></li>
     <li><code>docker system prune</code></li>
     <li><code>docker system prune -a</code></li>
-</ul>
-<p>To attach to docker container</p>
-<pre>
-sudo docker attach &lt;docker number&gt;
-</pre>
-<p>To pull docker image sunway13/ubuntu14.04:promote-free-v2</p>
-<pre>
-sudo docker pull sunway513/ubuntu14.04:promote-free-v2
-</pre>
-<p>To run docker image sunway13/ubuntu14.04:promote-free-v2</p>
-<pre>
-sudo docker run -it --rm --device "/dev/kfd" sunway513/ubuntu14.04:promote-free-v2 env TERM=xterm-color bash -l
-</pre>
-<pre>
-sudo docker run -it --rm --device "/dev/kfd" --device "/dev/dri" --group-add video sunway513/ubuntu14.04:promote-free-v2
-</pre>
+</ul></p>
+<p>To attach to docker container
+<ul>
+	<li><code>sudo docker attach &lt;docker number&gt;</code></li>
+</ul></p>
+<p>To pull docker image sunway13/ubuntu14.04:promote-free-v2
+<ul>
+	<li><code>sudo docker pull sunway513/ubuntu14.04:promote-free-v2</code></li>
+</ul></p>
+<p>To run docker image sunway13/ubuntu14.04:promote-free-v2
+<ul>
+	<li><code>sudo docker run -it --rm --device "/dev/kfd" sunway513/ubuntu14.04:promote-free-v2 env TERM=xterm-color bash -l</code></li>
+	<li><code>sudo docker run -it --rm --device "/dev/kfd" --device "/dev/dri" --group-add video sunway513/ubuntu14.04:promote-free-v2</code></li>
+</ul></p>
 <p>To remove a docker container, first get CONTAINER ID with 
-<pre>sudo docker ps -a</pre>
-Next use command 
-<pre>docker rm &lt;CONTAINER ID&gt;</pre>
+<ul>
+	<li><code>sudo docker ps -a</code></li>
+	<li>Next use command <code>docker rm &lt;CONTAINER ID&gt;</code></li>
+</ul></p>
 
 <p>To connect to a running docker container
 
