@@ -956,5 +956,20 @@ options amdgpu exp_hw_support=1
 
 </pre>
 
+<h1>Doxygen</h1>
+<p><a href="http://www.doxygen.nl/manual/index.html">Doxygen manual, with information on formatting</a><br>
+<dl>
+
+    <dt>To install Doxygen:</dt>
+    <dd><code>sudo apt-get install doxygen</code></dd>
+
+    <dt>To generate documentation for source code</dt>
+    <dd> <code>doxygen -g sample_text.conf</code></dd>
+
+    <dt>To produce Doxygen output for a single file include/rocblas-functions.h:</dt>
+    <dd><code>( cat sample_text.conf ; echo "INPUT=include/rocblas-functions.h" ) | doxygen -</code></dd>
+</dl>
+</p>
+
 </body>
 </html>
