@@ -15,17 +15,6 @@ typedef union
     C4 c4;
 } Int8x4;
 
-__global__ void dot4kernel(const char4 *a, const char4 *b, const int *c, int *d)
-{
-    int i = hipThreadIdx_x;
-
-    if(i == 0)
-    {
-        bool saturate = true;
-        *d = amd_mixed_dot(*a, *b, *c, saturate);
-    }
-}
-
 __global__ void dot4Code(const int *a, const int *b, const int *c, int *d)
 {
     int i = hipThreadIdx_x;
@@ -71,9 +60,6 @@ int main()
     printf("  host reference result: %08x\n", d);
 
     int *ga = nullptr, *gb = nullptr, *gc = nullptr, *gd = nullptr;
-    char4 *char4_a = nullptr, *char4_b = nullptr;
-    hipMalloc(&char4_a, sizeof(va));
-    hipMalloc(&char4_b, sizeof(vb));
     hipMalloc(&ga, sizeof(va));
     hipMalloc(&gb, sizeof(vb));
     hipMalloc(&gc, sizeof(vc));
@@ -93,19 +79,6 @@ int main()
     hipMemcpy(&vd, gd, sizeof(vd), hipMemcpyDeviceToHost);
 
     printf("device reference result: %08x\n", vd.i);
-
-    // calculation of d on device with dot function
-    vd.i = d = 0x0;
-    hipMemcpy(char4_a, &va, sizeof(va), hipMemcpyHostToDevice);
-    hipMemcpy(char4_b, &vb, sizeof(vb), hipMemcpyHostToDevice);
-    hipMemcpy(gc, &vc, sizeof(vc), hipMemcpyHostToDevice);
-    hipMemcpy(gd, &vd, sizeof(vd), hipMemcpyHostToDevice);
-
-    hipLaunchKernelGGL(dot4kernel, grid, threads, 0, 0, char4_a, char4_b, gc, gd);
-
-    hipMemcpy(&vd, gd, sizeof(vd), hipMemcpyDeviceToHost);
-
-    printf("device dot4 result: %08x\n", vd.i);
 
     hipFree(ga);
     hipFree(gb);
