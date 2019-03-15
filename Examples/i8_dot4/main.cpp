@@ -22,7 +22,9 @@ __global__ void dot4kernel(const char4 *a, const char4 *b, const int *c, int *d)
     if(i == 0)
     {
         bool saturate = true;
+#if (__hcc_workweek__ >= 19015) || __HIP_CLANG_ONLY__
         *d = amd_mixed_dot(*a, *b, *c, saturate);
+#endif
     }
 }
 
@@ -101,7 +103,11 @@ int main()
     hipMemcpy(gc, &vc, sizeof(vc), hipMemcpyHostToDevice);
     hipMemcpy(gd, &vd, sizeof(vd), hipMemcpyHostToDevice);
 
+#if (__hcc_workweek__ >= 19015) || __HIP_CLANG_ONLY__
     hipLaunchKernelGGL(dot4kernel, grid, threads, 0, 0, char4_a, char4_b, gc, gd);
+#else
+
+#endif
 
     hipMemcpy(&vd, gd, sizeof(vd), hipMemcpyDeviceToHost);
 
