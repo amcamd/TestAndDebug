@@ -1,5 +1,6 @@
 #include <cmath>
-#include <math.h>
+#include <cinttypes>
+#include <iostream>
 
 #ifndef __BYTE_ORDER__
 #define __BYTE_ORDER__ __ORDER_LITTLE_ENDIAN__
@@ -15,9 +16,11 @@ typedef struct
 // zero extend lower 16 bits of bfloat16 to convert to IEEE float
 float bfloat16_to_float(const rocblas_bfloat16 v)
 {
-    float fp32 = 0;
-
-    uint16_t* q = reinterpret_cast<uint16_t*>(&fp32);
+    union
+    {
+        float fp32 = 0;
+        uint16_t q[2];
+    };
 
 #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
     q[0] = v.data;
@@ -28,7 +31,7 @@ float bfloat16_to_float(const rocblas_bfloat16 v)
 }
 
 // truncate lower 16 bits of IEEE float to convert to bfloat16
-rocblas_bfloat16 float_to_bfloat16(const float v) 
+rocblas_bfloat16 float_to_bfloat16(const float v)
 {
     rocblas_bfloat16 bf16;
     if (std::isnan(v))
@@ -36,11 +39,16 @@ rocblas_bfloat16 float_to_bfloat16(const float v)
         bf16.data = BFLOAT16_Q_NAN_VALUE;
         return bf16;
     }
-    const uint16_t* p_ui16= reinterpret_cast<const uint16_t*>(&v);
+    union {
+        float fp32;
+        uint16_t p[2];
+    };
+    fp32 = v;
+
 #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-    bf16.data = p_ui16[0];
+    bf16.data = p[0];
 #else
-    bf16.data = p_ui16[1];
+    bf16.data = p[1];
 #endif
     return bf16;
 }
