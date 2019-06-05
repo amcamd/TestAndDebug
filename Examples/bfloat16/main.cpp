@@ -10,21 +10,27 @@
 
 int main()
 {
-//  test multiply add
-    rocblas_bfloat16 b0 = float_to_bfloat16(0.0f); float f0 = 0.0f;
-    rocblas_bfloat16 b1 = float_to_bfloat16(1.0f); float f1 = 1.0f;
-    rocblas_bfloat16 b2 = float_to_bfloat16(2.0f); float f2 = 2.0f;
-    rocblas_bfloat16 b3 = float_to_bfloat16(3.0f); float f3 = 3.0f;
-    rocblas_bfloat16 b4 = float_to_bfloat16(4.0f); float f4 = 4.0f;
-    rocblas_bfloat16 b5 = float_to_bfloat16(5.0f); float f5 = 5.0f;
-    rocblas_bfloat16 b6 = float_to_bfloat16(6.0f); float f6 = 6.0f;
-    rocblas_bfloat16 b7 = float_to_bfloat16(7.0f); float f7 = 7.0f;
-    rocblas_bfloat16 b8 = float_to_bfloat16(8.0f); float f8 = 8.0f;
-    rocblas_bfloat16 b9 = float_to_bfloat16(9.0f); float f9 = 9.0f;
-    rocblas_bfloat16 b1_1 = float_to_bfloat16(1.1f); float f1_1 = 1.1f;
+//  rocblas_bfloat16 b0 = static_cast<rocblas_bfloat16>(0.0f); float f0 = 0.0f;
+    rocblas_bfloat16 b0 = static_cast<rocblas_bfloat16>(0.0f); float f0 = 0.0f;
+    rocblas_bfloat16 b1 = static_cast<rocblas_bfloat16>(1.0f); float f1 = 1.0f;
+    rocblas_bfloat16 b2 = static_cast<rocblas_bfloat16>(2.0f); float f2 = 2.0f;
+    rocblas_bfloat16 b3 = static_cast<rocblas_bfloat16>(3.0f); float f3 = 3.0f;
+    rocblas_bfloat16 b4 = static_cast<rocblas_bfloat16>(4.0f); float f4 = 4.0f;
+    rocblas_bfloat16 b5 = static_cast<rocblas_bfloat16>(5.0f); float f5 = 5.0f;
+    rocblas_bfloat16 b6 = static_cast<rocblas_bfloat16>(6.0f); float f6 = 6.0f;
+    rocblas_bfloat16 b7 = static_cast<rocblas_bfloat16>(7.0f); float f7 = 7.0f;
+    rocblas_bfloat16 b8 = static_cast<rocblas_bfloat16>(8.0f); float f8 = 8.0f;
+    rocblas_bfloat16 b9 = static_cast<rocblas_bfloat16>(9.0f); float f9 = 9.0f;
+    rocblas_bfloat16 b1_1 = static_cast<rocblas_bfloat16>(1.1f); float f1_1 = 1.1f;
+
+    double d3 = 3.0; int i3 = 3;
+    double d5 = 5.0; int i5 = 5;
 
     rocblas_bfloat16 bb = b2 * ((b3 * b4) + (b5 * b6)) - b7 * b8;
     float            ff = f2 * ((f3 * f4) + (f5 * f6)) - f7 * f8;
+
+    std::cout << "size of rocblas_bfloat16 = " << sizeof(b0) << " bytes" << std::endl;
+    std::cout << "size of float            = " << sizeof(ff) << " bytes" << std::endl << std::endl;
 
     std::cout << "test operators *, +, - " << std::endl;
     std::cout << "calculated bb = b2 * ((b3 * b4) + (b5 * b6)) - b7 * b8 = " << bb << std::endl;
@@ -69,6 +75,16 @@ int main()
 
     sin(b0) == b0 ? std::cout << "PASS: sin(b0) == 0\n" : std::cout << "FAIL: sin(b0) == 0\n";
     cos(b0) == b1 ? std::cout << "PASS: cos(b0) == b1\n" : std::cout << "FAIL: cos(b0) == b1\n";
+
+    rocblas_bfloat16 temp = static_cast<rocblas_bfloat16>(d3);
+    temp == b3 ? std::cout << "PASS: " : std::cout << "FAIL: ";
+    std::cout << "static_cast<rocblas_bfloat16>(d3) = " << temp << std::endl;
+
+    temp = static_cast<rocblas_bfloat16>(i5);
+    temp == b5 ? std::cout << "PASS: " : std::cout << "FAIL: ";
+    std::cout << "static_cast<rocblas_bfloat16>(d5) = " << temp << std::endl;
+
+
 
     return 0;
 }
