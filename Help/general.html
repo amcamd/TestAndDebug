@@ -489,6 +489,36 @@ See reference <a href="http://www.draconianoverlord.com/2013/09/07/no-cherry-pic
 </ul>
 </ul>
 
+<h4>After hot fix merge rocBLAS master into develop</h4>
+<ul>
+    <li> <code>mkdir -p ~/repos/rocBLASmergeDevelop; cd ~/repos/rocBLASmergeDevelop</code></li>
+
+    <li> <code>git clone https://github.com/ROCmSoftwarePlatform/rocBLAS.git</code></li>
+
+    <li> <code>cd rocBLAS</code></li>
+    <li> <code>git checkout master</code></li>
+    <li> edit both bump_develop_version.sh and bump_master_version.sh</li>
+    <li> <code>./bump_master_version.sh</code></li>
+    <ul>
+        <li> check changes are correct with    <code>git status</code> and look at CMakeLists.txt and other files.</li>
+        <li> <code> git add -u</code></li>
+        <li> <code>git commit -m"version for master branch release"</code></li>
+    </ul>
+
+    <li> <code>git checkout develop</code></li>
+    <li> <code>git merge master</code></li>
+
+    <li> fix merge conflict in CMakeList.txt, this is in place of<code>./bump_develop_version.sh</code></li>
+    <ul>
+        <li> check changes are correct with    <code>git status</code> and look at CMakeLists.txt and other files.</li>
+        <li> <code> git add -u</code></li>
+        <li> <code>git commit -m"version for develop branch release"</code></li>
+    </ul>
+
+    <li> <code>git push --all</code></li>
+</ul>
+
+
 <h4>Merge rocBLAS develop into master and release</h4>
 <ul>
     <li> <code>mkdir -p ~/repos/rocBLASmergeDevelop; cd ~/repos/rocBLASmergeDevelop</code></li>
