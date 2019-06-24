@@ -28,7 +28,7 @@ th, td {
     <td><a href="https://github.com/ROCmSoftwarePlatform/hipBLAS">hipBLAS</a><br></td>
     <td>Github site for https://github.com/ROCmSoftwarePlatform/hipBLAS</td>
 </tr><tr>
-    <td><a href="http://10.236.10.38/">hsUtil</a><br></td>
+    <td><a href="http://hsautil.amd.com/">hsUtil</a><br></td>
     <td>Site for Jenkins Continuous Integration testing. http://hsautil.amd.com/job/ROCmSoftwarePlatform/</td>
 </tr><tr>
     <td><a href="http://confluence.amd.com/display/MLSE/Tensile+and+rocBLAS">Confluence</a><br></td>
@@ -325,9 +325,17 @@ upstream	https://github.com/ROCmSoftwarePlatform/rocBLAS (push)
 </ul>
 
 
+<h4>Tracking a remote branch</h4>
+For the error when running <code>git checkout &lt;BRANCH_NAME&gt;</code>
+<ul>
+    <li><code>git remote update</code></li>
+    <li><code>git fetch </code></li>
+    <li><code>git checkout --track origin/&lt;BRANCH-NAME&gt;</code></li>
+</ul>
+
+
 <h4>Syncing a fork</h4>
 <ul>
-
 <li><pre>
 ===: git fetch upstream
 <samp>
@@ -789,6 +797,10 @@ Docker containers used in Jenkins.
 	<li><a href="http://confluence.amd.com/pages/viewpage.action?spaceKey=GPUCPT&title=Compute+roc+master">Compute roc master</a></li>
 	<li><a href="http://confluence.amd.com/display/GPUCPT/Docker+images+for+ROCm+releases">Docker images for ROCm releases</a></li>
 </ul>
+
+<p>Docker contailers for amcamd
+<a href="https://cloud.docker.com/repository/docker/amcamd/amcamd_dockerhub/general">amcamd/amcamd_dockerhub</a>
+
 <p>On Ubuntu machine, can log in with
 <ul>
 	<li><code>sudo docker login</code></li>
@@ -825,6 +837,7 @@ Docker containers used in Jenkins.
 <p>To run docker image sunway13/ubuntu14.04:promote-free-v2
 <ul>
 	<li><code>sudo docker run -it --rm --device "/dev/kfd" --device "/dev/dri" --group-add video sunway513/ubuntu14.04:promote-free-v2</code></li>
+	<li><code>sudo docker run -it --rm --device "/dev/kfd" --device "/dev/dri" --group-add video rocm/rocm-terminal</code></li>
 </ul></p>
 <p>To remove a docker container, first get CONTAINER ID with 
 <ul>
