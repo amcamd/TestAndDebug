@@ -1,0 +1,42 @@
+
+    ACTION – Compulsory for the recipient to take some action
+    SIGN – Requires the signature of the recipient
+    INFO – For informational purposes only, and there is no response or action required
+    DECISION – Requires a decision by the recipient
+    REQUEST – Seeks permission or approval by the recipient
+    COORD – Coordination by or with the recipient is needed
+
+
+Bottom Line Up Front (BLUF). 
+Military professionals lead their emails with a short, staccato statement known as the BLUF.
+It declares the purpose of the email and action required. The BLUF should quickly answer the five W’s: 
+who, what, where, when, and why. 
+An effective BLUF distills the most important information for the reader. Here’s an example BLUF:
+
+    BLUF: Effective 29 Oct 13, all Air Force Doctrine Documents (AFDDs) have been rescinded and 
+replaced by core doctrine volumes and doctrine annexes.
+
+
+Active voice
+They also eschew the passive voice because it tends to make sentences longer, or as the Air Force 
+manual puts it, “Besides lengthening and twisting sentences, passive verbs often muddy them.” 
+
+Instead, use active voice, which puts nouns ahead of verbs, so it’s clear who is doing the action. 
+By using active voice, you are making the “verbs do the work for you.” Instead of, “The factory was 
+bombed by an F18,” military professionals would say, “An F18 bombed the factory.”
+
+
+Example
+
+    Subject: INFO – Meeting Change
+
+    Shannon,
+
+    Bottom Line: We scheduled the weekly update meeting for Thursday at 2 PM CST to accommodate the CFO’s schedule.
+
+    Background:
+
+    -  We searched for other available times, but this is the only time that works, and it’s important 
+       that you are on the call, so that you can address your P&L.
+    -  CFO will be in Boston on Thursday meeting at an offsite with the management committee.
+    -  He wants to review the financial report that can be found here (insert link) before the call.
