@@ -24,7 +24,7 @@ fi
 echo "==============================================================="
 echo "=====build=rocblas=with=install.sh============================="
 echo "==============================================================="
-./install.sh -lasm_ci -c
+time ./install.sh -lasm_ci -c
 if [[ $? -ne 0 ]]; then
     echo "install error"
     exit 1
