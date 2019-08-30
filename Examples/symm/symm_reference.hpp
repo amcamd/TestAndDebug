@@ -1,6 +1,6 @@
 
 template<typename T>
-rocblas_status ssymm_reference(
+rocblas_status symm_reference(
      rocblas_side      side,
      rocblas_fill      uplo,
      rocblas_int       m,

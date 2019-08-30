@@ -8,6 +8,7 @@
 #include <cstring>
 #include "rocblas-types.h"
 #include "symm_reference.hpp"
+#include "symm_l3_reference.hpp"
 
 static int parse_arguments(
         int argc,
@@ -226,11 +227,21 @@ void template_symm(rocblas_side side,
     print_matrix("b", b, ldb, n, ldb);
     print_matrix("c", c, ldc, n, ldc);
 
-    rocblas_status status = ssymm_reference( side, uplo, m, n, alpha,
+    rocblas_status status;
+
+/*
+    status = symm_reference( side, uplo, m, n, alpha,
         a.data(), lda,
         b.data(), ldb, beta,
         c.data(), ldc);
+*/
 
+  
+    status = symm_l3_reference( side, uplo, m, n, alpha,
+        a.data(), lda,
+        b.data(), ldb, beta,
+        c.data(), ldc);
+  
     print_matrix("output c", c, ldc, n, ldc);
 }
 
@@ -265,6 +276,39 @@ void dsymm(rocblas_side side,
 
 int main(int argc, char* argv[])
 {
+
+    int nn = 10, incx = 1, incy = 1;
+
+    float * xx = new float[nn * incx];
+    float * yy = new float[nn * incy];
+
+    for (int i = 0; i < nn; i++)
+    {
+        xx[i] = i;
+        yy[i] = -i;
+    }
+
+
+    std::cout << std::endl << "in vector yy" << std::endl;
+    for (int i = 0; i < nn; i++)
+    {
+        std::cout << yy[i] << ", ";
+    }
+    std::cout << std::endl;
+
+    copy_reference(nn, &xx[0], incx, &yy[0], incy);
+
+    std::cout << std::endl << "out vector yy" << std::endl;
+    for (int i = 0; i < nn; i++)
+    {
+        std::cout << yy[i] << ", ";
+    }
+    std::cout << std::endl;
+
+//  return 0;
+
+
+
     rocblas_side side = rocblas_side_right;
     rocblas_fill uplo = rocblas_fill_lower;
 
