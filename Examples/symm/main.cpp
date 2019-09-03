@@ -10,6 +10,29 @@
 #include "symm_reference.hpp"
 #include "symm_l3_reference.hpp"
 
+static void show_usage(char* argv[])
+{
+        std::cerr << "Usage: " << argv[0] << " <options>\n"
+                  << "options:\n"
+                  << "\t-h, --help\t\t\t\tShow this help message\n"
+                  << "\t-v, --verbose\t\t\t\tverbose output\n"
+                  << "\t-p \t\t\tp\t\tprecision s, d, c, z, h\n"
+                  << "\t--side \t\t\tside \t\t l, r for left, right \n"
+                  << "\t--uplo \t\t\tuplo \t\t u, l for upper, lower\n"
+                  << "\t-m \t\t\tm\t\trocblas_gemm_ex argument m\n"
+                  << "\t-n \t\t\tn\t\trocblas_gemm_ex argument n\n"
+                  << "\t--lda \t\t\tlda \t\trocblas_gemm_ex argument lda\n"
+                  << "\t--ldb \t\t\tldb \t\trocblas_gemm_ex argument ldb\n"
+                  << "\t--ldc \t\t\tldc \t\trocblas_gemm_ex argument ldc\n"
+                  << "\t--trans_a \t\ttrans_a \tn, N, t, or T\n"
+                  << "\t--trans_b \t\ttrans_b \tn, N, t, or T\n"
+                  << "\t--alpha \t\talpha \t\trocblas_gemm_ex argument alpha\n"
+                  << "\t--beta \t\t\tbeta \t\trocblas_gemm_ex argument beta\n"
+                  << "\t--header \t\theader \t\tprint header for output\n"
+                  << std::endl;
+}
+
+
 static int parse_arguments(
         int argc,
         char *argv[],
@@ -321,7 +344,11 @@ int main(int argc, char* argv[])
     bool verbose = false;
     char precision = 's';
 
-    parse_arguments(argc, argv, side, uplo, m, n, lda, ldb, ldc, alpha, beta, verbose, precision);
+    if(parse_arguments(argc, argv, side, uplo, m, n, lda, ldb, ldc, alpha, beta, verbose, precision))
+    {
+        show_usage(argv);
+        return EXIT_FAILURE;
+    }
 
     ldb = ldb < m ? m : ldb;
     ldc = ldc < m ? m : ldc;
