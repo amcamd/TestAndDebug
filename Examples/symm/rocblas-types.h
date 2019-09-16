@@ -55,6 +55,12 @@ typedef uint16_t rocblas_half; // TODO: should be replaced with a struct, to bec
 extern "C" {
 #endif
 
+typedef enum rocblas_genus_
+{
+    rocblas_genus_legacy     = 1,
+    rocblas_genus_gemm_based = 2
+} rocblas_genus;
+
 /*! \brief Used to specify whether the matrix is to be transposed or not. */
 typedef enum rocblas_operation_
 {

@@ -6,6 +6,7 @@
 #include <random>
 #include <limits>
 #include <cstring>
+#include <stdlib.h>
 #include "rocblas-types.h"
 #include "symm_reference.hpp"
 #include "symm_l3_reference.hpp"
@@ -171,8 +172,8 @@ void initialize_matrix(
         {
             if(i < m)
             {
-//              a[i+j*lda] = dis(gen);
-                a[i+j*lda] = 1.0;
+                a[i+j*lda] = dis(gen);
+//              a[i+j*lda] = 2.0;
             }
             else
             {
@@ -204,8 +205,8 @@ void initialize_symmetric_matrix(
         {
             if((i < ka) && (((j <= i) && (uplo == rocblas_fill_lower)) || ((j >= i) && (uplo == rocblas_fill_upper))))
             {
-//              a[i+j*lda] = dis(gen);
-                a[i+j*lda] = 1.0;
+                a[i+j*lda] = dis(gen);
+//              a[i+j*lda] = 1.0;
             }
             else
             {
@@ -226,46 +227,80 @@ void template_symm(rocblas_side side,
                    rocblas_int lda, 
                    rocblas_int ldb, 
                    T beta, 
-                   rocblas_int ldc)
+                   rocblas_int ldc,
+                   bool verbose)
 {
+
     rocblas_int ka = (side == rocblas_side_left) ? m : n;
 
     std::vector<T>a(lda*ka);
     std::vector<T>b(ldb*n);
-    std::vector<T>c(ldc*n);
+    std::vector<T>c_legacy(ldc*n);
+    std::vector<T>c_gemm_based(ldc*n);
 
     initialize_symmetric_matrix(a, m, n, lda, side, uplo);
     initialize_matrix(b, m, n, ldb);
-    initialize_matrix(c, m, n, ldc);
-    
-    if(side == rocblas_side_left)
-    {
-        print_matrix("a side_left", a, lda, m, lda);
-    }
-    else
-    {
-        print_matrix("a side_right", a, lda, n, lda);
-    }
+    initialize_matrix(c_legacy, m, n, ldc);
 
-    print_matrix("b", b, ldb, n, ldb);
-    print_matrix("c", c, ldc, n, ldc);
+    c_gemm_based = c_legacy;
+    
+    if(verbose)
+    {
+        if(side == rocblas_side_left)
+        {
+            print_matrix("a side_left", a, lda, m, lda);
+        }
+        else
+        {
+            print_matrix("a side_right", a, lda, n, lda);
+        }
+
+        print_matrix("b", b, ldb, n, ldb);
+        print_matrix("c_legacy", c_legacy, ldc, n, ldc);
+    }
 
     rocblas_status status;
 
-/*
     status = symm_reference( side, uplo, m, n, alpha,
         a.data(), lda,
         b.data(), ldb, beta,
-        c.data(), ldc);
-*/
-
-  
+        c_legacy.data(), ldc);
+ 
     status = symm_l3_reference( side, uplo, m, n, alpha,
         a.data(), lda,
         b.data(), ldb, beta,
-        c.data(), ldc);
+        c_gemm_based.data(), ldc);
+
+    // calculate error
+    T error = 0.0;
+    T magnitude = 0.0;
+    T tolerance = 1;
+    T epsilon = std::numeric_limits<T>::epsilon();
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < m; j++)
+        {
+            magnitude += c_legacy[j + i * ldc] > T(0) ? c_legacy[j + i * ldc] : - c_legacy[j + i * ldc];
+            T err = c_legacy[j + i * ldc] - c_gemm_based[j + i * ldc];
+            error += err * err;
+        }
+    }
+    if (error < epsilon * tolerance * magnitude)
+    {
+        std::cout << "----- pass ----- ";
+        std::cout << "error, magnitude " << error << ", " << magnitude << std::endl;
+    }
+    else
+    {
+        std::cout << "----- fail ----- FAIL ----- error ------ ERROR -----";
+        std::cout << "error, magnitude, epsilon * tolerance * magnitude = " << error << ", " << magnitude << ", " << epsilon * tolerance * magnitude << std::endl;
+    }
   
-    print_matrix("output c", c, ldc, n, ldc);
+    if(verbose)
+    {
+        print_matrix("output c_legacy", c_legacy, ldc, n, ldc);
+        print_matrix("output c_gemm_based", c_gemm_based, ldc, n, ldc);
+    }
 }
 
 void ssymm(rocblas_side side, 
@@ -276,9 +311,10 @@ void ssymm(rocblas_side side,
         rocblas_int lda, 
         rocblas_int ldb, 
         float beta, 
-        rocblas_int ldc)
+        rocblas_int ldc,
+        bool verbose)
 {
-    template_symm( side, uplo, m, n, alpha, lda, ldb, beta, ldc);
+    template_symm( side, uplo, m, n, alpha, lda, ldb, beta, ldc, verbose);
 }
 
 void dsymm(rocblas_side side, 
@@ -289,49 +325,17 @@ void dsymm(rocblas_side side,
         rocblas_int lda, 
         rocblas_int ldb, 
         float beta_in, 
-        rocblas_int ldc)
+        rocblas_int ldc,
+        bool verbose)
 {
     double alpha = static_cast<double>(alpha_in);
     double beta = static_cast<double>(beta_in);
-    template_symm( side, uplo, m, n, alpha, lda, ldb, beta, ldc);
+    template_symm( side, uplo, m, n, alpha, lda, ldb, beta, ldc, verbose);
 }
 
 
 int main(int argc, char* argv[])
 {
-
-    int nn = 10, incx = 1, incy = 1;
-
-    float * xx = new float[nn * incx];
-    float * yy = new float[nn * incy];
-
-    for (int i = 0; i < nn; i++)
-    {
-        xx[i] = i;
-        yy[i] = -i;
-    }
-
-
-    std::cout << std::endl << "in vector yy" << std::endl;
-    for (int i = 0; i < nn; i++)
-    {
-        std::cout << yy[i] << ", ";
-    }
-    std::cout << std::endl;
-
-    copy_reference(nn, &xx[0], incx, &yy[0], incy);
-
-    std::cout << std::endl << "out vector yy" << std::endl;
-    for (int i = 0; i < nn; i++)
-    {
-        std::cout << yy[i] << ", ";
-    }
-    std::cout << std::endl;
-
-//  return 0;
-
-
-
     rocblas_side side = rocblas_side_right;
     rocblas_fill uplo = rocblas_fill_lower;
 
@@ -370,12 +374,12 @@ int main(int argc, char* argv[])
     if(precision == 's' || precision == 'S')
     {
         std::cout << "float" << std::endl;
-        ssymm( side, uplo, m, n, alpha, lda, ldb, beta, ldc);
+        ssymm( side, uplo, m, n, alpha, lda, ldb, beta, ldc, verbose);
     }
     else if(precision == 'd' || precision == 'D')
     {
         std::cout << "double" << std::endl;
-        dsymm( side, uplo, m, n, alpha, lda, ldb, beta, ldc);
+        dsymm( side, uplo, m, n, alpha, lda, ldb, beta, ldc, verbose);
     }
 //  else if(precision == 'c' || precision == 'C')
 //  {

@@ -19,3 +19,10 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX_BUILTIN}")
 
 add_executable(symm_test main.cpp)
 
+if(EXISTS /opt/rocm/hcc/lib/clang/10.0.0/include/immintrin.h)
+    message(STATUS "10.0.0-----------------")
+elseif (EXISTS /opt/rocm/hcc/lib/clang/9.0.0/include/immintrin.h)
+    message(STATUS "9.0.0-----------------")
+else()
+    error("cannot find immintrin.h")
+endif()

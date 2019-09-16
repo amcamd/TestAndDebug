@@ -17,7 +17,6 @@ void mat_mat_mult(T alpha, T beta, int M, int N, int K,
         T* b, int bs1, int bs2, 
         T* c, int cs1, int cs2)
 {
-    std::cout << "---------- in mat_mat_mult ----------" << std::endl;
     for(int i1=0; i1<M; i1++)
     {
         for(int i2=0; i2<N; i2++)
@@ -39,7 +38,6 @@ rocblas_status gemm_reference(rocblas_operation transA, rocblas_operation transB
         T* b, rocblas_int ldb, T beta,
         T* c, rocblas_int ldc)
 {
-    std::cout << "---------- in gemm_reference ----------" << std::endl;
     rocblas_int as1, as2, bs1, bs2, cs1, cs2;
     cs1 = 1;             // stride in first index
     cs2 = ldc;           // stride in second index
@@ -784,70 +782,4 @@ rocblas_status symm_l3_reference(
 *     End of DSYMM.
 *
       END
-*/
-
-/*
-            for (int jx = n; jx >=1; jx -= rcb)
-            {
-               int jj = std::max( 1, jx - rcb + 1 );
-               int jsec = jx - jj + 1;
-*
-*              T1 := A, a lower triangular diagonal block of A is copied
-*              to the lower triangular part of T1.
-*
-               for (int j = jj; j <= jj + jsec -1; j++)
-               {
-                   copy_reference( jj + jsec - j, 
-                          &a[ j-1 + lda * (j-1)], 1,
-                          &t1[ j-jj + rcb * (j-jj)], 1 );
-               }
-*
-*              T1 :=  A', a strictly lower triangular diagonal block of
-*              A is copied to the strictly upper triangular part of T1.
-*              Notice that T1 is referenced by row and that the maximum
-*              length of a vector referenced by DCOPY is CB.
-*
-               for (int ix = jj + jsec - 1; ix >= jj; ix -= cb)
-               {
-                  int ii = std::max( jj, ix-cb+1 );
-                  int isec = ix-ii+1;
-                  for (i = jj; i <= ii + isec - 2; i++)
-                  {
-                     copy_reference( std::min( isec, ii+isec-1-i ),
-                          &a[ std::max( ii-1, i) + lda * (i-1) ], 1,
-                          &t1[i-jj + rcb * std::max(ii - jj,  i - jj + 1)], rcb );
-                  }
-               }
-*
-*              C := alpha*B*T1 + beta*C, a vertical block of C is
-*              updated using the general matrix multiply, DGEMM. T1
-*              corresponds to a full diagonal block of the matrix A.
-*
-               gemm_reference(rocblas_operation_none, rocblas_operation_none,
-                       m, jsec, jsec, alpha,
-                       &b[ ldb * (jj-1)], ldb, 
-                       t1, rcb, beta, 
-                       &c[ ldc * ( jj-1) ], ldc )
-*
-*              C := alpha*B*A + C and C := alpha*B*A' + C, general
-*              matrix multiply operations involving rectangular blocks
-*              of A.
-*
-               if( jj+jsec <= n )
-               {
-                   gemm_reference(rocblas_operation_none, rocblas_operation_none,
-                          m, jsec, n-jj-jsec+1, alpha,
-                                 &b[ ldb * ( jj+jsec-1) ], ldb, 
-                                 &a[ jj+jsec-1 + lda * ( jj-1) ], lda, static_cast<T>(1.0);
-                                 &c[ ldc * ( jj-1) ], ldc );
-               }
-               if( jj > 1 )
-               {
-                  gemm_reference(rocblas_operation_none, rocblas_operation_transpose,
-                          m, jsec, jj-1, alpha,
-                          &b, ldb, 
-                          &a[ jj-1 ], lda, static_cast<T>(1.0),
-                          &c[ ldc * ( jj-1) ], ldc );
-               }
-            }             
 */

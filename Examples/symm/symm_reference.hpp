@@ -129,6 +129,7 @@ rocblas_status symm_reference(
         //*
         //*        Form  C := alpha*B*A + beta*C.
         //*
+
         for(int j=0; j<n; j++)
         {
             temp1 = alpha*a[j + j*lda];
@@ -161,7 +162,7 @@ rocblas_status symm_reference(
                     c[i + j*ldc] = c[i + j*ldc] + temp1*b[i + k*ldb];
                 }
             }
-            for(int k = j; k < n; k++)
+            for(int k = j+1; k < n; k++)
             {
                 if (uplo == rocblas_fill_upper)
                 {
