@@ -22,22 +22,17 @@ fi
 
 
 echo "==============================================================="
-
-ISA=$(/opt/rocm/bin/rocm_agent_enumerator | grep gfx900)
-
-if [ "$ISA" == "gfx900" ]; then
+if [ "$(/opt/rocm/bin/rocm_agent_enumerator | grep -m 1 gfx900)" == "gfx900" ]; then
     echo "=====ISA = gfx900, remove gfx906 YAML files===================="
     rm library/src/blas3/Tensile/Logic/asm_ci/vega20*yaml
-elif [ "$ISA" == "gfx906" ]; then
+elif [ "$(/opt/rocm/bin/rocm_agent_enumerator | grep -m 1 gfx906)" == "gfx906" ]; then
     echo "=====ISA = gfx906, remove gfx900 YAML files===================="
     rm library/src/blas3/Tensile/Logic/asm_ci/vega10*yaml
 else
     echo "ISA != gfx900 and ISA != gfx906"
     exit 1
 fi
-
 echo "==============================================================="
-
 
 echo "==============================================================="
 echo "=====build=rocblas=with=install.sh============================="
