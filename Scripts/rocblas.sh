@@ -1,12 +1,11 @@
 #!/bin/bash
 
-set -x
+#set -x
 
 #sudo dpkg -r rocalution
 #sudo dpkg -r rocblas
 #export PATH=/opt/rocm/bin:$PATH
 
-echo "==============================================================="
 echo "=====clone=rocblas============================================="
 echo "==============================================================="
 git clone -b develop https://github.com/amcamd/rocBLAS.git 
@@ -20,6 +19,25 @@ if [[ $? -ne 0 ]]; then
     echo "cd error"
     exit 1
 fi
+
+
+echo "==============================================================="
+
+ISA=$(/opt/rocm/bin/rocm_agent_enumerator | grep gfx900)
+
+if [ "$ISA" == "gfx900" ]; then
+    echo "=====ISA = gfx900, remove gfx906 YAML files===================="
+    rm library/src/blas3/Tensile/Logic/asm_ci/vega20*yaml
+elif [ "$ISA" == "gfx906" ]; then
+    echo "=====ISA = gfx906, remove gfx900 YAML files===================="
+    rm library/src/blas3/Tensile/Logic/asm_ci/vega10*yaml
+else
+    echo "ISA != gfx900 and ISA != gfx906"
+    exit 1
+fi
+
+echo "==============================================================="
+
 
 echo "==============================================================="
 echo "=====build=rocblas=with=install.sh============================="
