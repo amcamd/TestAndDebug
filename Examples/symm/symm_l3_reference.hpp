@@ -346,7 +346,7 @@ rocblas_status symm_l3_reference(
                        m, jsec, jj - 1, alpha,
                        b, ldb, 
                        &a[jj - 1], lda, static_cast<T>(1.0),
-                       &c[ldc * (jj - 1) ], ldc);
+                       &c[ldc * (jj - 1)], ldc);
                }
             }
         }

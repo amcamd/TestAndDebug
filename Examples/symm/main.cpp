@@ -7,9 +7,47 @@
 #include <limits>
 #include <cstring>
 #include <stdlib.h>
+#include <hip/hip_runtime.h>
+#include "rocblas.h"
 #include "rocblas-types.h"
 #include "symm_reference.hpp"
 #include "symm_l3_reference.hpp"
+
+#ifndef CHECK_HIP_ERROR
+#define CHECK_HIP_ERROR(error)                    \
+    if(error != hipSuccess)                       \
+    {                                             \
+        fprintf(stderr,                           \
+                "Hip error: '%s'(%d) at %s:%d\n", \
+                hipGetErrorString(error),         \
+                error,                            \
+                __FILE__,                         \
+                __LINE__);                        \
+        exit(EXIT_FAILURE);                       \
+    }
+#endif
+
+#ifndef CHECK_ROCBLAS_ERROR
+#define CHECK_ROCBLAS_ERROR(error)                              \
+    if(error != rocblas_status_success)                         \
+    {                                                           \
+        fprintf(stderr, "rocBLAS error: ");                     \
+        if(error == rocblas_status_invalid_handle)              \
+            fprintf(stderr, "rocblas_status_invalid_handle");   \
+        if(error == rocblas_status_not_implemented)             \
+            fprintf(stderr, " rocblas_status_not_implemented"); \
+        if(error == rocblas_status_invalid_pointer)             \
+            fprintf(stderr, "rocblas_status_invalid_pointer");  \
+        if(error == rocblas_status_invalid_size)                \
+            fprintf(stderr, "rocblas_status_invalid_size");     \
+        if(error == rocblas_status_memory_error)                \
+            fprintf(stderr, "rocblas_status_memory_error");     \
+        if(error == rocblas_status_internal_error)              \
+            fprintf(stderr, "rocblas_status_internal_error");   \
+        fprintf(stderr, "\n");                                  \
+        exit(EXIT_FAILURE);                                     \
+    }
+#endif
 
 static void show_usage(char* argv[])
 {
@@ -32,7 +70,6 @@ static void show_usage(char* argv[])
                   << "\t--header \t\theader \t\tprint header for output\n"
                   << std::endl;
 }
-
 
 static int parse_arguments(
         int argc,
@@ -233,43 +270,59 @@ void template_symm(rocblas_side side,
 
     rocblas_int ka = (side == rocblas_side_left) ? m : n;
 
-    std::vector<T>a(lda*ka);
-    std::vector<T>b(ldb*n);
-    std::vector<T>c_legacy(ldc*n);
-    std::vector<T>c_gemm_based(ldc*n);
+    rocblas_int size_a = lda * ka;
+    rocblas_int size_b = ldb * n;
+    rocblas_int size_c = ldc * n;
 
-    initialize_symmetric_matrix(a, m, n, lda, side, uplo);
-    initialize_matrix(b, m, n, ldb);
-    initialize_matrix(c_legacy, m, n, ldc);
+    std::vector<T>ha(size_a);
+    std::vector<T>hb(size_b);
+    std::vector<T>hc_legacy(size_c);
+    std::vector<T>hc_gemm_based(size_c);
 
-    c_gemm_based = c_legacy;
+    initialize_symmetric_matrix(ha, m, n, lda, side, uplo);
+    initialize_matrix(hb, m, n, ldb);
+    initialize_matrix(hc_legacy, m, n, ldc);
+
+    hc_gemm_based = hc_legacy;
     
+    T *da, *db, *dc;
+    CHECK_HIP_ERROR(hipMalloc(&da, size_a * sizeof(T)));
+    CHECK_HIP_ERROR(hipMalloc(&db, size_b * sizeof(T)));
+    CHECK_HIP_ERROR(hipMalloc(&dc, size_c * sizeof(T)));
+
+    CHECK_HIP_ERROR( hipMemcpy(da, ha.data(), sizeof(T) * size_a, hipMemcpyHostToDevice));
+    CHECK_HIP_ERROR( hipMemcpy(db, hb.data(), sizeof(T) * size_b, hipMemcpyHostToDevice));
+    CHECK_HIP_ERROR( hipMemcpy(dc, hc_legacy.data(), sizeof(T) * size_c, hipMemcpyHostToDevice));
+
+    rocblas_handle handle;
+    CHECK_ROCBLAS_ERROR(rocblas_create_handle(&handle));
+
     if(verbose)
     {
         if(side == rocblas_side_left)
         {
-            print_matrix("a side_left", a, lda, m, lda);
+            print_matrix("a side_left", ha, lda, m, lda);
         }
         else
         {
-            print_matrix("a side_right", a, lda, n, lda);
+            print_matrix("a side_right", ha, lda, n, lda);
         }
 
-        print_matrix("b", b, ldb, n, ldb);
-        print_matrix("c_legacy", c_legacy, ldc, n, ldc);
+        print_matrix("b", hb, ldb, n, ldb);
+        print_matrix("c_legacy", hc_legacy, ldc, n, ldc);
     }
 
     rocblas_status status;
 
     status = symm_reference( side, uplo, m, n, alpha,
-        a.data(), lda,
-        b.data(), ldb, beta,
-        c_legacy.data(), ldc);
+        ha.data(), lda,
+        hb.data(), ldb, beta,
+        hc_legacy.data(), ldc);
  
     status = symm_l3_reference( side, uplo, m, n, alpha,
-        a.data(), lda,
-        b.data(), ldb, beta,
-        c_gemm_based.data(), ldc);
+        ha.data(), lda,
+        hb.data(), ldb, beta,
+        hc_gemm_based.data(), ldc);
 
     // calculate error
     T error = 0.0;
@@ -280,8 +333,8 @@ void template_symm(rocblas_side side,
     {
         for (int j = 0; j < m; j++)
         {
-            magnitude += c_legacy[j + i * ldc] > T(0) ? c_legacy[j + i * ldc] : - c_legacy[j + i * ldc];
-            T err = c_legacy[j + i * ldc] - c_gemm_based[j + i * ldc];
+            magnitude += hc_legacy[j + i * ldc] > T(0) ? hc_legacy[j + i * ldc] : - hc_legacy[j + i * ldc];
+            T err = hc_legacy[j + i * ldc] - hc_gemm_based[j + i * ldc];
             error += err * err;
         }
     }
@@ -298,8 +351,8 @@ void template_symm(rocblas_side side,
   
     if(verbose)
     {
-        print_matrix("output c_legacy", c_legacy, ldc, n, ldc);
-        print_matrix("output c_gemm_based", c_gemm_based, ldc, n, ldc);
+        print_matrix("output c_legacy", hc_legacy, ldc, n, ldc);
+        print_matrix("output c_gemm_based", hc_gemm_based, ldc, n, ldc);
     }
 }
 

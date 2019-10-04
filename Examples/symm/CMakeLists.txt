@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.5.1)
 
 set(CMAKE_CXX_COMPILER "/opt/rocm/bin/hipcc")
+set(ROCBLAS_INSTALL "/home/achapman/repos/ROCmSoftwarePlatform/rocBLAS/build/release/rocblas-install")
 
 project ( i8_test LANGUAGES CXX )
 
@@ -17,12 +18,11 @@ SET(CXX_BUILTIN "")
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX_BUILTIN}")
 
+SET(SOURCES main.cpp)
+
+include_directories(${ROCBLAS_INSTALL}/include)
+link_directories(${ROCBLAS_INSTALL}/lib)
+
 add_executable(symm_test main.cpp)
 
-if(EXISTS /opt/rocm/hcc/lib/clang/10.0.0/include/immintrin.h)
-    message(STATUS "10.0.0-----------------")
-elseif (EXISTS /opt/rocm/hcc/lib/clang/9.0.0/include/immintrin.h)
-    message(STATUS "9.0.0-----------------")
-else()
-    error("cannot find immintrin.h")
-endif()
+target_link_libraries(symm_test librocblas.so)
