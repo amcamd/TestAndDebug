@@ -231,14 +231,16 @@ void initialize_matrix(
      std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
      std::uniform_real_distribution<T> dis(0.0, 1.0);
 
+     T temp = 0.0;
     for (int i = 0; i < lda; i++)
     {
         for (int j = 0; j < n; j++)
         {
             if(i < m)
             {
-                a[i+j*lda] = dis(gen);
-//              a[i+j*lda] = 2.0;
+//              a[i+j*lda] = dis(gen);
+//              a[i+j*lda] = 1.0;
+                a[i+j*lda] = temp++;
             }
             else
             {
@@ -284,18 +286,6 @@ void initialize_triangular_matrix(
             }
         }
     }
-    if(trans == rocblas_operation_transpose)
-    {
-        for (int i = 0; i < ka; i++)
-        {
-            for (int j = i; j < ka; j++)
-            {
-                T t = a[i+j*lda];
-                a[i+j*lda] = a[j+i*lda];
-                a[j+i*lda] = t;
-            }
-        }
-    }
 
     // initialize trailing block
     for (int i = ka; i < lda; i++)
@@ -307,14 +297,27 @@ void initialize_triangular_matrix(
         }
     }
 
+//  if(trans == rocblas_operation_transpose)
+//  {
+//      for (int i = 0; i < lda; i++)
+//      {
+//          for (int j = i; j < ka; j++)
+//          {
+//              T t = a[i+j*lda];
+//              a[i+j*lda] = a[j+i*lda];
+//              a[j+i*lda] = t;
+//          }
+//      }
+//  }
+
     // make unit diagonal
-    if(diag == rocblas_diagonal_unit)
-    {
-        for (int i = 0; i < ka; i++)
-        {
-            a[i+i*lda] = 1.0;
-        }
-    }
+//  if(diag == rocblas_diagonal_unit)
+//  {
+//      for (int i = 0; i < ka; i++)
+//      {
+//          a[i+i*lda] = 1.0;
+//      }
+//  }
 
 }
 
@@ -375,6 +378,8 @@ void template_trmm(rocblas_side side,
       status = trmm_reference( side, uplo, trans, diag, m, n, alpha,
           ha.data(), lda,
           hb.data(), ldb);
+
+    print_matrix("b output", hb, ldb, n, ldb);
 // 
 //    status = trmm_l3_reference( side, uplo, trans, diag, m, n, alpha,
 //        ha.data(), lda,
