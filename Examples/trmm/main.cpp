@@ -10,7 +10,9 @@
 #include <hip/hip_runtime.h>
 #include "rocblas.h"
 #include "rocblas-types.h"
+#include "dcld.hpp"
 #include "trmm_reference.hpp"
+#include "trmm_gemm_based.4.hpp"
 //#include "trmm_l3_reference.hpp"
 
 #ifndef CHECK_HIP_ERROR
@@ -208,7 +210,7 @@ void print_matrix(
             const char* name, std::vector<T>& A, rocblas_int m, rocblas_int n, rocblas_int lda)
 {
     printf("---------- %s ----------\n", name);
-    int max_size = 6;
+    int max_size = 12;
     for(int i = 0; i < m && i < max_size; i++)
     {
         for(int j = 0; j < n && j < max_size; j++)
@@ -346,9 +348,10 @@ void template_trmm(rocblas_side side,
 
     initialize_triangular_matrix(ha, m, n, lda, side, uplo, trans, diag);
     initialize_matrix(hb, m, n, ldb);
-//
-//    hb_gemm_based = hb_legacy;
-//    
+
+    hb_legacy = hb;
+    hb_gemm_based = hb_legacy;
+
     T *da, *db;
     CHECK_HIP_ERROR(hipMalloc(&da, size_a * sizeof(T)));
     CHECK_HIP_ERROR(hipMalloc(&db, size_b * sizeof(T)));
@@ -377,9 +380,29 @@ void template_trmm(rocblas_side side,
 
       status = trmm_reference( side, uplo, trans, diag, m, n, alpha,
           ha.data(), lda,
-          hb.data(), ldb);
+          hb_legacy.data(), ldb);
 
-    print_matrix("b output", hb, ldb, n, ldb);
+      status = trmm_gemm_based_reference( side, uplo, trans, diag, 
+              m, n, alpha,
+          ha.data(), lda,
+          hb_gemm_based.data(), ldb);
+
+    if(verbose)
+    {
+        print_matrix("b_legacy output", hb_legacy, ldb, n, ldb);
+        print_matrix("b_gemm_based output", hb_gemm_based, ldb, n, ldb);
+    }
+
+    T error = 0.0;
+    for (int i1 = 0; i1 < m; i1++)
+    {
+        for (int i2 = 0; i2 < n; i2++)
+        {
+            T t = hb_gemm_based[i1+i2*ldb] - hb_legacy[i1+i2*ldb];
+            error += t * t;
+        }
+    }
+    std::cout << "l2 norm of error = " << sqrt(error) << std::endl;
 // 
 //    status = trmm_l3_reference( side, uplo, trans, diag, m, n, alpha,
 //        ha.data(), lda,
@@ -449,8 +472,8 @@ void dtrmm(rocblas_side side,
 
 int main(int argc, char* argv[])
 {
-    rocblas_side side = rocblas_side_right;
-    rocblas_fill uplo = rocblas_fill_lower;
+    rocblas_side side = rocblas_side_left;
+    rocblas_fill uplo = rocblas_fill_upper;
     rocblas_operation trans = rocblas_operation_none;
     rocblas_diagonal diag = rocblas_diagonal_non_unit;
 
