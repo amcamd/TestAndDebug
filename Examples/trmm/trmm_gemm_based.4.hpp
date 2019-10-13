@@ -165,7 +165,11 @@ rocblas_status trmm_gemm_based_reference (
 //
       if (alpha == 0)
       {
-         gemm_reference(rocblas_operation_none, rocblas_operation_none, m, n, 0, zero, c, lda > ldc ? lda : ldc, c, lda > ldc ? lda : ldc, zero, c, ldc);
+         gemm_reference(rocblas_operation_none, rocblas_operation_none, 
+                 m, n, 0, zero, 
+                 c, lda > ldc ? lda : ldc, 
+                 c, lda > ldc ? lda : ldc, zero, 
+                 c, ldc);
          return status;
       }
 
@@ -237,7 +241,11 @@ rocblas_status trmm_gemm_based_reference (
                               tsec = 1;
                               gamma = 0.0;
                            }
-                           gemv_reference(rocblas_operation_none, jsec, tsec, gamma, &t1[(i-ii+1)*ldt1], rb, &t2[i - ii + 1 + (i - ii)*ldt2], 1, delta, &t1[(i-ii)*ldt1], 1);
+                           gemv_reference(rocblas_operation_none, 
+                                   jsec, tsec, gamma, 
+                                   &t1[(i-ii+1)*ldt1], rb, 
+                                   &t2[i - ii + 1 + (i - ii)*ldt2], 1, delta, 
+                                   &t1[(i-ii)*ldt1], 1);
                         }
 //
 //                      C := T1', the transpose of T1 is copied back
@@ -267,10 +275,9 @@ rocblas_status trmm_gemm_based_reference (
 //
 //             Form  C := alpha*A'*C. Left, Upper, Transpose.
 //
-                 std::cout << "left, upper, transpose" << std::endl;
                  delta = alpha;
                  bool cldc = dcld(ldc);
-                 for (int ii = m - ((m - 1) % cb); ii >= 1; ii -= cb )
+                 for (int ii = m - ((m - 1) % cb); ii >= 1; ii -= cb)
                  {
                     isec = cb < m - ii + 1 ? cb : m - ii + 1;
                     for (int jj = 1; jj <= n; jj += rb)
@@ -289,7 +296,7 @@ rocblas_status trmm_gemm_based_reference (
                        }
                        else
                        {
-                          for (int i = ii; i <= ii + isec -1; i++ )
+                          for (int i = ii; i <= ii + isec -1; i++)
                           {
                              copy_reference(jsec, &c[i-1+(jj-1)*ldc], ldc, &t1[(i-ii)*ldt1], 1);
                           }
@@ -377,13 +384,15 @@ rocblas_status trmm_gemm_based_reference (
 //
                        if (cldc)
                        {
-                          for (int j = jj; j <= jj + jsec -1; j++) {
+                          for (int j = jj; j <= jj + jsec -1; j++)
+                          {
                              copy_reference(isec, &c[ii-1 + (j-1)*ldc], 1, &t1[j-jj], rb);
                           }
                        }
                        else
                        {
-                          for (int i = ii; i <= ii + isec - 1; i++) {
+                          for (int i = ii; i <= ii + isec - 1; i++)
+                          {
                              copy_reference(jsec, &c[i-1+(jj-1)*ldc], ldc, &t1[(i-ii)*ldt1], 1);
                           }
                        }
@@ -413,8 +422,6 @@ rocblas_status trmm_gemm_based_reference (
                                   t1, rb,
                                   &t2[(i-ii)*ldt2], 1, delta,
                                   &t1[(i-ii)*ldt1], 1);
-
-  
                        }
 //
 //                      C := T1', the transpose of T1 is copied back
@@ -429,7 +436,8 @@ rocblas_status trmm_gemm_based_reference (
 //                   C := alpha*A'*C + C, general matrix multiply
 //                   involving a rectangular block of A.
 //
-                    if (ii > 1) {
+                    if (ii > 1)
+                    {
                         gemm_reference(rocblas_operation_none, rocblas_operation_none,
                                 isec, n, ii-1, alpha,
                                 &a[ii-1], lda,
@@ -478,18 +486,19 @@ rocblas_status trmm_gemm_based_reference (
 //                      for a deficiency in DGEMV that appears if the
 //                      second dimension (tsec) is zero.
 //
-                        for (int i = ii; i <= ii + isec -1; i++) {
+                        for (int i = ii; i <= ii + isec -1; i++)
+                        {
                            if (diag == rocblas_diagonal_non_unit)
                            {
                               delta = alpha * a[i-1 + (i-1)*lda];
                            }
                            gamma = alpha;
                            tsec = ii+isec-1-i;
-                           if (tsec == 0) {
+                           if (tsec == 0)
+                           {
                               tsec = 1;
                               gamma = zero;
                            }
-//                         CALL DGEMV ( 'N', jsec, tsec, gamma, T1( 1, i-ii+2 ), RB, A( i+1, i ), 1, delta, T1( 1, i-ii+1 ), 1 )
                            gemv_reference(rocblas_operation_none,
                                    jsec, tsec, gamma,
                                    &t1[(i-ii+1)*ldt1], rb,
@@ -500,7 +509,8 @@ rocblas_status trmm_gemm_based_reference (
 //                      C := T1', the transpose of T1 is copied back
 //                      to C.
 //
-                        for (int j = jj; j <= jj + jsec -1; j++) {
+                        for (int j = jj; j <= jj + jsec -1; j++)
+                        {
                            copy_reference(isec, &t1[j-jj], rb, &c[ii-1 + (j-1)*ldc], 1);
                         }
                     }
@@ -511,7 +521,6 @@ rocblas_status trmm_gemm_based_reference (
 //
                     if( ii+isec <= m)
                     {
-//                      gemm_reference( 'T', 'N', isec, N, m-ii-isec+1, alpha, A( ii+isec, ii ), lda, C( ii+isec, 1 ), ldc, ONE, C( ii, 1 ), ldc )
                         gemm_reference(rocblas_operation_transpose, rocblas_operation_none,
                                 isec, n, m-ii-isec+1, alpha,
                                 &a[ii+isec-1 + (ii-1)*lda], lda,
@@ -608,7 +617,8 @@ rocblas_status trmm_gemm_based_reference (
 //                      CALL DCOPY ( J-JJ+1-offd, &a[jj-1 + (j-1)*lda], 1, T2( J-JJ+1, 1 ), cb )
                             copy_reference (j-jj+1-offd, &a[jj-1 + (j-1)*lda], 1, &t2[j-jj], cb);
                     }
-                    for (int ii = 1; ii <= m; ii += rb) {
+                    for (int ii = 1; ii <= m; ii += rb)
+                    {
                         isec = rb < m-ii+1 ? rb : m-ii+1;
 //
 //                      T1 := C, a rectangular block of C is copied
@@ -737,22 +747,25 @@ rocblas_status trmm_gemm_based_reference (
                     rocblas_int jj = 1 > jx - cb + 1 ?  1 : jx - cb + 1;
                     jsec = jx - jj + 1;
 //
-//                   T2 := A', the transpose of a lower unit or non-unit
-//                   triangular diagonal block of A is copied to the
-//                   upper triangular part of T2.
+//                  T2 := A', the transpose of a lower unit or non-unit
+//                  triangular diagonal block of A is copied to the
+//                  upper triangular part of T2.
 //
-                     for (int j = jj; j <= jj + jsec -1 - offd; j++) {
+                    for (int j = jj; j <= jj + jsec -1 - offd; j++)
+                    {
                         copy_reference (jj+jsec-j-offd, 
                                 &a[j+offd-1 + (j-1)*lda], 1, 
                                 &t2[j-jj + (j-jj+offd)*ldt2], cb );
-                     }
-                     for (int ii = 1; ii <= m; ii += rb) {
+                    }
+                    for (int ii = 1; ii <= m; ii += rb)
+                    {
                         isec = rb < m-ii+1 ? rb : m-ii+1;
 //
 //                      T1 := C, a rectangular block of C is copied
 //                      to T1.
 //
-                        for (int j = jj; j <= jj + jsec - 1; j++) {
+                        for (int j = jj; j <= jj + jsec - 1; j++)
+                        {
                            copy_reference (isec, 
                                    &c[ii-1 + (j-1)*ldc], 1,
                                    &t1[(j-jj)*ldt1], 1 );
@@ -784,11 +797,9 @@ rocblas_status trmm_gemm_based_reference (
                                     &t2[(j-jj)*ldt2], 1, delta, 
                                     &c[ii-1 + (j-1)*ldc], 1);
                         }
-                     }
+                    }
 //
-//                   C := alpha*C*A' + C, general matrix multiply
-//                   involving the transpose of a rectangular block
-//                   of A.
+//                  C := alpha*C*A' + C, general matrix multiply involving the transpose of a rectangular block of A.
 //
                     if (jj > 1)
                     {
@@ -802,11 +813,5 @@ rocblas_status trmm_gemm_based_reference (
             }
         }
     }
-//
     return status;
 }
-//
-//    End of DTRmm.
-//
-///   END
-//
