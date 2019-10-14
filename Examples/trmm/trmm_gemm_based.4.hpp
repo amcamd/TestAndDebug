@@ -50,14 +50,35 @@ rocblas_status gemv_reference(rocblas_operation trans, rocblas_int m, rocblas_in
        n1 = n;
        n2 = m;
    }
-   for (int i1 = 0; i1 < n1; i1++)
+   if (beta == 0.0)
    {
-       T temp = 0.0;
-       for (int i2 = 0; i2 < n2; i2++)
+       for (int i = 0; i < n1; i++)
        {
-           temp += a[i1 * s1 + i2 * s2] * x[i2 * incx];
+           y[i * incy] = 0.0;
        }
-       y[i1 * incy] = alpha * temp + beta * y[i1 * incy];
+   }
+   else
+   {
+       for (int i = 0; i < n1; i++)
+       {
+           y[i * incy] *= beta;
+       }
+   }
+   if (alpha == 0.0)
+   {
+       return rocblas_status_success;
+   }
+   else
+   {
+       for (int i1 = 0; i1 < n1; i1++)
+       {
+           T temp = 0.0;
+           for (int i2 = 0; i2 < n2; i2++)
+           {
+               temp += a[i1 * s1 + i2 * s2] * x[i2 * incx];
+           }
+           y[i1 * incy] += alpha * temp;
+       }
    }
    return rocblas_status_success;
 }
