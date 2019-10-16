@@ -13,6 +13,7 @@
 #include "dcld.hpp"
 #include "trmm_reference.hpp"
 #include "trmm_gemm_based.4.hpp"
+#include "rocblas_trmm.hpp"
 //#include "trmm_l3_reference.hpp"
 
 #ifndef CHECK_HIP_ERROR
@@ -66,8 +67,7 @@ static void show_usage(char* argv[])
                   << "\t-n \t\t\tn\t\trocblas_gemm_ex argument n\n"
                   << "\t--lda \t\t\tlda \t\trocblas_gemm_ex argument lda\n"
                   << "\t--ldb \t\t\tldb \t\trocblas_gemm_ex argument ldb\n"
-                  << "\t--trans_a \t\ttrans_a \tn, N, t, or T\n"
-                  << "\t--trans_b \t\ttrans_b \tn, N, t, or T\n"
+                  << "\t--trans \t\ttrans_a \tn, N, t, or T\n"
                   << "\t--alpha \t\talpha \t\trocblas_gemm_ex argument alpha\n"
                   << "\t--header \t\theader \t\tprint header for output\n"
                   << std::endl;
@@ -240,9 +240,13 @@ void initialize_matrix(
         {
             if(i < m)
             {
-//              a[i+j*lda] = dis(gen);
+                a[i+j*lda] = dis(gen);
+                if ((i+j) % 2 == 0)
+                {
+                    a[i+j*lda] = -a[i+j*lda];
+                }
 //              a[i+j*lda] = 1.0;
-                a[i+j*lda] = temp++;
+//              a[i+j*lda] = temp++;
             }
             else
             {
@@ -277,8 +281,8 @@ void initialize_triangular_matrix(
         {
             if(((j <= i) && (uplo == rocblas_fill_lower)) || ((j >= i) && (uplo == rocblas_fill_upper)))
             {
-                a[i+j*lda] = i + j * 100;
-///             a[i+j*lda] = dis(gen);
+//              a[i+j*lda] = i + j * 100;
+                a[i+j*lda] = dis(gen);
 //              a[i+j*lda] = 1.0;
             }
             else
@@ -345,22 +349,14 @@ void template_trmm(rocblas_side side,
     std::vector<T>hb(size_b);
     std::vector<T>hb_legacy(size_b);
     std::vector<T>hb_gemm_based(size_b);
+    std::vector<T>hb_rocblas(size_b);
 
     initialize_triangular_matrix(ha, m, n, lda, side, uplo, trans, diag);
     initialize_matrix(hb, m, n, ldb);
 
     hb_legacy = hb;
     hb_gemm_based = hb_legacy;
-
-    T *da, *db;
-    CHECK_HIP_ERROR(hipMalloc(&da, size_a * sizeof(T)));
-    CHECK_HIP_ERROR(hipMalloc(&db, size_b * sizeof(T)));
-
-    CHECK_HIP_ERROR( hipMemcpy(da, ha.data(), sizeof(T) * size_a, hipMemcpyHostToDevice));
-    CHECK_HIP_ERROR( hipMemcpy(db, hb.data(), sizeof(T) * size_b, hipMemcpyHostToDevice));
-
-    rocblas_handle handle;
-    CHECK_ROCBLAS_ERROR(rocblas_create_handle(&handle));
+    hb_rocblas = hb_legacy;
 
     if(verbose)
     {
@@ -378,31 +374,67 @@ void template_trmm(rocblas_side side,
 
     rocblas_status status;
 
-      status = trmm_reference( side, uplo, trans, diag, m, n, alpha,
-          ha.data(), lda,
-          hb_legacy.data(), ldb);
+      status = trmm_reference( side, uplo, trans, diag, 
+              m, n, alpha,
+              ha.data(), lda,
+              hb_legacy.data(), ldb);
 
       status = trmm_gemm_based_reference( side, uplo, trans, diag, 
               m, n, alpha,
-          ha.data(), lda,
-          hb_gemm_based.data(), ldb);
+              ha.data(), lda,
+              hb_gemm_based.data(), ldb);
+
+      status = rocblas_trmm(side, uplo, trans, diag,
+              m, n, alpha,
+              ha.data(), lda,
+              hb_rocblas.data(), ldb);
 
     if(verbose)
     {
         print_matrix("b_legacy output", hb_legacy, ldb, n, ldb);
         print_matrix("b_gemm_based output", hb_gemm_based, ldb, n, ldb);
+        print_matrix("rocblas_trmm", hb_rocblas, ldb, n, ldb);
     }
 
-    T error = 0.0;
+    T norm_err = 0.0;
+    T norm_err_rocblas_trmm = 0.0;
+    T norm_ref = 0.0;
+    T tolerance = 100;
+    T eps = std::numeric_limits<T>::epsilon();
     for (int i1 = 0; i1 < m; i1++)
     {
         for (int i2 = 0; i2 < n; i2++)
         {
             T t = hb_gemm_based[i1+i2*ldb] - hb_legacy[i1+i2*ldb];
-            error += t * t;
+            norm_err += t * t;
+            t = hb_rocblas[i1+i2*ldb] - hb_legacy[i1+i2*ldb];
+            norm_err_rocblas_trmm += t * t;
+
+            norm_ref += hb_legacy[i1+i2*ldb] * hb_legacy[i1+i2*ldb];
         }
     }
-    std::cout << "l2 norm of error = " << sqrt(error) << std::endl;
+    norm_err = sqrt(norm_err);
+    norm_err_rocblas_trmm = sqrt(norm_err_rocblas_trmm);
+    norm_ref = sqrt(norm_ref);
+    if (norm_err < norm_ref * eps * tolerance)
+    {
+        std::cout << "PASS, norm_err = " << norm_err;
+    }
+    else
+    {
+        std::cout << "FAIL, ERROR, norm_ref * eps * tolerance = " << norm_ref * eps * tolerance << std::endl;
+        std::cout << "FAIL, norm_err = " << norm_err;
+    }
+    if (norm_err_rocblas_trmm < norm_ref * eps * tolerance)
+    {
+        std::cout << "PASS, norm_err = " << norm_err_rocblas_trmm;
+    }
+    else
+    {
+        std::cout << "FAIL, ERROR, norm_ref * eps * tolerance = " << norm_ref * eps * tolerance << std::endl;
+        std::cout << "FAIL, norm_err = " << norm_err_rocblas_trmm;
+    }
+    
 // 
 //    status = trmm_l3_reference( side, uplo, trans, diag, m, n, alpha,
 //        ha.data(), lda,
@@ -501,23 +533,15 @@ int main(int argc, char* argv[])
         lda = lda < n ? n : lda;
     }
 
-    std::cout << "m,n,lda,ldb,alpha = " << m << ", " << n << ", " << lda << ", " << ldb << 
-    ", " << alpha << ", "; 
-
-    side == rocblas_side_left ? std::cout << "left" : std::cout << "right"; std::cout << ", ";
-    uplo == rocblas_fill_upper ? std::cout << "upper" : std::cout << "lower"; std::cout << ", ";
-    trans == rocblas_operation_none ? std::cout << "non-transpose" : std::cout << "transpose"; std::cout << ", ";
-    diag == rocblas_diagonal_unit ? std::cout << "unit_dagonal" : std::cout << "non_unit_dagonal"; std::cout << ", ";
-
     if(precision == 's' || precision == 'S')
     {
-        std::cout << "float" << std::endl;
         strmm( side, uplo, trans, diag, m, n, alpha, lda, ldb, verbose);
+        std::cout << "  float, ";
     }
     else if(precision == 'd' || precision == 'D')
     {
-        std::cout << "double" << std::endl;
         dtrmm( side, uplo, trans, diag, m, n, alpha, lda, ldb, verbose);
+        std::cout << "  double, ";
     }
 //  else if(precision == 'c' || precision == 'C')
 //  {
@@ -527,6 +551,14 @@ int main(int argc, char* argv[])
 //  {
 //      ztrmm( side, uplo, trans, diag, m, n, alpha, lda, ldb);
 //  }
+
+    std::cout << " m,n,lda,ldb,alpha = " << m << ", " << n << ", " << lda << ", " << ldb << 
+    ", " << alpha << ", "; 
+
+    side == rocblas_side_left ? std::cout << "left" : std::cout << "right"; std::cout << ", ";
+    uplo == rocblas_fill_upper ? std::cout << "upper" : std::cout << "lower"; std::cout << ", ";
+    trans == rocblas_operation_none ? std::cout << "non-transpose" : std::cout << "transpose"; std::cout << ", ";
+    diag == rocblas_diagonal_unit ? std::cout << "unit_dagonal" : std::cout << "non_unit_dagonal"; std::cout << std::endl;
 
     return 0;
 }
