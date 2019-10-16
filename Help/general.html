@@ -1007,6 +1007,14 @@ deb [arch=amd64] http://10.255.8.5/rocm/apt/debian/ xenial main
     </li>
 </ul>
 
+<h1>Upgrade Ubuntu version</h1>
+<pre>
+sudo apt-get update
+sudo apt-get upgrade -y
+sudo apt-get dist-upgrade
+sudo do-release-upgrade
+</pre>
+
 <h1>Upgrade ROCm</h1>
 <pre>
 # you can check gpg key with
@@ -1031,30 +1039,45 @@ sudo reboot
 
 # After the reboot
 sudo apt -y install rocm-dkms
+
+#chedk the file /etc/adduser.conf, if it does not have lines below, add them
 echo 'ADD_EXTRA_GROUPS=1' | sudo tee -a /etc/adduser.conf
 echo 'EXTRA_GROUPS=video' | sudo tee -a /etc/adduser.conf
+
+Check the file /etc/profile.d/rocm.sh, if it does not have below in PATH, add it
 echo 'export PATH=$PATH:/opt/rocm/bin:/opt/rocm/profiler/binop/rocm/opencl/bin/x86_64' | sudo tee -a /etc/profile.d/rocm.sh
 
 # you may need to add the following line to /etc/modprobe.d/amd.conf or /etc/modprobe.d/dkms.conf
 options amdgpu exp_hw_support=1
-# and sudo reboot
 
+sudo reboot
 </pre>
 
 <h1>Doxygen</h1>
 <p><a href="http://www.doxygen.nl/manual/index.html">Doxygen manual, with information on formatting</a><br>
 <dl>
-
     <dt>To install Doxygen:</dt>
     <dd><code>sudo apt-get install doxygen</code></dd>
-
     <dt>To generate documentation for source code</dt>
     <dd> <code>doxygen -g sample_text.conf</code></dd>
-
     <dt>To produce Doxygen output for a single file include/rocblas-functions.h:</dt>
     <dd><code>( cat sample_text.conf ; echo "INPUT=include/rocblas-functions.h" ) | doxygen -</code></dd>
 </dl>
 </p>
+
+<h1>Read the Docs / Sphinx / Beath</h1>
+<ol>
+	<li>You need to set up a virtual environment to build the readthedocs files.
+		<ol>
+			<li>Install readthedocs (you do not need to install / run the web server)</li>
+			<li>Install sphinx_rtd_theme via: $ pip install sphinx_rtd_theme</li>
+			<li>Install breathe (if rocBLAS is using breathe): $ pip install breathe</li>
+			<li>Execute the ./run_ocs.sh script</li>
+			<li>Load ./docs/source/_build/html/index.html</li>
+		</ol>
+		<li>For rocSPARSE and rocALUTION, I am using my readthedocs account for the administratin. I have, however, created those projects and own them. Not sure about rocBLAS. You can access rocBLAS admin panel here. I think Saad has to add you as a maintainer.</li>
+</ol>
+
 
 </body>
 </html>
