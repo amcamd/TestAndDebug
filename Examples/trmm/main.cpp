@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <cstdio>
 #include <iomanip>
@@ -12,9 +11,8 @@
 #include "rocblas-types.h"
 #include "dcld.hpp"
 #include "trmm_reference.hpp"
-#include "trmm_gemm_based.4.hpp"
+#include "trmm_gemm_based.hpp"
 #include "rocblas_trmm.hpp"
-//#include "trmm_l3_reference.hpp"
 
 #ifndef CHECK_HIP_ERROR
 #define CHECK_HIP_ERROR(error)                    \
@@ -210,10 +208,11 @@ void print_matrix(
             const char* name, std::vector<T>& A, rocblas_int m, rocblas_int n, rocblas_int lda)
 {
     printf("---------- %s ----------\n", name);
-    int max_size = 12;
-    for(int i = 0; i < m && i < max_size; i++)
+    int max_i = 22;
+    int max_j = 12;
+    for(int i = 0; i < m && i < max_i; i++)
     {
-        for(int j = 0; j < n && j < max_size; j++)
+        for(int j = 0; j < n && j < max_j; j++)
         {
             std::cout << std::setw(4) << float(A[i + j * lda]) << " ";
         }
@@ -251,7 +250,6 @@ void initialize_matrix(
             else
             {
                 a[i+j*lda] = std::numeric_limits<T>::signaling_NaN();
-//              a[i+j*lda] = 2.0;
             }
         }
     }
@@ -302,29 +300,6 @@ void initialize_triangular_matrix(
 //          a[i+j*lda] = 2.0;
         }
     }
-
-//  if(trans == rocblas_operation_transpose)
-//  {
-//      for (int i = 0; i < lda; i++)
-//      {
-//          for (int j = i; j < ka; j++)
-//          {
-//              T t = a[i+j*lda];
-//              a[i+j*lda] = a[j+i*lda];
-//              a[j+i*lda] = t;
-//          }
-//      }
-//  }
-
-    // make unit diagonal
-//  if(diag == rocblas_diagonal_unit)
-//  {
-//      for (int i = 0; i < ka; i++)
-//      {
-//          a[i+i*lda] = 1.0;
-//      }
-//  }
-
 }
 
 template <typename T>
@@ -409,6 +384,11 @@ void template_trmm(rocblas_side side,
             norm_err += t * t;
             t = hb_rocblas[i1+i2*ldb] - hb_legacy[i1+i2*ldb];
             norm_err_rocblas_trmm += t * t;
+	    if(t != t)
+	    {
+	        std::cout << "i1, i2, t, norm_err_rocblas_trmm = " << i1 << ", " << i2 << ", " 
+		    << t << ", " << norm_err_rocblas_trmm << std::endl;
+	    }
 
             norm_ref += hb_legacy[i1+i2*ldb] * hb_legacy[i1+i2*ldb];
         }
@@ -418,58 +398,24 @@ void template_trmm(rocblas_side side,
     norm_ref = sqrt(norm_ref);
     if (norm_err < norm_ref * eps * tolerance)
     {
-        std::cout << "PASS, norm_err = " << norm_err;
+        std::cout << "PASS,";
     }
     else
     {
-        std::cout << "FAIL, ERROR, norm_ref * eps * tolerance = " << norm_ref * eps * tolerance << std::endl;
-        std::cout << "FAIL, norm_err = " << norm_err;
+        std::cout << "FAIL, norm_ref * eps * tol = " << norm_ref * eps * tolerance << std::endl;
+        std::cout << "  norm_err = " << norm_err;
     }
     if (norm_err_rocblas_trmm < norm_ref * eps * tolerance)
     {
-        std::cout << "PASS, norm_err = " << norm_err_rocblas_trmm;
+        std::cout << "PASS ";
     }
     else
     {
-        std::cout << "FAIL, ERROR, norm_ref * eps * tolerance = " << norm_ref * eps * tolerance << std::endl;
-        std::cout << "FAIL, norm_err = " << norm_err_rocblas_trmm;
+        std::cout << "  FAIL, norm_ref * eps * tol = " << norm_ref * eps * tolerance << std::endl;
+        std::cout << "  norm_err = " << norm_err_rocblas_trmm;
     }
     
-// 
-//    status = trmm_l3_reference( side, uplo, trans, diag, m, n, alpha,
-//        ha.data(), lda,
-//        hb.data(), ldb);
-//
-//    // calculate error
-//    T error = 0.0;
-//    T magnitude = 0.0;
-//    T tolerance = 1;
-//    T epsilon = std::numeric_limits<T>::epsilon();
-//    for (int i = 0; i < n; i++)
-//    {
-//        for (int j = 0; j < m; j++)
-//        {
-//            magnitude += hc_legacy[j + i * ldc] > T(0) ? hc_legacy[j + i * ldc] : - hc_legacy[j + i * ldc];
-//            T err = hc_legacy[j + i * ldc] - hc_gemm_based[j + i * ldc];
-//            error += err * err;
-//        }
-//    }
-//    if (error < epsilon * tolerance * magnitude)
-//    {
-//        std::cout << "----- pass ----- ";
-//        std::cout << "error, magnitude " << error << ", " << magnitude << std::endl;
-//    }
-//    else
-//    {
-//        std::cout << "----- fail ----- FAIL ----- error ------ ERROR -----";
-//        std::cout << "error, magnitude, epsilon * tolerance * magnitude = " << error << ", " << magnitude << ", " << epsilon * tolerance * magnitude << std::endl;
-//    }
-//  
-//    if(verbose)
-//    {
-//        print_matrix("output b_legacy", hb_legacy, ldb, n, ldc);
-//        print_matrix("output b_gemm_based", hb_gemm_based, ldb, n, ldc);
-//    }
+    std::cout << "norm_err = " << norm_err << ", " << norm_err_rocblas_trmm;
 }
 
 void strmm(rocblas_side side, 

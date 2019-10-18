@@ -1,6 +1,5 @@
 #include <algorithm>
 #include "rocblas.h"
-//#include "rocblas-types.h"
 
 #ifndef CHECK_HIP_ERROR
 #define CHECK_HIP_ERROR(error)                    \
@@ -54,11 +53,8 @@ rocblas_status (*rocblas_gemm)(rocblas_handle handle,
         T* c,
         rocblas_int ldc);
 
-template<>
-static constexpr auto rocblas_gemm<float> = rocblas_sgemm;
-
-template<>
-static constexpr auto rocblas_gemm<double> = rocblas_dgemm;
+template<> static constexpr auto rocblas_gemm<float> = rocblas_sgemm;
+template<> static constexpr auto rocblas_gemm<double> = rocblas_dgemm;
 
 
 template<typename T>
@@ -75,11 +71,14 @@ rocblas_status (*rocblas_gemv)(rocblas_handle handle,
         T* y,
         rocblas_int incy);
 
-template<>
-static constexpr auto rocblas_gemv<float> = rocblas_sgemv;
+template<> static constexpr auto rocblas_gemv<float> = rocblas_sgemv;
+template<> static constexpr auto rocblas_gemv<double> = rocblas_dgemv;
 
-template<>
-static constexpr auto rocblas_gemv<double> = rocblas_dgemv;
+
+template<typename T> rocblas_status (*rocblas_scal)(rocblas_handle handle, rocblas_int n, const T* alpha, T* x, rocblas_int incx);
+
+template<> static constexpr auto rocblas_scal<float> = rocblas_sscal;
+template<> static constexpr auto rocblas_scal<double> = rocblas_dscal;
 
 
 __global__ void copy_void_ptr_vector_kernel_cut_and_paste(rocblas_int n,
@@ -95,8 +94,6 @@ __global__ void copy_void_ptr_vector_kernel_cut_and_paste(rocblas_int n,
         memcpy( (char*)y + tid * incy * elem_size, (const char*)x + tid * incx * elem_size, elem_size);
     }
 }
-
-
 
 template<typename T> 
 rocblas_status copy_reference_device_device(
@@ -125,7 +122,6 @@ rocblas_status copy_reference_device_device(
                                            dest_inc);
     return rocblas_status_success;
 }
-
 
 template<typename T> 
 rocblas_status trmm_gemm_based_rocblas( 
@@ -159,13 +155,10 @@ rocblas_status trmm_gemm_based_rocblas(
     rocblas_int nrowa = rocblas_side_left == side ? m : n;
     rocblas_int isec, jsec, tsec;
     T gamma, delta;
-//  T t1[rb*cb];
-//  T t2[cb*cb];
     T zero = 0.0;
     T one = 1.0;
     rocblas_int ldt1 = rb, ldt2 = cb;
     rocblas_status status = rocblas_status_success;
-
 
     T *dt1, *dt2;
     rocblas_int size_t1 = rb*cb;
@@ -211,6 +204,8 @@ rocblas_status trmm_gemm_based_rocblas(
 //
 //    Start the operations.
 //
+//  hipStream_t rocblas_stream;
+//  rocblas_get_stream(handle, &rocblas_stream);
     if (side == rocblas_side_left)
     {
         if (uplo == rocblas_fill_upper)
@@ -275,15 +270,17 @@ rocblas_status trmm_gemm_based_rocblas(
                            tsec = ii+isec-1-i;
                            if (tsec == 0)
                            {
-                               tsec = 1;
-                               gamma = 0.0;
+  			       CHECK_ROCBLAS_ERROR(rocblas_scal<T>(handle, jsec, &delta, &dt1[(i-ii)*ldt1], 1));
                            }
+			   else
+			   {
                            CHECK_ROCBLAS_ERROR(rocblas_gemv<T>(handle,
                                    rocblas_operation_none, 
                                    jsec, tsec, &gamma, 
                                    &dt1[(i-ii+1)*ldt1], rb, 
                                    &dt2[i - ii + 1 + (i - ii)*ldt2], 1, &delta, 
                                    &dt1[(i-ii)*ldt1], 1));
+			   }
                         }
 //
 //                      C := T1', the transpose of T1 is copied back
@@ -360,15 +357,17 @@ rocblas_status trmm_gemm_based_rocblas(
                           tsec = i-ii;
                           if (0 == tsec)
                           {
-                             tsec = 1;
-                             gamma = zero;
+  			       CHECK_ROCBLAS_ERROR(rocblas_scal<T>(handle, jsec, &delta, &dt1[(i-ii)*ldt1], 1));
                           }
+			  else
+			  {
                           CHECK_ROCBLAS_ERROR(rocblas_gemv<T>(handle,
                                   rocblas_operation_none,
                                   jsec, tsec, &gamma, 
                                   dt1, rb,
                                   &a[ii-1 + (i-1)*lda], 1, &delta,
                                   &dt1[(i-ii)*ldt1], 1));
+			  }
                        }
 //
 //                      C := T1', the transpose of T1 is copied back
@@ -459,15 +458,17 @@ rocblas_status trmm_gemm_based_rocblas(
                           tsec = i-ii;
                           if (tsec == 0)
                           {
-                             tsec = 1;
-                             gamma = zero;
+  			      CHECK_ROCBLAS_ERROR(rocblas_scal<T>(handle, jsec, &delta, &dt1[(i-ii)*ldt1], 1));
                           }
-                          CHECK_ROCBLAS_ERROR(rocblas_gemv<T>(handle,
-                              rocblas_operation_none,
+			  else
+			  {
+                              CHECK_ROCBLAS_ERROR(rocblas_gemv<T>(handle,
+                                  rocblas_operation_none,
                                   jsec, tsec, &gamma, 
                                   dt1, rb,
                                   &dt2[(i-ii)*ldt2], 1, &delta,
                                   &dt1[(i-ii)*ldt1], 1));
+			  }
                        }
 //
 //                      C := T1', the transpose of T1 is copied back
@@ -540,22 +541,22 @@ rocblas_status trmm_gemm_based_rocblas(
                                T hdiag;
                                CHECK_HIP_ERROR( hipMemcpy(&hdiag, &a[i-1 +(i-1)*lda], sizeof(T), hipMemcpyDeviceToHost));
                                delta = *alpha * hdiag;
-// TODO: gives error
-//                            delta = *alpha * a[i-1 + (i-1)*lda];
                            }
                            gamma = *alpha;
                            tsec = ii+isec-1-i;
                            if (tsec == 0)
                            {
-                              tsec = 1;
-                              gamma = zero;
+  			       CHECK_ROCBLAS_ERROR(rocblas_scal<T>(handle, jsec, &delta, &dt1[(i-ii)*ldt1], 1));
                            }
-                          CHECK_ROCBLAS_ERROR(rocblas_gemv<T>(handle,
-                               rocblas_operation_none,
-                                   jsec, tsec, &gamma,
-                                   &dt1[(i-ii+1)*ldt1], rb,
-                                   &a[i + (i-1)*lda], 1, &delta,
-                                   &dt1[(i-ii)*ldt1], 1));
+			   else
+			   {
+                               CHECK_ROCBLAS_ERROR(rocblas_gemv<T>(handle,
+                                                                   rocblas_operation_none,
+                                                                   jsec, tsec, &gamma,
+                                                                   &dt1[(i-ii+1)*ldt1], rb,
+                                                                   &a[i + (i-1)*lda], 1, &delta,
+                                                                   &dt1[(i-ii)*ldt1], 1));
+			   }
                         }
 //
 //                      C := T1', the transpose of T1 is copied back
@@ -623,21 +624,22 @@ rocblas_status trmm_gemm_based_rocblas(
                                T hdiag;
                                CHECK_HIP_ERROR( hipMemcpy(&hdiag, &a[j-1 +(j-1)*lda], sizeof(T), hipMemcpyDeviceToHost));
                                delta = *alpha * hdiag;
-//                              delta = *alpha*a[j-1 + (j-1)*lda];
                             }
                             gamma = *alpha;
                             tsec = j - jj;
                             if (tsec == 0)
                             {
-                                tsec = 1;
-                                gamma = zero;
+  			       CHECK_ROCBLAS_ERROR(rocblas_scal<T>(handle, isec, &delta, &c[ii-1 + (j-1)*ldc], 1));
                             }
-                          CHECK_ROCBLAS_ERROR(rocblas_gemv<T>(handle,
-                                rocblas_operation_none, 
-                                   isec, tsec, &gamma, 
-                                   dt1, rb, 
-                                   &a[jj-1 + (j-1)*lda], 1, &delta, 
-                                   &c[ii-1 + (j-1)*ldc], 1));
+			    else
+			    {
+                                CHECK_ROCBLAS_ERROR(rocblas_gemv<T>(handle,
+                                    rocblas_operation_none, 
+                                    isec, tsec, &gamma, 
+                                    dt1, rb, 
+                                    &a[jj-1 + (j-1)*lda], 1, &delta, 
+                                    &c[ii-1 + (j-1)*ldc], 1));
+			    }
                         }
                     }
 //
@@ -671,8 +673,7 @@ rocblas_status trmm_gemm_based_rocblas(
 //
                     for (int j = jj + offd; j <= jj + jsec -1; j++)
                     {
-//                      CALL DCOPY ( J-JJ+1-offd, &a[jj-1 + (j-1)*lda], 1, T2( J-JJ+1, 1 ), cb )
-                            copy_reference_device_device(j-jj+1-offd, &a[jj-1 + (j-1)*lda], 1, &dt2[j-jj], cb);
+                        copy_reference_device_device(j-jj+1-offd, &a[jj-1 + (j-1)*lda], 1, &dt2[j-jj], cb);
                     }
                     for (int ii = 1; ii <= m; ii += rb)
                     {
@@ -700,21 +701,22 @@ rocblas_status trmm_gemm_based_rocblas(
                                T hdiag;
                                CHECK_HIP_ERROR( hipMemcpy(&hdiag, &dt2[j-jj +(j-jj)*ldt2], sizeof(T), hipMemcpyDeviceToHost));
                                delta = *alpha * hdiag;
-//                            delta = *alpha * dt2[j-jj + (j-jj)*ldt2];
                            }
                            gamma = *alpha;
                            tsec = jj+jsec-1-j;
                            if (tsec == 0)
                            {
-                              tsec = 1;
-                              gamma = zero;
+  			       CHECK_ROCBLAS_ERROR(rocblas_scal<T>(handle, isec, &delta, &c[ii-1 + (j-1)*ldc], 1));
                            }
-                          CHECK_ROCBLAS_ERROR(rocblas_gemv<T>(handle,
-                               rocblas_operation_none, 
+			   else
+			   {
+                               CHECK_ROCBLAS_ERROR(rocblas_gemv<T>(handle,
+                                   rocblas_operation_none, 
                                    isec, tsec, &gamma,
                                    &dt1[(j-jj+1)*ldt1], rb,
                                    &dt2[j-jj+1 +(j-jj)*ldt2], 1, &delta, 
                                    &c[ii-1 + (j-1)*ldc], 1));
+			   }
                         }
                     }
 //
@@ -772,21 +774,21 @@ rocblas_status trmm_gemm_based_rocblas(
                                T hdiag;
                                CHECK_HIP_ERROR( hipMemcpy(&hdiag, &a[j-1 +(j-1)*lda], sizeof(T), hipMemcpyDeviceToHost));
                                delta = *alpha * hdiag;
-// TODO: fails
-//                              delta = *alpha*a[j-1 + (j-1)*lda];
                             }
                             gamma = *alpha;
                             tsec = jj+jsec-1-j;
                             if (tsec == 0)
                             {
-                                tsec = 1;
-                                gamma = zero;
+  			       CHECK_ROCBLAS_ERROR(rocblas_scal<T>(handle, isec, &delta, &c[ii-1 + (j-1)*ldc], 1));
                             }
-                          CHECK_ROCBLAS_ERROR(rocblas_gemv<T>(handle,
-                                rocblas_operation_none, isec, tsec, &gamma,
+			    else
+			    {
+                                CHECK_ROCBLAS_ERROR(rocblas_gemv<T>(handle,
+                                    rocblas_operation_none, isec, tsec, &gamma,
                                     &dt1[(j-jj+1)*ldt1], rb, 
                                     &a[j + (j-1)*lda], 1, &delta, 
                                     &c[ii-1 + (j-1)*ldc], 1));
+			    }
                         }
                     }
 //
@@ -859,15 +861,17 @@ rocblas_status trmm_gemm_based_rocblas(
                             tsec = j - jj;
                             if (tsec == 0)
                             {
-                                tsec = 1;
-                                gamma = zero;
+  			        CHECK_ROCBLAS_ERROR(rocblas_scal<T>(handle, isec, &delta, &c[ii-1 + (j-1)*ldc], 1));
                             }
-                          CHECK_ROCBLAS_ERROR(rocblas_gemv<T>(handle,
-                                rocblas_operation_none, 
+			    else
+			    {
+                                CHECK_ROCBLAS_ERROR(rocblas_gemv<T>(handle,
+                                    rocblas_operation_none, 
                                     isec, tsec, &gamma, 
                                     dt1, rb, 
                                     &dt2[(j-jj)*ldt2], 1, &delta, 
                                     &c[ii-1 + (j-1)*ldc], 1));
+			    }
                         }
                     }
 //
@@ -899,8 +903,6 @@ rocblas_status rocblas_trmm(
         T *ha, rocblas_int lda,
         T *hb, rocblas_int ldb)
 {
-    std::cout << " |rocblas_trmm| ";
-
     rocblas_status status = rocblas_status_success;
 
     rocblas_int ka = (side == rocblas_side_left) ? m : n;
@@ -920,48 +922,7 @@ rocblas_status rocblas_trmm(
 
     status = trmm_gemm_based_rocblas(handle, side, uplo, trans, diag, m, n, &alpha, da, lda, db, ldb);
 
-//  CHECK_HIP_ERROR( hipMemcpy(ha, da, sizeof(T) * size_a, hipMemcpyDeviceToHost));
     CHECK_HIP_ERROR( hipMemcpy(hb, db, sizeof(T) * size_b, hipMemcpyDeviceToHost));
-
 
     return status;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
