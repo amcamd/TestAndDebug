@@ -149,12 +149,12 @@ rocblas_status trmm_gemm_based_rocblas(
 //    University of Umea, Sweden.
 //
 
-//  rocblas_int rb = 64, cb = 64, rcb = 64;
-    rocblas_int rb =  4, cb =  4, rcb =  4;
+    rocblas_int rb =  4, cb =  4;
+//  rocblas_int rb =  128, cb =  128;
     rocblas_int offd = rocblas_diagonal_unit == diag ? 1 : 0;
     rocblas_int nrowa = rocblas_side_left == side ? m : n;
     rocblas_int isec, jsec, tsec;
-    T gamma, delta;
+    T delta;
     T zero = 0.0;
     T one = 1.0;
     rocblas_int ldt1 = rb, ldt2 = cb;
@@ -165,18 +165,10 @@ rocblas_status trmm_gemm_based_rocblas(
     rocblas_int size_t2 = cb*cb;
     CHECK_HIP_ERROR(hipMalloc(&dt1, size_t1 * sizeof(T)));
     CHECK_HIP_ERROR(hipMalloc(&dt2, size_t2 * sizeof(T)));
-
 //
 //    Test the input parameters.
 //
-    if (side == rocblas_side_left)
-    {
-        nrowa = m;
-    }
-    else
-    {
-        nrowa= n;
-    }
+    nrowa = side == rocblas_side_left ? m : n;
 
     if (m < 0 || n < 0 || lda < nrowa || ldc < m)
     {
@@ -186,8 +178,6 @@ rocblas_status trmm_gemm_based_rocblas(
 //  Quick return if possible.
 //
     if (m == 0 || n == 0) return rocblas_status_success;
-
-//
 //
 //    And when alpha.eq.zero.
 //
@@ -251,7 +241,7 @@ rocblas_status trmm_gemm_based_rocblas(
                             }
                         }
 //
-//                      T1 := gamma*T1*T2 + delta*T1, triangular matrix
+//                      T1 := alpha*T1*T2 + delta*T1, triangular matrix
 //                      multiply where the value of delta depends on
 //                      whether T2 stores a unit or non-unit triangular
 //                      block. Gamma and tsec are used to compensate for
@@ -266,7 +256,6 @@ rocblas_status trmm_gemm_based_rocblas(
                                CHECK_HIP_ERROR( hipMemcpy(&hdiag, &dt2[i-ii +(i-ii)*ldt2], sizeof(T), hipMemcpyDeviceToHost));
                                delta = *alpha * hdiag;
                            }
-                           gamma = *alpha;
                            tsec = ii+isec-1-i;
                            if (tsec == 0)
                            {
@@ -276,7 +265,7 @@ rocblas_status trmm_gemm_based_rocblas(
 			   {
                            CHECK_ROCBLAS_ERROR(rocblas_gemv<T>(handle,
                                    rocblas_operation_none, 
-                                   jsec, tsec, &gamma, 
+                                   jsec, tsec, alpha, 
                                    &dt1[(i-ii+1)*ldt1], rb, 
                                    &dt2[i - ii + 1 + (i - ii)*ldt2], 1, &delta, 
                                    &dt1[(i-ii)*ldt1], 1));
@@ -338,7 +327,7 @@ rocblas_status trmm_gemm_based_rocblas(
                           }
                        }
 //
-//                      T1 := gamma*T1*A + delta*T1, triangular matrix
+//                      T1 := alpha*T1*A + delta*T1, triangular matrix
 //                      multiply where the value of delta depends on
 //                      whether A is a unit or non-unit triangular
 //                      matrix. Gamma and tsec are used to compensate
@@ -353,7 +342,6 @@ rocblas_status trmm_gemm_based_rocblas(
                                CHECK_HIP_ERROR( hipMemcpy(&hdiag, &a[i-1 +(i-1)*lda], sizeof(T), hipMemcpyDeviceToHost));
                                delta = *alpha * hdiag;
                           }
-                          gamma = *alpha;
                           tsec = i-ii;
                           if (0 == tsec)
                           {
@@ -363,7 +351,7 @@ rocblas_status trmm_gemm_based_rocblas(
 			  {
                           CHECK_ROCBLAS_ERROR(rocblas_gemv<T>(handle,
                                   rocblas_operation_none,
-                                  jsec, tsec, &gamma, 
+                                  jsec, tsec, alpha, 
                                   dt1, rb,
                                   &a[ii-1 + (i-1)*lda], 1, &delta,
                                   &dt1[(i-ii)*ldt1], 1));
@@ -439,7 +427,7 @@ rocblas_status trmm_gemm_based_rocblas(
                           }
                        }
 //
-//                      T1 := gamma*T1*T2 + delta*T1, triangular matrix
+//                      T1 := alpha*T1*T2 + delta*T1, triangular matrix
 //                      multiply where the value of delta depends on
 //                      whether T2 stores a unit or non-unit triangular
 //                      block. Gamma and tsec are used to compensate for
@@ -454,7 +442,6 @@ rocblas_status trmm_gemm_based_rocblas(
                                CHECK_HIP_ERROR( hipMemcpy(&hdiag, &dt2[i-ii +(i-ii)*ldt2], sizeof(T), hipMemcpyDeviceToHost));
                                delta = *alpha * hdiag;
                           }
-                          gamma = *alpha;
                           tsec = i-ii;
                           if (tsec == 0)
                           {
@@ -464,7 +451,7 @@ rocblas_status trmm_gemm_based_rocblas(
 			  {
                               CHECK_ROCBLAS_ERROR(rocblas_gemv<T>(handle,
                                   rocblas_operation_none,
-                                  jsec, tsec, &gamma, 
+                                  jsec, tsec, alpha, 
                                   dt1, rb,
                                   &dt2[(i-ii)*ldt2], 1, &delta,
                                   &dt1[(i-ii)*ldt1], 1));
@@ -527,7 +514,7 @@ rocblas_status trmm_gemm_based_rocblas(
                            }
                         }
 //
-//                      T1 := gamma*T1*A + delta*T1, triangular matrix
+//                      T1 := alpha*T1*A + delta*T1, triangular matrix
 //                      multiply where the value of delta depends on
 //                      whether A is a unit or non-unit triangular
 //                      matrix. Gamma and tsec are used to compensate
@@ -542,7 +529,6 @@ rocblas_status trmm_gemm_based_rocblas(
                                CHECK_HIP_ERROR( hipMemcpy(&hdiag, &a[i-1 +(i-1)*lda], sizeof(T), hipMemcpyDeviceToHost));
                                delta = *alpha * hdiag;
                            }
-                           gamma = *alpha;
                            tsec = ii+isec-1-i;
                            if (tsec == 0)
                            {
@@ -552,7 +538,7 @@ rocblas_status trmm_gemm_based_rocblas(
 			   {
                                CHECK_ROCBLAS_ERROR(rocblas_gemv<T>(handle,
                                                                    rocblas_operation_none,
-                                                                   jsec, tsec, &gamma,
+                                                                   jsec, tsec, alpha,
                                                                    &dt1[(i-ii+1)*ldt1], rb,
                                                                    &a[i + (i-1)*lda], 1, &delta,
                                                                    &dt1[(i-ii)*ldt1], 1));
@@ -610,7 +596,7 @@ rocblas_status trmm_gemm_based_rocblas(
                            copy_reference_device_device( isec, &c[ii-1 + (j-1)*ldc], 1, &dt1[(j-jj)*ldt1], 1 );
                         }
 //
-//                      C := gamma*T1*A + delta*C, triangular matrix
+//                      C := alpha*T1*A + delta*C, triangular matrix
 //                      multiply where the value of delta depends on
 //                      whether A is a unit or non-unit triangular
 //                      matrix. Gamma and tsec are used to compensate
@@ -625,7 +611,6 @@ rocblas_status trmm_gemm_based_rocblas(
                                CHECK_HIP_ERROR( hipMemcpy(&hdiag, &a[j-1 +(j-1)*lda], sizeof(T), hipMemcpyDeviceToHost));
                                delta = *alpha * hdiag;
                             }
-                            gamma = *alpha;
                             tsec = j - jj;
                             if (tsec == 0)
                             {
@@ -635,7 +620,7 @@ rocblas_status trmm_gemm_based_rocblas(
 			    {
                                 CHECK_ROCBLAS_ERROR(rocblas_gemv<T>(handle,
                                     rocblas_operation_none, 
-                                    isec, tsec, &gamma, 
+                                    isec, tsec, alpha, 
                                     dt1, rb, 
                                     &a[jj-1 + (j-1)*lda], 1, &delta, 
                                     &c[ii-1 + (j-1)*ldc], 1));
@@ -687,7 +672,7 @@ rocblas_status trmm_gemm_based_rocblas(
                            copy_reference_device_device(isec, &c[ii-1 + (j-1)*ldc], 1, &dt1[(j-jj)*ldt1], 1);
                         }
 //
-//                      C := gamma*T1*T2 + delta*C, triangular matrix
+//                      C := alpha*T1*T2 + delta*C, triangular matrix
 //                      multiply where the value of delta depends on
 //                      whether T2 is a unit or non-unit triangular
 //                      matrix. Gamma and tsec are used to compensate
@@ -702,7 +687,6 @@ rocblas_status trmm_gemm_based_rocblas(
                                CHECK_HIP_ERROR( hipMemcpy(&hdiag, &dt2[j-jj +(j-jj)*ldt2], sizeof(T), hipMemcpyDeviceToHost));
                                delta = *alpha * hdiag;
                            }
-                           gamma = *alpha;
                            tsec = jj+jsec-1-j;
                            if (tsec == 0)
                            {
@@ -712,7 +696,7 @@ rocblas_status trmm_gemm_based_rocblas(
 			   {
                                CHECK_ROCBLAS_ERROR(rocblas_gemv<T>(handle,
                                    rocblas_operation_none, 
-                                   isec, tsec, &gamma,
+                                   isec, tsec, alpha,
                                    &dt1[(j-jj+1)*ldt1], rb,
                                    &dt2[j-jj+1 +(j-jj)*ldt2], 1, &delta, 
                                    &c[ii-1 + (j-1)*ldc], 1));
@@ -760,7 +744,7 @@ rocblas_status trmm_gemm_based_rocblas(
                            copy_reference_device_device (isec, &c[ii-1 + (j-1)*ldc], 1, &dt1[(j-jj)*ldt1], 1);
                         }
 //
-//                      C := gamma*T1*A + delta*C, triangular matrix
+//                      C := alpha*T1*A + delta*C, triangular matrix
 //                      multiply where the value of delta depends on
 //                      whether A is a unit or non-unit triangular
 //                      matrix. Gamma and tsec are used to compensate
@@ -775,7 +759,6 @@ rocblas_status trmm_gemm_based_rocblas(
                                CHECK_HIP_ERROR( hipMemcpy(&hdiag, &a[j-1 +(j-1)*lda], sizeof(T), hipMemcpyDeviceToHost));
                                delta = *alpha * hdiag;
                             }
-                            gamma = *alpha;
                             tsec = jj+jsec-1-j;
                             if (tsec == 0)
                             {
@@ -784,7 +767,7 @@ rocblas_status trmm_gemm_based_rocblas(
 			    else
 			    {
                                 CHECK_ROCBLAS_ERROR(rocblas_gemv<T>(handle,
-                                    rocblas_operation_none, isec, tsec, &gamma,
+                                    rocblas_operation_none, isec, tsec, alpha,
                                     &dt1[(j-jj+1)*ldt1], rb, 
                                     &a[j + (j-1)*lda], 1, &delta, 
                                     &c[ii-1 + (j-1)*ldc], 1));
@@ -841,7 +824,7 @@ rocblas_status trmm_gemm_based_rocblas(
                                    &dt1[(j-jj)*ldt1], 1 );
                         }
 //
-//                      C := gamma*T1*T2 + delta*C, triangular matrix
+//                      C := alpha*T1*T2 + delta*C, triangular matrix
 //                      multiply where the value of delta depends on
 //                      whether T2 is a unit or non-unit triangular
 //                      matrix. Gamma and tsec are used to compensate
@@ -855,9 +838,7 @@ rocblas_status trmm_gemm_based_rocblas(
                                T hdiag;
                                CHECK_HIP_ERROR( hipMemcpy(&hdiag, &dt2[j-jj +(j-jj)*ldt2], sizeof(T), hipMemcpyDeviceToHost));
                                delta = *alpha * hdiag;
-//                            delta = *alpha*dt2[j-jj + (j-jj)*ldt2];
                             }
-                            gamma = *alpha;
                             tsec = j - jj;
                             if (tsec == 0)
                             {
@@ -867,7 +848,7 @@ rocblas_status trmm_gemm_based_rocblas(
 			    {
                                 CHECK_ROCBLAS_ERROR(rocblas_gemv<T>(handle,
                                     rocblas_operation_none, 
-                                    isec, tsec, &gamma, 
+                                    isec, tsec, alpha, 
                                     dt1, rb, 
                                     &dt2[(j-jj)*ldt2], 1, &delta, 
                                     &c[ii-1 + (j-1)*ldc], 1));
