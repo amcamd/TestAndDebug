@@ -1,4 +1,3 @@
-#include <algorithm>
 #include "rocblas.h"
 
 #ifndef CHECK_HIP_ERROR
@@ -59,7 +58,7 @@ template<> static constexpr auto rocblas_gemm<double> = rocblas_dgemm;
 
 template<typename T>
 rocblas_status (*rocblas_gemv)(rocblas_handle handle,
-        rocblas_operation trans,
+        rocblas_operation transA,
         rocblas_int m,
         rocblas_int n,
         const T* alpha,
@@ -79,6 +78,12 @@ template<typename T> rocblas_status (*rocblas_scal)(rocblas_handle handle, rocbl
 
 template<> static constexpr auto rocblas_scal<float> = rocblas_sscal;
 template<> static constexpr auto rocblas_scal<double> = rocblas_dscal;
+
+
+template<typename T> rocblas_status (*rocblas_copy)(rocblas_handle handle, rocblas_int n, T* x, rocblas_int incx, T* y, rocblas_int incy);
+
+template<> static constexpr auto rocblas_copy<float> = rocblas_scopy;
+template<> static constexpr auto rocblas_copy<double> = rocblas_dcopy;
 
 
 __global__ void copy_void_ptr_vector_kernel_cut_and_paste(rocblas_int n,
@@ -128,7 +133,7 @@ rocblas_status trmm_gemm_based_rocblas(
         rocblas_handle handle,
         rocblas_side side, 
         rocblas_fill uplo, 
-        rocblas_operation trans, 
+        rocblas_operation transA, 
         rocblas_diagonal diag,
         rocblas_int m, rocblas_int n, T *alpha,
         T *a, rocblas_int lda,
@@ -149,8 +154,8 @@ rocblas_status trmm_gemm_based_rocblas(
 //    University of Umea, Sweden.
 //
 
-    rocblas_int rb =  4, cb =  4;
-//  rocblas_int rb =  128, cb =  128;
+//  rocblas_int rb =  4, cb =  4;
+    rocblas_int rb =  128, cb =  128;
     rocblas_int offd = rocblas_diagonal_unit == diag ? 1 : 0;
     rocblas_int nrowa = rocblas_side_left == side ? m : n;
     rocblas_int isec, jsec, tsec;
@@ -168,7 +173,6 @@ rocblas_status trmm_gemm_based_rocblas(
 //
 //    Test the input parameters.
 //
-    nrowa = side == rocblas_side_left ? m : n;
 
     if (m < 0 || n < 0 || lda < nrowa || ldc < m)
     {
@@ -178,6 +182,11 @@ rocblas_status trmm_gemm_based_rocblas(
 //  Quick return if possible.
 //
     if (m == 0 || n == 0) return rocblas_status_success;
+
+    if(!a || !c || !alpha)
+    {
+        return rocblas_status_invalid_pointer;
+    }
 //
 //    And when alpha.eq.zero.
 //
@@ -200,10 +209,10 @@ rocblas_status trmm_gemm_based_rocblas(
     {
         if (uplo == rocblas_fill_upper)
         {
-            if (trans == rocblas_operation_none)
+            if (transA == rocblas_operation_none)
             {
 //
-//              Form  C := alpha*A*C. Left, Upper, No transpose.
+//              Form  C := alpha*A*C. Left, Upper, No transApose.
 //
                 delta = *alpha;
                 bool cldc = dcld(ldc);
@@ -211,33 +220,33 @@ rocblas_status trmm_gemm_based_rocblas(
                 {
                     isec = cb < m - ii + 1 ? cb : m - ii + 1;
 //
-//                  T2 := A', the transpose of a upper unit or non-unit
+//                  T2 := A', the transApose of a upper unit or non-unit
 //                  triangular diagonal block of A is copied to the
 //                  lower triangular part of T2.
 //
                     for (int i = ii + offd; i <= ii + isec -1 ; i++)
                     {
-                        copy_reference_device_device(i-ii+1-offd, &a[ii-1 + (i-1)*lda], 1, &dt2[i-ii], cb);
+                        rocblas_copy<T>(handle, i-ii+1-offd, &a[ii-1 + (i-1)*lda], 1, &dt2[i-ii], cb);
                     }
                     for (int jj = 1; jj <= n; jj += rb)
                     {
                         jsec = rb < n - jj + 1 ? rb : n - jj + 1;
 //
-//                      T1 := C', the transpose of a rectangular block
+//                      T1 := C', the transApose of a rectangular block
 //                      of C is copied to T1.
 //
                         if (cldc)
                         {
                             for (int j = jj; j <= jj + jsec -1; j++)
                             {
-                                copy_reference_device_device(isec, &c[ii-1 + (j-1)*ldc], 1, &dt1[j-jj], rb);
+                                rocblas_copy<T>(handle, isec, &c[ii-1 + (j-1)*ldc], 1, &dt1[j-jj], rb);
                             }
                         }
                         else
                         {
                             for (int i = ii; i <= ii + isec -1; i++)
                             {
-                                copy_reference_device_device(jsec, &c[i-1+(jj-1)*ldc], ldc, &dt1[(i-ii)*ldt1], 1);
+                                rocblas_copy<T>(handle, jsec, &c[i-1+(jj-1)*ldc], ldc, &dt1[(i-ii)*ldt1], 1);
                             }
                         }
 //
@@ -272,12 +281,12 @@ rocblas_status trmm_gemm_based_rocblas(
 			   }
                         }
 //
-//                      C := T1', the transpose of T1 is copied back
+//                      C := T1', the transApose of T1 is copied back
 //                      to C.
 //
                         for (int j = jj; j <= jj + jsec -1; j++)
                         {
-                           copy_reference_device_device(isec, &dt1[j-jj], rb, &c[ii-1 + (j-1)*ldc], 1);
+                           rocblas_copy<T>(handle, isec, &dt1[j-jj], rb, &c[ii-1 + (j-1)*ldc], 1);
                         }
                     }
 //
@@ -309,21 +318,21 @@ rocblas_status trmm_gemm_based_rocblas(
                     {
                        jsec = rb < n - jj + 1 ? rb : n - jj + 1;
 //
-//                      T1 := C', the transpose of a rectangular block
+//                      T1 := C', the transApose of a rectangular block
 //                      of C is copied to T1.
 //
                        if (cldc)
                        {
                           for (int j = jj; j <= jj + jsec -1; j++)
                           {
-                             copy_reference_device_device(isec, &c[ii-1 + (j-1)*ldc], 1, &dt1[j-jj], rb);
+                             rocblas_copy<T>(handle, isec, &c[ii-1 + (j-1)*ldc], 1, &dt1[j-jj], rb);
                           }
                        }
                        else
                        {
                           for (int i = ii; i <= ii + isec -1; i++)
                           {
-                             copy_reference_device_device(jsec, &c[i-1+(jj-1)*ldc], ldc, &dt1[(i-ii)*ldt1], 1);
+                             rocblas_copy<T>(handle, jsec, &c[i-1+(jj-1)*ldc], ldc, &dt1[(i-ii)*ldt1], 1);
                           }
                        }
 //
@@ -358,17 +367,17 @@ rocblas_status trmm_gemm_based_rocblas(
 			  }
                        }
 //
-//                      C := T1', the transpose of T1 is copied back
+//                      C := T1', the transApose of T1 is copied back
 //                      to C.
 //
                        for (int j = jj; j <= jj + jsec -1; j++)
                        {
-                          copy_reference_device_device(isec, &dt1[j-jj], rb, &c[ii-1 + (j-1)*ldc], 1);
+                          rocblas_copy<T>(handle, isec, &dt1[j-jj], rb, &c[ii-1 + (j-1)*ldc], 1);
                        }
                     }
 //
 //                   C := alpha*A'*C + C, general matrix multiply
-//                   involving the transpose of a rectangular block
+//                   involving the transApose of a rectangular block
 //                   of A.
 //
                     if (ii > 1)
@@ -385,10 +394,10 @@ rocblas_status trmm_gemm_based_rocblas(
         }
         else
         {
-            if (trans == rocblas_operation_none)
+            if (transA == rocblas_operation_none)
             {
 //
-//             Form  C := alpha*A*C. Left, Lower, No transpose.
+//             Form  C := alpha*A*C. Left, Lower, No transApose.
 //
                  delta = *alpha;
                  bool cldc = dcld(ldc);
@@ -397,33 +406,33 @@ rocblas_status trmm_gemm_based_rocblas(
                     rocblas_int ii = 1 > ix-cb+1 ? 1 : ix-cb+1;
                     isec = ix-ii+1;
 //
-//                   T2 := A', the transpose of a lower unit or non-unit
+//                   T2 := A', the transApose of a lower unit or non-unit
 //                   triangular diagonal block of A is copied to the
 //                   upper triangular part of T2.
 //
                     for (int i = ii; i <= ii + isec -1 - offd; i++)
                     {
-                        copy_reference_device_device(ii+isec-i-offd, &a[i+offd-1 + (i-1)*lda], 1, &dt2[i-ii + (i-ii+offd)*ldt2], cb );
+                        rocblas_copy<T>(handle, ii+isec-i-offd, &a[i+offd-1 + (i-1)*lda], 1, &dt2[i-ii + (i-ii+offd)*ldt2], cb );
                     }
                     for (int jj = 1; jj <= n; jj += rb)
                     {
                        jsec = rb < n - jj + 1 ? rb : n - jj + 1;
 //
-//                      T1 := C', the transpose of a rectangular block
+//                      T1 := C', the transApose of a rectangular block
 //                      of C is copied to T1.
 //
                        if (cldc)
                        {
                           for (int j = jj; j <= jj + jsec -1; j++)
                           {
-                             copy_reference_device_device(isec, &c[ii-1 + (j-1)*ldc], 1, &dt1[j-jj], rb);
+                             rocblas_copy<T>(handle, isec, &c[ii-1 + (j-1)*ldc], 1, &dt1[j-jj], rb);
                           }
                        }
                        else
                        {
                           for (int i = ii; i <= ii + isec - 1; i++)
                           {
-                             copy_reference_device_device(jsec, &c[i-1+(jj-1)*ldc], ldc, &dt1[(i-ii)*ldt1], 1);
+                             rocblas_copy<T>(handle, jsec, &c[i-1+(jj-1)*ldc], ldc, &dt1[(i-ii)*ldt1], 1);
                           }
                        }
 //
@@ -458,12 +467,12 @@ rocblas_status trmm_gemm_based_rocblas(
 			  }
                        }
 //
-//                      C := T1', the transpose of T1 is copied back
+//                      C := T1', the transApose of T1 is copied back
 //                      to C.
 //
                        for (int j = jj; j <= jj + jsec -1; j++)
                        {
-                          copy_reference_device_device(isec, &dt1[j-jj], rb, &c[ii-1 + (j-1)*ldc], 1);
+                          rocblas_copy<T>(handle, isec, &dt1[j-jj], rb, &c[ii-1 + (j-1)*ldc], 1);
                        }
                     }
 //
@@ -496,21 +505,21 @@ rocblas_status trmm_gemm_based_rocblas(
                     {
                         jsec = rb < n - jj + 1 ? rb : n - jj + 1;
 //
-//                      T1 := C', the transpose of a rectangular block
+//                      T1 := C', the transApose of a rectangular block
 //                      of C is copied to T1.
 //
                         if (cldc)
                         {
                            for (int j = jj; j <= jj + jsec -1; j++)
                            {
-                              copy_reference_device_device(isec, &c[ii-1 + (j-1)*ldc], 1, &dt1[j-jj], rb);
+                              rocblas_copy<T>(handle, isec, &c[ii-1 + (j-1)*ldc], 1, &dt1[j-jj], rb);
                            }
                         }
                         else
                         {
                            for (int i = ii; i <= ii + isec -1; i++)
                            {
-                              copy_reference_device_device(jsec, &c[i-1+(jj-1)*ldc], ldc, &dt1[(i-ii)*ldt1], 1);
+                              rocblas_copy<T>(handle, jsec, &c[i-1+(jj-1)*ldc], ldc, &dt1[(i-ii)*ldt1], 1);
                            }
                         }
 //
@@ -545,17 +554,17 @@ rocblas_status trmm_gemm_based_rocblas(
 			   }
                         }
 //
-//                      C := T1', the transpose of T1 is copied back
+//                      C := T1', the transApose of T1 is copied back
 //                      to C.
 //
                         for (int j = jj; j <= jj + jsec -1; j++)
                         {
-                           copy_reference_device_device(isec, &dt1[j-jj], rb, &c[ii-1 + (j-1)*ldc], 1);
+                           rocblas_copy<T>(handle, isec, &dt1[j-jj], rb, &c[ii-1 + (j-1)*ldc], 1);
                         }
                     }
 //
 //                  C := alpha*A'*C + C, general matrix multiply
-//                  involving the transpose of a rectangular block
+//                  involving the transApose of a rectangular block
 //                  of A.
 //
                     if( ii+isec <= m)
@@ -575,10 +584,10 @@ rocblas_status trmm_gemm_based_rocblas(
     {
         if (uplo == rocblas_fill_upper)
         {
-            if (trans == rocblas_operation_none)
+            if (transA == rocblas_operation_none)
             {
 //
-//              Form  C := alpha*C*A. Right, Upper, No transpose.
+//              Form  C := alpha*C*A. Right, Upper, No transApose.
 //
                 delta = *alpha;
                 for (int jj = n - (n-1) % cb; jj >= 1; jj -= cb)
@@ -593,7 +602,7 @@ rocblas_status trmm_gemm_based_rocblas(
 //
                         for (int j = jj; j <= jj + jsec -1; j++)
                         {
-                           copy_reference_device_device( isec, &c[ii-1 + (j-1)*ldc], 1, &dt1[(j-jj)*ldt1], 1 );
+                           rocblas_copy<T>(handle,  isec, &c[ii-1 + (j-1)*ldc], 1, &dt1[(j-jj)*ldt1], 1 );
                         }
 //
 //                      C := alpha*T1*A + delta*C, triangular matrix
@@ -652,13 +661,13 @@ rocblas_status trmm_gemm_based_rocblas(
                 {
                     jsec = cb < n-jj+1 ? cb : n-jj+1;
 //
-//                  T2 := A', the transpose of a upper unit or non-unit
+//                  T2 := A', the transApose of a upper unit or non-unit
 //                  triangular diagonal block of A is copied to the
 //                  lower triangular part of T2.
 //
                     for (int j = jj + offd; j <= jj + jsec -1; j++)
                     {
-                        copy_reference_device_device(j-jj+1-offd, &a[jj-1 + (j-1)*lda], 1, &dt2[j-jj], cb);
+                        rocblas_copy<T>(handle, j-jj+1-offd, &a[jj-1 + (j-1)*lda], 1, &dt2[j-jj], cb);
                     }
                     for (int ii = 1; ii <= m; ii += rb)
                     {
@@ -669,7 +678,7 @@ rocblas_status trmm_gemm_based_rocblas(
 //
                         for (int j = jj; j <= jj + jsec - 1; j++)
                         {
-                           copy_reference_device_device(isec, &c[ii-1 + (j-1)*ldc], 1, &dt1[(j-jj)*ldt1], 1);
+                           rocblas_copy<T>(handle, isec, &c[ii-1 + (j-1)*ldc], 1, &dt1[(j-jj)*ldt1], 1);
                         }
 //
 //                      C := alpha*T1*T2 + delta*C, triangular matrix
@@ -705,7 +714,7 @@ rocblas_status trmm_gemm_based_rocblas(
                     }
 //
 //                  C := alpha*C*A' + C, general matrix multiply
-//                  involving the transpose of a rectangular block
+//                  involving the transApose of a rectangular block
 //                  of A.
 //
                     if( jj+jsec <= n)
@@ -722,10 +731,10 @@ rocblas_status trmm_gemm_based_rocblas(
         }
         else
         {
-            if (trans == rocblas_operation_none)
+            if (transA == rocblas_operation_none)
             {
 //
-//              Form  C := alpha*C*A. Right, Lower, No transpose.
+//              Form  C := alpha*C*A. Right, Lower, No transApose.
 //
                 delta = *alpha;
                 for (int jx = ((n-1) % cb) + 1; jx <= n; jx += cb)
@@ -741,7 +750,7 @@ rocblas_status trmm_gemm_based_rocblas(
 //
                         for (int j = jj; j <= jj + jsec -1; j++)
                         {
-                           copy_reference_device_device (isec, &c[ii-1 + (j-1)*ldc], 1, &dt1[(j-jj)*ldt1], 1);
+                           rocblas_copy<T>(handle, isec, &c[ii-1 + (j-1)*ldc], 1, &dt1[(j-jj)*ldt1], 1);
                         }
 //
 //                      C := alpha*T1*A + delta*C, triangular matrix
@@ -800,13 +809,13 @@ rocblas_status trmm_gemm_based_rocblas(
                     rocblas_int jj = 1 > jx - cb + 1 ?  1 : jx - cb + 1;
                     jsec = jx - jj + 1;
 //
-//                  T2 := A', the transpose of a lower unit or non-unit
+//                  T2 := A', the transApose of a lower unit or non-unit
 //                  triangular diagonal block of A is copied to the
 //                  upper triangular part of T2.
 //
                     for (int j = jj; j <= jj + jsec -1 - offd; j++)
                     {
-                        copy_reference_device_device (jj+jsec-j-offd, 
+                        rocblas_copy<T>(handle, jj+jsec-j-offd, 
                                 &a[j+offd-1 + (j-1)*lda], 1, 
                                 &dt2[j-jj + (j-jj+offd)*ldt2], cb );
                     }
@@ -819,7 +828,7 @@ rocblas_status trmm_gemm_based_rocblas(
 //
                         for (int j = jj; j <= jj + jsec - 1; j++)
                         {
-                           copy_reference_device_device (isec, 
+                           rocblas_copy<T>(handle, isec, 
                                    &c[ii-1 + (j-1)*ldc], 1,
                                    &dt1[(j-jj)*ldt1], 1 );
                         }
@@ -856,7 +865,7 @@ rocblas_status trmm_gemm_based_rocblas(
                         }
                     }
 //
-//                  C := alpha*C*A' + C, general matrix multiply involving the transpose of a rectangular block of A.
+//                  C := alpha*C*A' + C, general matrix multiply involving the transApose of a rectangular block of A.
 //
                     if (jj > 1)
                     {
@@ -878,7 +887,7 @@ template<typename T>
 rocblas_status rocblas_trmm( 
         rocblas_side side, 
         rocblas_fill uplo, 
-        rocblas_operation trans, 
+        rocblas_operation transA, 
         rocblas_diagonal diag,
         rocblas_int m, rocblas_int n, T alpha,
         T *ha, rocblas_int lda,
@@ -901,7 +910,7 @@ rocblas_status rocblas_trmm(
     rocblas_handle handle;
     CHECK_ROCBLAS_ERROR(rocblas_create_handle(&handle));
 
-    status = trmm_gemm_based_rocblas(handle, side, uplo, trans, diag, m, n, &alpha, da, lda, db, ldb);
+    status = trmm_gemm_based_rocblas(handle, side, uplo, transA, diag, m, n, &alpha, da, lda, db, ldb);
 
     CHECK_HIP_ERROR( hipMemcpy(hb, db, sizeof(T) * size_b, hipMemcpyDeviceToHost));
 
