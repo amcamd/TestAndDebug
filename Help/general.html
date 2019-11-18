@@ -1075,13 +1075,30 @@ sudo reboot
 <ol>
 	<li>You need to set up a virtual environment to build the readthedocs files.
 		<ol>
-			<li>Install readthedocs (you do not need to install / run the web server)</li>
-			<li>Install sphinx_rtd_theme via: $ pip install sphinx_rtd_theme</li>
-			<li>Install breathe (if rocBLAS is using breathe): $ pip install breathe</li>
-			<li>Execute the ./run_ocs.sh script</li>
+			<li><a href="https://docs.readthedocs.io/en/stable/development/install.html">Install readthedocs</a> (you do not need to install / run the web server)</li>
+			<li>Install sphinx_rtd_theme via: $ <code>pip install sphinx_rtd_theme</code></li>
+			<li>Install breathe (if rocBLAS is using breathe): $ <code>pip install breathe</code></li>
+			<li>Execute the <code>./run_doc.sh</code> script</li>
 			<li>Load ./docs/source/_build/html/index.html</li>
 		</ol>
-		<li>For rocSPARSE and rocALUTION, I am using my readthedocs account for the administratin. I have, however, created those projects and own them. Not sure about rocBLAS. You can access rocBLAS admin panel here. I think Saad has to add you as a maintainer.</li>
+	</li>
+	<li>For subsequent use after readthedocs has been installed:
+		<ol>
+			<li><code>virtualenv --python=python3 venv</code></li>
+			<li><code>source venv/bin/activate</code></li>
+			<li><code>pip install sphinx_rtd_theme</code></li>
+			<li><code>pip install breathe</code></li>
+			<li>Execute the ./run_doc.sh script</li>
+                        <li>Load ./docs/source/_build/html/index.html</li>
+		</ol>
+	</li>
+	<li>
+		To generate pdf:
+		<ol>
+			<li>add "make latexpdf" to the run_docs.sh script</li>
+			<li>install latex with <code>sudo apt-get install latexmk texlive texlive-science texlive-formats-extra</code></li>
+		</ol>
+	<li>For rocSPARSE and rocALUTION, I am using my readthedocs account for the administratin. I have, however, created those projects and own them. Not sure about rocBLAS. You can access rocBLAS admin panel here. I think Saad has to add you as a maintainer.</li>
 </ol>
 
 
