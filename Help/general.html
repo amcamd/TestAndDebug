@@ -467,6 +467,12 @@ comment in next editor.
 <pre>git push --force-with-lease    (or git push origin branch-name --force-with-lease)</pre>
 </ul>
 
+<h4>ours, theirs merge strategy</h4>
+<ul>
+	<li> <code>git merge branchA -X ours</code> This will choose code in current branch to resolve any merge conflict</li>
+	<li> <code>git merge branchA -X theirs</code> This will choose code in branchA to resolve any merge conflict</li>
+</ul>
+
 
 <h4>Avoid cherry-pick</h4>
 
@@ -551,12 +557,52 @@ See reference <a href="http://www.draconianoverlord.com/2013/09/07/no-cherry-pic
 
 <h4>Merge rocBLAS develop into master and release</h4>
 <ul>
-    <li> <code>mkdir -p ~/repos/rocBLASmergeDevelop; cd ~/repos/rocBLAS_merge_develop</code></li>
+    <li> <code>mkdir -p ~/repos/rocBLASmergeDevelop; cd ~/repos/rocBLASmergeDevelop</code></li>
 
-    <li> <code>git clone https://github.com/ROCmSoftwarePlatform/rocBLAS.git</code></li>
+    <li> <code>git clone https://github.com/amcamd/rocBLAS.git</code></li>
 
     <li> <code>cd rocBLAS</code></li>
     <li> <code>git checkout develop</code></li>
+
+
+
+
+    <li> get develop branch up to date with ROCmSoftwarePlatform</li>
+    <ul>
+            <li>git remote add upstream https://github.com/ROCmSoftwarePlatform/rocBLAS.git</li>
+            <li>git fetch upstream</li>
+            <li>git rebase upstream/develop develop</li>
+	    <li>git status</li>
+            <li>git push</li>
+    </ul>
+
+    <li> <code>cd ~/repos/rocBLASmergeDevelop; rm -rf rocBLAS</code></li>
+
+    <li> <code>git clone https://github.com/amcamd/rocBLAS.git</code></li>
+
+    <li> <code>cd rocBLAS</code></li>
+    <li> <code>git checkout master</code></li>
+
+    <li> get master branch up to date with ROCmSoftwarePlatform</li>
+    <ul>
+            <li>git remote add upstream https://github.com/ROCmSoftwarePlatform/rocBLAS.git</li>
+            <li>git fetch upstream</li>
+            <li>git rebase upstream/master master</li>
+	    <li>git status</li>
+            <li>git push</li>
+    </ul>
+
+    <li> <code>cd ~/repos/rocBLASmergeDevelop; rm -rf rocBLAS</code></li>
+    <li> <code>git clone https://github.com/amcamd/rocBLAS.git</code></li>
+    <li> <code>cd rocBLAS</code></li>
+    <li> <code>git checkout develop</code></li>
+
+
+    <li> <code>git merge origin/master</code></li>
+    <li> resolve merge conflicts
+    <li> <code>git commit -m"merge master into develop before ROCm2.10"</code></li>
+    <li> <code>git push</code></li>
+
     <li> edit both bump_develop_version.sh and bump_master_version.sh</li>
     <li> <code>./bump_master_version.sh</code></li>
     <ul>
