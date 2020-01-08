@@ -638,10 +638,19 @@ See reference <a href="http://www.draconianoverlord.com/2013/09/07/no-cherry-pic
 <ul>
     <li> <code>mkdir -p ~/repos/hipBLASmergeDevelop; cd ~/repos/hipBLASmergeDevelop</code></li>
 
-    <li> <code>git clone https://github.com/ROCmSoftwarePlatform/hipBLAS.git</code></li>
+    <li> <code>git clone https://github.com/amcamd/hipBLAS.git</code></li>
 
     <li> <code>cd hipBLAS</code></li>
     <li> <code>git checkout develop</code></li>
+
+    <li> get develop and master branch up to date with ROCmSoftwarePlatform</li>
+    <ul>
+            <li>git remote add upstream https://github.com/ROCmSoftwarePlatform/hipBLAS.git</li>
+            <li>git fetch upstream</li>
+            <li>git rebase upstream/develop develop</li>
+            <li>git push</li>
+    </ul>
+
 
     <li> <code>git merge origin/master</code></li>
     <li> resolve merge conflicts
