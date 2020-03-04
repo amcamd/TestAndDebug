@@ -621,6 +621,30 @@ See reference <a href="http://www.draconianoverlord.com/2013/09/07/no-cherry-pic
 </ul>
 
 <h2>Merge hipBLAS develop into master and release</h2>
+
+<h4>Note on version numbers for rocBLAS and hipBLAS</h4>
+<ul>
+	<li><a href="http://semver.org">Semantic Versioning</a> is used for version numbers. This uses MAJOR.MINOR.PATCH for version numbers.</li>
+	<li>We also use the convention that the MINOR version number is even for the master branch and odd for the develop branch.</li>
+	<li>rocBLAS and hipBLAS version numbers are in <code>VERSION_STRING</code> in the file CMakeLists.txt.</li>
+	<li>The scripts <code>bump_master_version.sh</code> and <code>bump_develop_version.sh</code> are used to bump the version numbers.</li>
+	<li><code>bump_master_version.sh</code> is run first, and it changes the version number from the existing odd number for the develop branch to the next even number for the master branch.</li>
+	<li><code>bump_develop_version.sh</code> runs second, and it changes the version number from the new even number for the master branch to the next odd number for the develop branch.</li>
+</ul>
+
+<h4>Note on Tensile tag and version number</h4>
+<ul>
+	<li>The Tensile used by rocBLAS is from the tag in the file rocBLAS/tensile_tag.txt.</li>
+	<li>The tag will generally be different for the develop and master versions of rocBLAS.</li>
+	<li>The file rocBLAS/CMakeLists.txt also contains a Tensile version specified explicitly in a find_package command. Note that this is not the CMake variable TENSILE_VERSION, it is an immediate value.</li>
+	<li>The Tensile version will generally change with each release of rocBLAS</li>
+	<li>The Tensile group will supply a new Tensile version and Tensile tag</li>
+	<li>The Tensile version and Tensile tag are changed by the scripts <code>bump_master_version.sh</code> and <code>bump_develop_version.sh</code>.
+</ul>
+
+
+
+
 <h4>Get amcamd develop branch up to date with ROCmSoftwarePlatform</h4>
 <ul>
     <li> <code>mkdir -p ~/repos/hipBLASmergeDevelop</code></li>
