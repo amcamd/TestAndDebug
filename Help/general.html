@@ -551,54 +551,118 @@ See reference <a href="http://www.draconianoverlord.com/2013/09/07/no-cherry-pic
 </ul>
 
 
-<h4>Merge rocBLAS develop into master and release</h4>
+<h2>Merge rocBLAS develop into master and release</h2>
+<h4>Get amcamd develop branch up to date with ROCmSoftwarePlatform</h4>
 <ul>
-    <li> <code>mkdir -p ~/repos/rocBLASmergeDevelop; cd ~/repos/rocBLASmergeDevelop</code></li>
+	<li> <code>mkdir -p ~/repos/rocBLASmergeDevelop</code></li>
+	<li> <code>cd ~/repos/rocBLASmergeDevelop; rm -rf rocBLAS</code></li>
 
     <li> <code>git clone https://github.com/amcamd/rocBLAS.git</code></li>
 
-    <li> <code>cd rocBLAS</code></li>
-    <li> <code>git checkout develop</code></li>
+    <li> <code>cd rocBLAS; git checkout develop</code></li>
 
-
-
-
-    <li> get develop branch up to date with ROCmSoftwarePlatform</li>
-    <ul>
-            <li>git remote add upstream https://github.com/ROCmSoftwarePlatform/rocBLAS.git</li>
-            <li>git fetch upstream</li>
-            <li>git rebase upstream/develop develop</li>
-	    <li>git status</li>
-            <li>git push</li>
-    </ul>
-
+    <li><code>git remote add upstream https://github.com/ROCmSoftwarePlatform/rocBLAS.git</code></li>
+    <li><code>git fetch upstream</code></li>
+    <li><code>git rebase upstream/develop develop</code></li>
+    <li><code>git status</code></li>
+    <li><code>git push</code></li>
+</ul>
+<h4>Get amcamd master branch up to date with ROCmSoftwarePlatform</h4>
+<ul>
+    <li> <code>mkdir -p ~/repos/rocBLASmergeDevelop</code></li>
     <li> <code>cd ~/repos/rocBLASmergeDevelop; rm -rf rocBLAS</code></li>
 
     <li> <code>git clone https://github.com/amcamd/rocBLAS.git</code></li>
 
-    <li> <code>cd rocBLAS</code></li>
-    <li> <code>git checkout master</code></li>
+    <li> <code>cd rocBLAS; git checkout master</code></li>
 
-    <li> get master branch up to date with ROCmSoftwarePlatform</li>
-    <ul>
-            <li>git remote add upstream https://github.com/ROCmSoftwarePlatform/rocBLAS.git</li>
-            <li>git fetch upstream</li>
-            <li>git rebase upstream/master master</li>
-	    <li>git status</li>
-            <li>git push</li>
-    </ul>
+    <li><code>git remote add upstream https://github.com/ROCmSoftwarePlatform/rocBLAS.git</code></li>
+    <li><code>git fetch upstream</code></li>
+    <li><code>git rebase upstream/master master</code></li>
+    <li><code>git status</code></li>
+    <li><code>git push</code></li>
+</ul>
 
+<h4>Merge master into develop and resolve merge conflicts</h4>
+<ul>
     <li> <code>cd ~/repos/rocBLASmergeDevelop; rm -rf rocBLAS</code></li>
     <li> <code>git clone https://github.com/amcamd/rocBLAS.git</code></li>
-    <li> <code>cd rocBLAS</code></li>
-    <li> <code>git checkout develop</code></li>
-
+    <li> <code>cd rocBLAS; git checkout develop </code></li>
 
     <li> <code>git merge origin/master</code></li>
     <li> resolve merge conflicts
     <li> <code>git commit -m"merge master into develop before ROCm2.10"</code></li>
     <li> <code>git push</code></li>
+</ul>
 
+<h4>Merge develop into master and merge all</h4>
+<ul>
+    <li> edit both bump_develop_version.sh and bump_master_version.sh</li>
+    <li> <code>./bump_master_version.sh</code></li>
+    <ul>
+        <li> check changes are correct with    <code>git status</code> and look at CMakeLists.txt and other files.</li>
+        <li> <code> git add -u</code></li>
+        <li> <code>git commit -m"version for master branch release"</code></li>
+    </ul>
+
+    <li> <code>git checkout master</code></li>
+    <li> <code>git merge develop</code></li>
+    <li> <code>git checkout develop</code></li>
+    <li> <code>git merge master --ff-only</code>  # getting the develop branch to include the new merge commit</li>
+
+    <li> <code>./bump_develop_version.sh</code></li>
+    <ul>
+        <li> check changes are correct with    <code>git status</code> and look at CMakeLists.txt and other files.</li>
+        <li> <code> git add -u</code></li>
+        <li> <code>git commit -m"version for develop branch release"</code></li>
+    </ul>
+
+    <li> <code>git push --all</code></li>
+</ul>
+
+<h2>Merge hipBLAS develop into master and release</h2>
+<h4>Get amcamd develop branch up to date with ROCmSoftwarePlatform</h4>
+<ul>
+    <li> <code>mkdir -p ~/repos/hipBLASmergeDevelop</code></li>
+    <li> <code>cd ~/repos/hipBLASmergeDevelop; rm -rf hipBLAS</code></li>
+
+    <li> <code>git clone https://github.com/amcamd/hipBLAS.git</code></li>
+
+    <li> <code>cd hipBLAS; git checkout develop</code></li>
+
+    <li><code>git remote add upstream https://github.com/ROCmSoftwarePlatform/hipBLAS.git</code></li>
+    <li><code>git fetch upstream</code></li>
+    <li><code>git rebase upstream/develop develop</code></li>
+    <li><code>git status; git push</code></li>
+</ul>
+<h4>Get amcamd master branch up to date with ROCmSoftwarePlatform</h4>
+<ul>
+
+    <li><code>cd ~/repos/hipBLASmergeDevelop; rm -rf hipBLAS</code></li>
+
+    <li><code>git clone https://github.com/amcamd/hipBLAS.git</code></li>
+
+    <li><code>cd hipBLAS; git checkout master</code></li>
+
+    <li><code>git remote add upstream https://github.com/ROCmSoftwarePlatform/hipBLAS.git</code></li>
+    <li><code>git fetch upstream</code></li>
+    <li><code>git rebase upstream/master master</code></li>
+    <li><code>git status</code></li>
+    <li><code>git push</code></li>
+</ul>
+<h4>Merge master into develop and resolve merge conflicts</h4>
+<ul>
+    <li> <code>cd ~/repos/hipBLASmergeDevelop; rm -rf hipBLAS</code></li>
+    <li> <code>git clone https://github.com/amcamd/hipBLAS.git</code></li>
+    <li> <code>cd hipBLAS; git checkout develop</code></li>
+
+    <li> <code>git merge origin/master</code></li>
+    <li> resolve merge conflicts
+    <li> <code>git commit -m"merge master into develop before ROCm2.10"</code></li>
+    <li> <code>git push</code></li>
+</ul>
+<h4>Merge develop into master and merge all</h4>
+<ul>
     <li> edit both bump_develop_version.sh and bump_master_version.sh</li>
     <li> <code>./bump_master_version.sh</code></li>
     <ul>
@@ -621,22 +685,10 @@ See reference <a href="http://www.draconianoverlord.com/2013/09/07/no-cherry-pic
 
     <li> <code>git push --all</code></li>
 
-    <li> go to  https://github.com/ROCmSoftwarePlatform/rocBLAS.git</li>
-
-    <li> under repository name click &lt;Releases&gt;</li>
-
-    <li> click &lt;Draft a new release&gt;</li>
-    <ul>
-        <li> select MASTER branch</li>
-        <li>enter <a href="http://semver.org">Semantic Versioning</a> version tag</li>
-        <li>enter Title and notes</li>
-        <li>add .deb and .rpm files from Jenkins. 
-            You may need to use Chrome browser in place of Firefox for adding .deb and .rpm.</li>
-        <li> click &lt;Publish release&gt;</li>
-    </ul>
 </ul>
 
-<h4>Merge Tensile develop into master and release</h4>
+
+<h2>(out of date)Merge Tensile develop into master and release</h2>
 <ul>
     <li> <code>mkdir -p ~/repos/Tensile_merge_develop; cd ~/repos/Tensile_merge_develop</code></li>
 
@@ -675,89 +727,6 @@ See reference <a href="http://www.draconianoverlord.com/2013/09/07/no-cherry-pic
         <li> click &lt;Publish release&gt;</li>
     </ul>
 </ul>
-
-<h4>Merge hipBLAS develop into master and release</h4>
-<ul>
-    <li> <code>mkdir -p ~/repos/hipBLASmergeDevelop; cd ~/repos/hipBLASmergeDevelop</code></li>
-
-    <li> <code>git clone https://github.com/amcamd/hipBLAS.git</code></li>
-
-    <li> <code>cd hipBLAS</code></li>
-    <li> <code>git checkout develop</code></li>
-
-    <li> get develop branch up to date with ROCmSoftwarePlatform</li>
-    <ul>
-            <li>git remote add upstream https://github.com/ROCmSoftwarePlatform/hipBLAS.git</li>
-            <li>git fetch upstream</li>
-            <li>git rebase upstream/develop develop</li>
-	    <li>git status</li>
-            <li>git push</li>
-    </ul>
-
-    <li> <code>cd ~/repos/hipBLASmergeDevelop; rm -rf hipBLAS</code></li>
-
-    <li> <code>git clone https://github.com/amcamd/hipBLAS.git</code></li>
-
-    <li> <code>cd hipBLAS</code></li>
-    <li> <code>git checkout master</code></li>
-
-    <li> get master branch up to date with ROCmSoftwarePlatform</li>
-    <ul>
-            <li>git remote add upstream https://github.com/ROCmSoftwarePlatform/hipBLAS.git</li>
-            <li>git fetch upstream</li>
-            <li>git rebase upstream/master master</li>
-	    <li>git status</li>
-            <li>git push</li>
-    </ul>
-
-    <li> <code>cd ~/repos/hipBLASmergeDevelop; rm -rf hipBLAS</code></li>
-    <li> <code>git clone https://github.com/amcamd/hipBLAS.git</code></li>
-    <li> <code>cd hipBLAS</code></li>
-    <li> <code>git checkout develop</code></li>
-
-
-    <li> <code>git merge origin/master</code></li>
-    <li> resolve merge conflicts
-    <li> <code>git commit -m"merge master into develop before ROCm2.10"</code></li>
-    <li> <code>git push</code></li>
-
-    <li> edit both bump_develop_version.sh and bump_master_version.sh</li>
-    <li> <code>./bump_master_version.sh</code></li>
-    <ul>
-        <li> check changes are correct with    <code>git status</code> and look at CMakeLists.txt and other files.</li>
-        <li> <code> git add -u</code></li>
-        <li> <code>git commit -m"version for master branch release"</code></li>
-    </ul>
-
-    <li> <code>git checkout master</code></li>
-    <li> <code>git merge develop</code></li>
-    <li> <code>git checkout develop</code></li>
-    <li> <code>git merge master --ff-only</code>  # getting the develop branch to include the new merge commit</li>
-
-    <li> <code>./bump_develop_version.sh</code></li>
-    <ul>
-        <li> check changes are correct with    <code>git status</code> and look at CMakeLists.txt and other files.</li>
-        <li> <code> git add -u</code></li>
-        <li> <code>git commit -m"version for develop branch release"</code></li>
-    </ul>
-
-    <li> <code>git push --all</code></li>
-
-    <li> go to  https://github.com/ROCmSoftwarePlatform/hipBLAS.git</li>
-
-    <li> under repository name click &lt;Releases&gt;</li>
-
-    <li> click &lt;Draft a new release&gt;</li>
-    <ul>
-        <li> select MASTER branch</li>
-        <li>enter <a href="http://semver.org">Semantic Versioning</a> version tag</li>
-        <li>enter Title and notes</li>
-        <li>add .deb and .rpm files from Jenkins. 
-            You may need to use Chrome browser in place of Firefox for adding .deb and .rpm.</li>
-        <li> click &lt;Publish release&gt;</li>
-    </ul>
-</ul>
-
 
 <h1>Useful commands</h1>
 <p>find ./rocBLAS-develop -type f -exec grep -l gemv {} \; 
