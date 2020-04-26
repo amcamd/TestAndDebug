@@ -1179,19 +1179,20 @@ sudo reboot
 
 <h1>Speeding up gtest (from Torre)</h1>
 
-<a href="http://confluence.amd.com/pages/viewpage.action?spaceKey=~torrezuk&title=BLAS+Notes">Torre_Jira</a>
-
-<code>ln -s ../../../../clients/gtest/known_bugs.yaml known_bugs.yaml</code>
-<code>ln -s ../../../../clients/gtest/syrk_gtest.yaml syrk.yaml</code>
-<code>./rocblas-test --yaml syrk.yaml</code>
+<ul>
+    <li><a href="http://confluence.amd.com/pages/viewpage.action?spaceKey=~torrezuk&title=BLAS+Notes">Torre_Jira</a></li>
+    <li><code>ln -s ../../../../clients/gtest/known_bugs.yaml known_bugs.yaml</code></li>
+    <li><code>ln -s ../../../../clients/gtest/syrk_gtest.yaml syrk.yaml</code></li>
+    <li><code>./rocblas-test --yaml syrk.yaml</code></li>
 or
-<code>./rocblas-test --yaml blas1_gest.yaml --gtest_filter=*nrm2*<code>
+    <li><code>./rocblas-test --yaml blas1_gest.yaml --gtest_filter=*nrm2*<code><\li>
+</ul>
 
 <h1>Package dependencies</h1>
-<ol>
-	<li><code>apt list --installed</li> lists installed packages</li>
-	<li><code>apt-cache depends hcc</code> lists dependencies for hcc</li>
-</ol>
+<ul>
+    <li><code>apt list --installed</li> lists installed packages</li>
+    <li><code>apt-cache depends hcc</code> lists dependencies for hcc</li>
+</ul>
 
 
 
