@@ -28,18 +28,20 @@ th, td {
     <td><a href="https://github.com/ROCmSoftwarePlatform/hipBLAS">hipBLAS</a><br></td>
     <td>Github site for https://github.com/ROCmSoftwarePlatform/hipBLAS</td>
 </tr><tr>
-    <td><a href="https://github.com/ROCmSoftwarePlatform/rocJenkins">rocJenkins</a><br></td>
-    <td>Github site for https://github.com/ROCmSoftwarePlatform/rocJenkins/</td>
-
+    <td><a href="http://math-ci.rocm.amd.com/">Jenkins</a><br></td>
+    <td>Site for Jenkins Continuous Integration testing. http://math-ci.rocm.amd.com/ </td>
 </tr><tr>
-    <td><a href="http://10.216.151.18:8080/">new Jenkins</a><br></td>
-    <td>Site for Jenkins Continuous Integration testing. http://10.216.151.18:8080/ </td>
+    <td><a href="http://ontrack-internal.amd.com/issues/?filter=69690">Jira search</a><br></td>
+    <td>Search for recent rocBLAS Jira tickets</td>
 </tr><tr>
     <td><a href="http://confluence.amd.com/display/MLSE/Tensile+and+rocBLAS">Confluence</a><br></td>
     <td>Confluence site for internal documents.</td>
 </tr><tr>
     <td><a href="http://confluence.amd.com/display/MLSE/Status+Roll+Up+-+ROCm+Releases">Status Roll Up - ROCm Releases</a><br></td>
     <td>Dates for ROCm Releases</td>
+</tr><tr>
+    <td><a href="https://github.com/ROCmSoftwarePlatform/rocJenkins">rocJenkins</a><br></td>
+    <td>Github site for https://github.com/ROCmSoftwarePlatform/rocJenkins/</td>
 </tr><tr>
     <td><a href="http://git.amd.com:8080/plugins/gitiles/compute/ec/manifest/+/master-no-npi/compute-rocm-libs.xml">manifest</a><br></td>
     <td>master-no-npi manifest</td>
@@ -49,9 +51,6 @@ th, td {
 </tr><tr>
     <td><a href="https://github.com/amcamd/TestAndDebug">TestAndDebug</a><br></td>
     <td>Site I use for any open but not official code and testing</td>
-</tr><tr>
-    <td><a href="http://ontrack-internal.amd.com/issues/?filter=69690">Jira search</a><br></td>
-    <td>Search for recent rocBLAS Jira tickets</td>
 </tr><tr>
     <td><a href="http://docs.nvidia.com/cuda/cublas/#introduction">cuBLAS</a><br></td>
     <td>cuBLAS</td>
@@ -95,11 +94,8 @@ th, td {
     <td><a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet">Editing Github Wiki </a><br></td>
     <td>Useful for editing Github Wiki documents</td>
 </tr><tr>
-    <td><a href="http://hsautil.amd.com/">hsUtil</a><br></td>
-    <td>Site for Jenkins Continuous Integration testing. http://hsautil.amd.com/job/ROCmSoftwarePlatform/</td>
-</tr><tr>
-    <td><a href="http://ontrack-internal.amd.com/browse/SWDEV-103388">Jira example</a><br></td>
-    <td>An example Jira ticket. Use your Microsoft login credentials</td>
+    <td><a href="http://myhr.amd.com/UnitedStates/Pages/Home.aspx">MyHr</a><br></td>
+    <td>Access to AskHR, myAMD, TalentConnect, HR Connect, AMD Connect</td>
 </tr>
 </table>
 
@@ -467,6 +463,12 @@ comment in next editor.
 <pre>git push --force-with-lease    (or git push origin branch-name --force-with-lease)</pre>
 </ul>
 
+<h4>ours, theirs merge strategy</h4>
+<ul>
+	<li> <code>git merge branchA -X ours</code> This will choose code in current branch to resolve any merge conflict</li>
+	<li> <code>git merge branchA -X theirs</code> This will choose code in branchA to resolve any merge conflict</li>
+</ul>
+
 
 <h4>Avoid cherry-pick</h4>
 
@@ -549,14 +551,142 @@ See reference <a href="http://www.draconianoverlord.com/2013/09/07/no-cherry-pic
 </ul>
 
 
-<h4>Merge rocBLAS develop into master and release</h4>
+<h2>Merge rocBLAS develop into master and release</h2>
+<h4>Get amcamd develop branch up to date with ROCmSoftwarePlatform</h4>
 <ul>
-    <li> <code>mkdir -p ~/repos/rocBLASmergeDevelop; cd ~/repos/rocBLAS_merge_develop</code></li>
+	<li> <code>mkdir -p ~/repos/rocBLASmergeDevelop</code></li>
+	<li> <code>cd ~/repos/rocBLASmergeDevelop; rm -rf rocBLAS</code></li>
 
-    <li> <code>git clone https://github.com/ROCmSoftwarePlatform/rocBLAS.git</code></li>
+    <li> <code>git clone https://github.com/amcamd/rocBLAS.git</code></li>
 
-    <li> <code>cd rocBLAS</code></li>
+    <li> <code>cd rocBLAS; git checkout develop</code></li>
+
+    <li><code>git remote add upstream https://github.com/ROCmSoftwarePlatform/rocBLAS.git</code></li>
+    <li><code>git fetch upstream</code></li>
+    <li><code>git rebase upstream/develop develop</code></li>
+    <li><code>git status</code></li>
+    <li><code>git push</code></li>
+</ul>
+<h4>Get amcamd master branch up to date with ROCmSoftwarePlatform</h4>
+<ul>
+    <li> <code>mkdir -p ~/repos/rocBLASmergeDevelop</code></li>
+    <li> <code>cd ~/repos/rocBLASmergeDevelop; rm -rf rocBLAS</code></li>
+
+    <li> <code>git clone https://github.com/amcamd/rocBLAS.git</code></li>
+
+    <li> <code>cd rocBLAS; git checkout master</code></li>
+
+    <li><code>git remote add upstream https://github.com/ROCmSoftwarePlatform/rocBLAS.git</code></li>
+    <li><code>git fetch upstream</code></li>
+    <li><code>git rebase upstream/master master</code></li>
+    <li><code>git status</code></li>
+    <li><code>git push</code></li>
+</ul>
+
+<h4>Merge master into develop and resolve merge conflicts</h4>
+<ul>
+    <li> <code>cd ~/repos/rocBLASmergeDevelop; rm -rf rocBLAS</code></li>
+    <li> <code>git clone https://github.com/amcamd/rocBLAS.git</code></li>
+    <li> <code>cd rocBLAS; git checkout develop </code></li>
+
+    <li> <code>git merge origin/master</code></li>
+    <li> resolve merge conflicts
+    <li> <code>git commit -m"merge master into develop before ROCm2.10"</code></li>
+    <li> <code>git push</code></li>
+</ul>
+
+<h4>Merge develop into master and merge all</h4>
+<ul>
+    <li> edit both bump_develop_version.sh and bump_master_version.sh</li>
+    <li> <code>./bump_master_version.sh</code></li>
+    <ul>
+        <li> check changes are correct with    <code>git status</code> and look at CMakeLists.txt and other files.</li>
+        <li> <code> git add -u</code></li>
+        <li> <code>git commit -m"version for master branch release"</code></li>
+    </ul>
+
+    <li> <code>git checkout master</code></li>
+    <li> <code>git merge develop</code></li>
     <li> <code>git checkout develop</code></li>
+    <li> <code>git merge master --ff-only</code>  # getting the develop branch to include the new merge commit</li>
+
+    <li> <code>./bump_develop_version.sh</code></li>
+    <ul>
+        <li> check changes are correct with    <code>git status</code> and look at CMakeLists.txt and other files.</li>
+        <li> <code> git add -u</code></li>
+        <li> <code>git commit -m"version for develop branch release"</code></li>
+    </ul>
+
+    <li> <code>git push --all</code></li>
+</ul>
+
+<h2>Merge hipBLAS develop into master and release</h2>
+
+<h4>Note on version numbers for rocBLAS and hipBLAS</h4>
+<ul>
+	<li><a href="http://semver.org">Semantic Versioning</a> is used for version numbers. This uses MAJOR.MINOR.PATCH for version numbers.</li>
+	<li>We also use the convention that the MINOR version number is even for the master branch and odd for the develop branch.</li>
+	<li>rocBLAS and hipBLAS version numbers are in <code>VERSION_STRING</code> in the file CMakeLists.txt.</li>
+	<li>The scripts <code>bump_master_version.sh</code> and <code>bump_develop_version.sh</code> are used to bump the version numbers.</li>
+	<li><code>bump_master_version.sh</code> is run first, and it changes the version number from the existing odd number for the develop branch to the next even number for the master branch.</li>
+	<li><code>bump_develop_version.sh</code> runs second, and it changes the version number from the new even number for the master branch to the next odd number for the develop branch.</li>
+</ul>
+
+<h4>Note on Tensile tag and version number</h4>
+<ul>
+	<li>The Tensile used by rocBLAS is from the tag in the file rocBLAS/tensile_tag.txt.</li>
+	<li>The tag will generally be different for the develop and master versions of rocBLAS.</li>
+	<li>The file rocBLAS/CMakeLists.txt also contains a Tensile version specified explicitly in a find_package command. Note that this is not the CMake variable TENSILE_VERSION, it is an immediate value.</li>
+	<li>The Tensile version will generally change with each release of rocBLAS</li>
+	<li>The Tensile group will supply a new Tensile version and Tensile tag</li>
+	<li>The Tensile version and Tensile tag are changed by the scripts <code>bump_master_version.sh</code> and <code>bump_develop_version.sh</code>.
+</ul>
+
+
+
+
+<h4>Get amcamd develop branch up to date with ROCmSoftwarePlatform</h4>
+<ul>
+    <li> <code>mkdir -p ~/repos/hipBLASmergeDevelop</code></li>
+    <li> <code>cd ~/repos/hipBLASmergeDevelop; rm -rf hipBLAS</code></li>
+
+    <li> <code>git clone https://github.com/amcamd/hipBLAS.git</code></li>
+
+    <li> <code>cd hipBLAS; git checkout develop</code></li>
+
+    <li><code>git remote add upstream https://github.com/ROCmSoftwarePlatform/hipBLAS.git</code></li>
+    <li><code>git fetch upstream</code></li>
+    <li><code>git rebase upstream/develop develop</code></li>
+    <li><code>git status; git push</code></li>
+</ul>
+<h4>Get amcamd master branch up to date with ROCmSoftwarePlatform</h4>
+<ul>
+
+    <li><code>cd ~/repos/hipBLASmergeDevelop; rm -rf hipBLAS</code></li>
+
+    <li><code>git clone https://github.com/amcamd/hipBLAS.git</code></li>
+
+    <li><code>cd hipBLAS; git checkout master</code></li>
+
+    <li><code>git remote add upstream https://github.com/ROCmSoftwarePlatform/hipBLAS.git</code></li>
+    <li><code>git fetch upstream</code></li>
+    <li><code>git rebase upstream/master master</code></li>
+    <li><code>git status</code></li>
+    <li><code>git push</code></li>
+</ul>
+<h4>Merge master into develop and resolve merge conflicts</h4>
+<ul>
+    <li> <code>cd ~/repos/hipBLASmergeDevelop; rm -rf hipBLAS</code></li>
+    <li> <code>git clone https://github.com/amcamd/hipBLAS.git</code></li>
+    <li> <code>cd hipBLAS; git checkout develop</code></li>
+
+    <li> <code>git merge origin/master</code></li>
+    <li> resolve merge conflicts
+    <li> <code>git commit -m"merge master into develop before ROCm2.10"</code></li>
+    <li> <code>git push</code></li>
+</ul>
+<h4>Merge develop into master and merge all</h4>
+<ul>
     <li> edit both bump_develop_version.sh and bump_master_version.sh</li>
     <li> <code>./bump_master_version.sh</code></li>
     <ul>
@@ -579,22 +709,10 @@ See reference <a href="http://www.draconianoverlord.com/2013/09/07/no-cherry-pic
 
     <li> <code>git push --all</code></li>
 
-    <li> go to  https://github.com/ROCmSoftwarePlatform/rocBLAS.git</li>
-
-    <li> under repository name click &lt;Releases&gt;</li>
-
-    <li> click &lt;Draft a new release&gt;</li>
-    <ul>
-        <li> select MASTER branch</li>
-        <li>enter <a href="http://semver.org">Semantic Versioning</a> version tag</li>
-        <li>enter Title and notes</li>
-        <li>add .deb and .rpm files from Jenkins. 
-            You may need to use Chrome browser in place of Firefox for adding .deb and .rpm.</li>
-        <li> click &lt;Publish release&gt;</li>
-    </ul>
 </ul>
 
-<h4>Merge Tensile develop into master and release</h4>
+
+<h2>(out of date)Merge Tensile develop into master and release</h2>
 <ul>
     <li> <code>mkdir -p ~/repos/Tensile_merge_develop; cd ~/repos/Tensile_merge_develop</code></li>
 
@@ -633,58 +751,6 @@ See reference <a href="http://www.draconianoverlord.com/2013/09/07/no-cherry-pic
         <li> click &lt;Publish release&gt;</li>
     </ul>
 </ul>
-
-<h4>Merge hipBLAS develop into master and release</h4>
-<ul>
-    <li> <code>mkdir -p ~/repos/hipBLASmergeDevelop; cd ~/repos/hipBLASmergeDevelop</code></li>
-
-    <li> <code>git clone https://github.com/ROCmSoftwarePlatform/hipBLAS.git</code></li>
-
-    <li> <code>cd hipBLAS</code></li>
-    <li> <code>git checkout develop</code></li>
-
-    <li> <code>git merge origin/master</code></li>
-    <li> resolve merge conflicts
-    <li> <code>git commit -m"merge master into develop before ROCm2.10"</code></li>
-    <li> <code>git push</code></li>
-
-    <li> edit both bump_develop_version.sh and bump_master_version.sh</li>
-    <li> <code>./bump_master_version.sh</code></li>
-    <ul>
-        <li> check changes are correct with    <code>git status</code> and look at CMakeLists.txt and other files.</li>
-        <li> <code> git add -u</code></li>
-        <li> <code>git commit -m"version for master branch release"</code></li>
-    </ul>
-
-    <li> <code>git checkout master</code></li>
-    <li> <code>git merge develop</code></li>
-    <li> <code>git checkout develop</code></li>
-    <li> <code>git merge master --ff-only</code>  # getting the develop branch to include the new merge commit</li>
-
-    <li> <code>./bump_develop_version.sh</code></li>
-    <ul>
-        <li> check changes are correct with    <code>git status</code> and look at CMakeLists.txt and other files.</li>
-        <li> <code> git add -u</code></li>
-        <li> <code>git commit -m"version for develop branch release"</code></li>
-    </ul>
-
-    <li> <code>git push --all</code></li>
-
-    <li> go to  https://github.com/ROCmSoftwarePlatform/hipBLAS.git</li>
-
-    <li> under repository name click &lt;Releases&gt;</li>
-
-    <li> click &lt;Draft a new release&gt;</li>
-    <ul>
-        <li> select MASTER branch</li>
-        <li>enter <a href="http://semver.org">Semantic Versioning</a> version tag</li>
-        <li>enter Title and notes</li>
-        <li>add .deb and .rpm files from Jenkins. 
-            You may need to use Chrome browser in place of Firefox for adding .deb and .rpm.</li>
-        <li> click &lt;Publish release&gt;</li>
-    </ul>
-</ul>
-
 
 <h1>Useful commands</h1>
 <p>find ./rocBLAS-develop -type f -exec grep -l gemv {} \; 
@@ -1101,6 +1167,7 @@ sudo reboot
 	<li>For rocSPARSE and rocALUTION, I am using my readthedocs account for the administratin. I have, however, created those projects and own them. Not sure about rocBLAS. You can access rocBLAS admin panel here. I think Saad has to add you as a maintainer.</li>
 </ol>
 
+
 <h1>Speeding up gtest (from Torre)</h1>
 
 <a href="http://confluence.amd.com/pages/viewpage.action?spaceKey=~torrezuk&title=BLAS+Notes">Torre_Jira</a>
@@ -1110,6 +1177,13 @@ sudo reboot
 <code>./rocblas-test --yaml syrk.yaml</code>
 or
 <code>./rocblas-test --yaml blas1_gest.yaml --gtest_filter=*nrm2*<code>
+
+<h1>Package dependencies</h1>
+<ol>
+	<li><code>apt list --installed</li> lists installed packages</li>
+	<li><code>apt-cache depends hcc</code> lists dependencies for hcc</li>
+</ol>
+
 
 
 </body>

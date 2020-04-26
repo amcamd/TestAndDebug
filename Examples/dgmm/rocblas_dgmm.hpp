@@ -154,7 +154,6 @@ rocblas_status rocblas_dgmm_template(
                            ldc,
                            strideC);
     }
-
     return rocblas_status_success;
 }
 

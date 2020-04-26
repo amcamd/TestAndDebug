@@ -36,11 +36,11 @@ else
 fi
 echo "==============================================================="
 
-rm -f library/src/blas3/Tensile/Logic/asm_ci/vega*_HB.yaml
-rm -f library/src/blas3/Tensile/Logic/asm_ci/vega*_HBH.yaml
-rm -f library/src/blas3/Tensile/Logic/asm_ci/vega*_ZB.yaml
-rm -f library/src/blas3/Tensile/Logic/asm_ci/vega*_CB.yaml
-rm -f library/src/blas3/Tensile/Logic/asm_ci/vega*_4xi8BH.yaml
+#rm -f library/src/blas3/Tensile/Logic/asm_ci/vega*_HB.yaml
+#rm -f library/src/blas3/Tensile/Logic/asm_ci/vega*_HBH.yaml
+#rm -f library/src/blas3/Tensile/Logic/asm_ci/vega*_ZB.yaml
+#rm -f library/src/blas3/Tensile/Logic/asm_ci/vega*_CB.yaml
+#rm -f library/src/blas3/Tensile/Logic/asm_ci/vega*_4xi8BH.yaml
 
 echo "==============================================================="
 echo "=====build=rocblas=with=install.sh============================="
