@@ -234,7 +234,8 @@ void template_dgmm(rocblas_side side,
 {
     rocblas_int size_a = lda * n;
     rocblas_int size_c = ldc * n;
-    rocblas_int size_x = incx * (side == rocblas_side_right ? n : m);
+    rocblas_int incx_pos = incx > 0 ? incx : -incx;
+    rocblas_int size_x = incx_pos * (side == rocblas_side_right ? n : m);
 
     std::vector<T>ha(size_a);
     std::vector<T>hc(size_c);
@@ -244,7 +245,7 @@ void template_dgmm(rocblas_side side,
 
     initialize_matrix(ha, m, n, lda);
     initialize_matrix(hc, m, n, ldc);
-    initialize_vector(hx, (side == rocblas_side_right ? n : m), incx); 
+    initialize_vector(hx, (side == rocblas_side_right ? n : m), incx_pos); 
 
     hc_legacy = hc;
     hc_rocblas = hc_legacy;
@@ -253,9 +254,9 @@ void template_dgmm(rocblas_side side,
     {
         print_matrix("a", ha, lda, n, lda);
 
-        print_matrix("b", hc, ldc, n, ldc);
+        print_matrix("c", hc, ldc, n, ldc);
 
-        print_vector("x", hx, (side == rocblas_side_right ? n : m), incx);
+        print_vector("x", hx, (side == rocblas_side_right ? n : m), incx_pos);
     }
 
     rocblas_status status;

@@ -36,27 +36,8 @@
     }
 #endif
 
-//template<typename T>
-//rocblas_status (*rocblas_gemm)(rocblas_handle handle,
-//        rocblas_operation transA,
-//        rocblas_operation transB,
-//        rocblas_int m,
-//        rocblas_int n,
-//        rocblas_int k,
-//        const T* alpha,
-//        const T* a,
-//        rocblas_int lda,
-//        const T* b,
-//        rocblas_int ldc,
-//        const T* beta,
-//        T* c,
-//        rocblas_int ldc);
-//
-//template<> static constexpr auto rocblas_gemm<float> = rocblas_sgemm;
-//template<> static constexpr auto rocblas_gemm<double> = rocblas_dgemm;
-
-template<typename TConstPtr, typename TPtr>
-__global__ void dgmm_left_kernel(
+template<bool right_side, typename TConstPtr, typename TPtr>
+__global__ void dgmm_kernel(
                            rocblas_int m,
                            rocblas_int n,
                            TConstPtr A,
@@ -77,33 +58,14 @@ __global__ void dgmm_left_kernel(
 
     if(tx < m && ty < n)
     {
-        C[tx + ldc * ty] = A[tx + lda * ty]* x[tx * incx];
-    }
+if(right_side)
+{
+        C[tx + ldc * ty] = A[tx + lda * ty]* x[offset_x + ty * incx];
 }
-
-template<typename TConstPtr, typename TPtr>
-__global__ void dgmm_right_kernel(
-                           rocblas_int m,
-                           rocblas_int n,
-                           TConstPtr A,
-                           rocblas_int offsetA,
-                           rocblas_int lda,
-                           rocblas_stride strideA,
-                           TConstPtr x,
-                           rocblas_int offset_x,
-                           rocblas_int incx,
-                           rocblas_stride stridex,
-                           TPtr C,
-                           rocblas_int offsetC,
-                           rocblas_int ldc,
-                           rocblas_stride strideC)
+else
 {
-    ptrdiff_t tx = hipBlockIdx_x * hipBlockDim_x + hipThreadIdx_x;
-    ptrdiff_t ty = hipBlockIdx_y * hipBlockDim_y + hipThreadIdx_y;
-
-    if(tx < m && ty < n)
-    {
-        C[tx + ldc * ty] = A[tx + lda * ty]* x[ty * incx];
+        C[tx + ldc * ty] = A[tx + lda * ty]* x[offset_x + tx * incx];
+}
     }
 }
 
@@ -128,11 +90,14 @@ rocblas_status rocblas_dgmm_template(
         return rocblas_status_invalid_pointer;
     }
 
+    // in case of negative incx shift pointer to end of data for negative indexing
+    ptrdiff_t offset_x = (incx < 0) ? - ptrdiff_t(incx) * (n - 1) : 0;
+
     hipStream_t rocblas_stream;
     CHECK_HIP_ERROR(hipStreamCreate(&rocblas_stream));
 
     rocblas_int batch_count = 1;
-    rocblas_int offsetA = 0, offsetC = 0, offset_x = 0;
+    ptrdiff_t offsetA = 0, offsetC = 0;
     rocblas_stride strideA = n * lda;
     rocblas_stride strideC = n * ldc;
     rocblas_stride stridex = rocblas_side_right == side ? n : m ;
@@ -147,7 +112,7 @@ rocblas_status rocblas_dgmm_template(
 
     if (side == rocblas_side_left)
     {
-         hipLaunchKernelGGL(dgmm_left_kernel,
+         hipLaunchKernelGGL(dgmm_kernel<false>,
                            grid,
                            threads,
                            0,
@@ -169,7 +134,7 @@ rocblas_status rocblas_dgmm_template(
     }
     else
     {
-        hipLaunchKernelGGL(dgmm_right_kernel,
+        hipLaunchKernelGGL(dgmm_kernel<true>,
                            grid,
                            threads,
                            0,
@@ -189,6 +154,7 @@ rocblas_status rocblas_dgmm_template(
                            ldc,
                            strideC);
     }
+
     return rocblas_status_success;
 }
 
@@ -204,7 +170,8 @@ rocblas_status rocblas_dgmm(
 
     rocblas_int size_a = lda * n;
     rocblas_int size_c = ldc * n;
-    rocblas_int size_x = incx * (rocblas_side_right == side ? n : m);
+    rocblas_int incx_pos = incx > 0 ? incx : -incx;
+    rocblas_int size_x = incx_pos * (rocblas_side_right == side ? n : m);
 
     T *da, *dc, *dx;
     CHECK_HIP_ERROR(hipMalloc(&da, size_a * sizeof(T)));

@@ -23,6 +23,6 @@ SET(SOURCES main.cpp)
 include_directories(${ROCBLAS_INSTALL}/include)
 link_directories(${ROCBLAS_INSTALL}/lib)
 
-add_executable(trmm_test main.cpp)
+add_executable(dgmm_test main.cpp)
 
-target_link_libraries(trmm_test librocblas.so)
+target_link_libraries(dgmm_test librocblas.so)

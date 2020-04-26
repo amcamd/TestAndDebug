@@ -9,6 +9,10 @@
               T *c, 
               rocblas_int ldc)
 {
+    // in case of negative incx shift pointer to end of data for negative indexing
+    ptrdiff_t offset_x = (incx < 0) ? - ptrdiff_t(incx) * (n - 1) : 0;
+    std::cout << "offset_x = " << offset_x << std::endl;
+
 //  C <- A x   or   C <- x A
     if (rocblas_side_right == side)
     {
@@ -16,7 +20,7 @@
         {
             for (int i = 0; i < m; i++)
             {
-                c[i + j * ldc] = a[i + j * lda] * x[j * incx];
+                c[i + j * ldc] = a[i + j * lda] * x[offset_x + j * incx];
             }
         }
     }
@@ -26,7 +30,7 @@
         {
             for (int i = 0; i < m; i++)
             {
-                c[i + j * ldc] = a[i + j * lda] * x[i * incx];
+                c[i + j * ldc] = a[i + j * lda] * x[offset_x + i * incx];
             }
         }
     }
