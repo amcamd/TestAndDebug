@@ -8,18 +8,19 @@
 
 echo "=====clone=rocblas============================================="
 echo "==============================================================="
-git clone -b develop https://github.com/amcamd/rocBLAS.git 
+git clone https://github.com/amcamd/rocBLAS-internal.git 
 if [[ $? -ne 0 ]]; then
     echo "clone error"
     exit 1
 fi
 
-cd rocBLAS
+cd rocBLAS-internal
 if [[ $? -ne 0 ]]; then
     echo "cd error"
     exit 1
 fi
 
+git checkout develop
 
 echo "==============================================================="
 if [ "$(/opt/rocm/bin/rocm_agent_enumerator | grep -m 1 gfx900)" == "gfx900" ]; then
