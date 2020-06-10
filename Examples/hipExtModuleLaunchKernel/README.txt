@@ -1,0 +1,57 @@
+
+The aim of this code is to show the use of any-order launch. It is based on the 
+code at: /opt/rocm/hip/samples/0_Intro/module_api
+
+
+Below shows that flags=1 with hipExtModuleLaunchKernel improves performance.
+
+./launchKernelHcc.hip.out 
+empty_kernel, flags = 0, LEN, batch_count, seconds = 256, 1000, 0.00795926
+ work_kernel, flags = 0, LEN, batch_count, seconds = 256, 1000, 0.0137006
+ work_kernel, flags = 1, LEN, batch_count, seconds = 256, 1000, 0.0120741
+
+
+
+Below is from  /opt/rocm/hip/include/hip$ vim hip_ext.h
+
+
+
+/**
+ * @brief launches kernel f with launch parameters and shared memory on stream with arguments passed
+ to kernelparams or extra
+ *
+ * @param [in[ f     Kernel to launch.
+ * @param [in] gridDimX  X grid dimension specified in work-items
+ * @param [in] gridDimY  Y grid dimension specified in work-items
+ * @param [in] gridDimZ  Z grid dimension specified in work-items
+ * @param [in] blockDimX X block dimensions specified in work-items
+ * @param [in] blockDimY Y grid dimension specified in work-items
+ * @param [in] blockDimZ Z grid dimension specified in work-items
+ * @param [in] sharedMemBytes Amount of dynamic shared memory to allocate for this kernel.  The
+ kernel can access this with HIP_DYNAMIC_SHARED.
+ * @param [in] stream Stream where the kernel should be dispatched.  May be 0, in which case th
+ default stream is used with associated synchronization rules.
+ * @param [in] kernelParams
+ * @param [in] extra     Pointer to kernel arguments.   These are passed directly to the kernel and
+ must be in the memory layout and alignment expected by the kernel.
+ * @param [in] startEvent  If non-null, specified event will be updated to track the start time of
+ the kernel launch.  The event must be created before calling this API.
+ * @param [in] stopEvent   If non-null, specified event will be updated to track the stop time of
+ the kernel launch.  The event must be created before calling this API.
+ *
+ * @returns hipSuccess, hipInvalidDevice, hipErrorNotInitialized, hipErrorInvalidValue
+ *
+ * @warning kernellParams argument is not yet implemented in HIP. Please use extra instead. Please
+ refer to hip_porting_driver_api.md for sample usage.
+ * HIP/ROCm actually updates the start event when the associated kernel completes.
+ */
+HIP_PUBLIC_API
+hipError_t hipExtModuleLaunchKernel(hipFunction_t f, uint32_t globalWorkSizeX,
+                                    uint32_t globalWorkSizeY, uint32_t globalWorkSizeZ,
+                                    uint32_t localWorkSizeX, uint32_t localWorkSizeY,
+                                    uint32_t localWorkSizeZ, size_t sharedMemBytes,
+                                    hipStream_t hStream, void** kernelParams, void** extra,
+                                    hipEvent_t startEvent = nullptr,
+                                    hipEvent_t stopEvent = nullptr,
+                                    uint32_t flags = 0);
+
