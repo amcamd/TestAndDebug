@@ -6,21 +6,21 @@ code at: /opt/rocm/hip/samples/0_Intro/module_api
 Below shows that flags=1 with hipExtModuleLaunchKernel improves performance.
 
 
+work_kernel has runtime of 116us
+
 Comparing default stream to created stream:
 default stream
-empty_kernel, flags = 0: LEN, batch_count, seconds = 256, 1000, 0.00794647
-empty_kernel, flags = 1: LEN, batch_count, seconds = 256, 1000, 0.007937
- work_kernel, flags = 0: LEN, batch_count, seconds = 256, 1000, 0.014494
- work_kernel, flags = 1: LEN, batch_count, seconds = 256, 1000, 0.0145492
-
+empty_kernel, flags = 0: LEN, batch_count, seconds = 256, 1000, 0.0078024
+empty_kernel, flags = 1: LEN, batch_count, seconds = 256, 1000, 0.00687898
+ work_kernel, flags = 0: LEN, batch_count, seconds = 256, 1000, 0.131641
+ work_kernel, flags = 1: LEN, batch_count, seconds = 256, 1000, 0.120073
 
 
 created stream
-empty_kernel, flags = 0: LEN, batch_count, seconds = 256, 1000, 0.0169384
-empty_kernel, flags = 1: LEN, batch_count, seconds = 256, 1000, 0.0141201
- work_kernel, flags = 0: LEN, batch_count, seconds = 256, 1000, 0.0226229
- work_kernel, flags = 1: LEN, batch_count, seconds = 256, 1000, 0.0210388
-
+empty_kernel, flags = 0: LEN, batch_count, seconds = 256, 1000, 0.0077224
+empty_kernel, flags = 1: LEN, batch_count, seconds = 256, 1000, 0.00688674
+ work_kernel, flags = 0: LEN, batch_count, seconds = 256, 1000, 0.131606
+ work_kernel, flags = 1: LEN, batch_count, seconds = 256, 1000, 0.120286
 
 
 
