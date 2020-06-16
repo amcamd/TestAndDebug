@@ -74,6 +74,9 @@ int main() {
     HIP_CHECK(hipModuleGetFunction(&Function, Module, kernel_name));
     HIP_CHECK(hipModuleGetFunction(&empty_function, Module, empty_kernel_name));
 
+    hipStream_t my_stream;
+    HIP_CHECK(hipStreamCreate(&my_stream));
+
     uint32_t len = LEN;
     uint32_t one = 1;
 
@@ -103,6 +106,9 @@ int main() {
     double seconds;
     std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
     std::chrono::duration<double> dur;
+
+
+#if 0
     hipDeviceSynchronize();
 
     start = std::chrono::high_resolution_clock::now();
@@ -113,7 +119,8 @@ int main() {
         hipExtModuleLaunchKernel(empty_function, 
             LEN, 1, 1, 
             LEN, 1, 1, 
-            0, 0, NULL, (void**)&empty_config, nullptr, nullptr, 0));
+            0, my_stream, NULL, (void**)&empty_config, nullptr, nullptr, 0));
+//          0,         0, NULL, (void**)&empty_config, nullptr, nullptr, 0));
     }
 
     hipDeviceSynchronize();
@@ -122,9 +129,33 @@ int main() {
     seconds = dur.count();
     std::cout << "empty_kernel, flags = 0: ";
     std::cout << "LEN, batch_count, seconds = " << LEN << ", " << batch_count << ", " << seconds << std::endl;
+#endif
+
+#if 0
+    hipDeviceSynchronize();
+
+    start = std::chrono::high_resolution_clock::now();
+
+    for (int i = 0; i < batch_count; i++)
+    {
+        HIP_CHECK(
+        hipExtModuleLaunchKernel(empty_function, 
+            LEN, 1, 1, 
+            LEN, 1, 1, 
+            0, my_stream, NULL, (void**)&empty_config, nullptr, nullptr, 1));
+//          0,         0, NULL, (void**)&empty_config, nullptr, nullptr, 1));
+    }
+
+    hipDeviceSynchronize();
+    end = std::chrono::high_resolution_clock::now();
+    dur= end - start;
+    seconds = dur.count();
+    std::cout << "empty_kernel, flags = 1: ";
+    std::cout << "LEN, batch_count, seconds = " << LEN << ", " << batch_count << ", " << seconds << std::endl;
+#endif
 
 
-
+#if 0
     hipDeviceSynchronize();
 
     start = std::chrono::high_resolution_clock::now();
@@ -136,7 +167,8 @@ int main() {
         hipExtModuleLaunchKernel(Function, 
             LEN, 1, 1, 
             LEN, 1, 1, 
-            0, 0, NULL, (void**)&config, nullptr, nullptr, 0));
+            0, my_stream, NULL, (void**)&config, nullptr, nullptr, 0));
+//          0,         0, NULL, (void**)&config, nullptr, nullptr, 0));
     }
 
     hipDeviceSynchronize();
@@ -145,8 +177,10 @@ int main() {
     seconds = dur.count();
     std::cout << " work_kernel, flags = 0: ";
     std::cout << "LEN, batch_count, seconds = " << LEN << ", " << batch_count << ", " << seconds << std::endl;
+#endif
 
 
+#if 1
     hipDeviceSynchronize();
 
     start = std::chrono::high_resolution_clock::now();
@@ -158,7 +192,8 @@ int main() {
         hipExtModuleLaunchKernel(Function, 
             LEN, 1, 1, 
             LEN, 1, 1, 
-            0, 0, NULL, (void**)&config, nullptr, nullptr, 1));
+            0, my_stream, NULL, (void**)&config, nullptr, nullptr, 1));
+//          0,         0, NULL, (void**)&config, nullptr, nullptr, 1));
     }
 
     hipDeviceSynchronize();
@@ -167,6 +202,7 @@ int main() {
     seconds = dur.count();
     std::cout << " work_kernel, flags = 1: ";
     std::cout << "LEN, batch_count, seconds = " << LEN << ", " << batch_count << ", " << seconds << std::endl;
+#endif
 
 
 //  hipMemcpyDtoH(B, Bd, SIZE);

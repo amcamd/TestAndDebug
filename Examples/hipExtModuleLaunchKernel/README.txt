@@ -5,10 +5,24 @@ code at: /opt/rocm/hip/samples/0_Intro/module_api
 
 Below shows that flags=1 with hipExtModuleLaunchKernel improves performance.
 
-./launchKernelHcc.hip.out 
-empty_kernel, flags = 0, LEN, batch_count, seconds = 256, 1000, 0.00795926
- work_kernel, flags = 0, LEN, batch_count, seconds = 256, 1000, 0.0137006
- work_kernel, flags = 1, LEN, batch_count, seconds = 256, 1000, 0.0120741
+
+Comparing default stream to created stream:
+default stream
+empty_kernel, flags = 0: LEN, batch_count, seconds = 256, 1000, 0.00794647
+empty_kernel, flags = 1: LEN, batch_count, seconds = 256, 1000, 0.007937
+ work_kernel, flags = 0: LEN, batch_count, seconds = 256, 1000, 0.014494
+ work_kernel, flags = 1: LEN, batch_count, seconds = 256, 1000, 0.0145492
+
+
+
+created stream
+empty_kernel, flags = 0: LEN, batch_count, seconds = 256, 1000, 0.0169384
+empty_kernel, flags = 1: LEN, batch_count, seconds = 256, 1000, 0.0141201
+ work_kernel, flags = 0: LEN, batch_count, seconds = 256, 1000, 0.0226229
+ work_kernel, flags = 1: LEN, batch_count, seconds = 256, 1000, 0.0210388
+
+
+
 
 
 
@@ -55,3 +69,22 @@ hipError_t hipExtModuleLaunchKernel(hipFunction_t f, uint32_t globalWorkSizeX,
                                     hipEvent_t stopEvent = nullptr,
                                     uint32_t flags = 0);
 
+
+batched, flags = 1
+transA,transB,M,N,K,alpha,lda,ldb,beta,ldc,Batch_Count,rocblas-Gflops,us
+N,N,192,192,32,1,192,128,0,192,1000,215.863,10929.6
+
+transA,transB,M,N,K,alpha,lda,ldb,beta,ldc,Batch_Count,rocblas-Gflops,us
+N,N,1536,1536,32,1,1536,128,0,1536,1000,1918.349,78710.9
+
+
+batched, flags = 0
+work group = 64, 1, 1    work items = 768, 12, 1
+Cijk_Ailk_Bljk_SB_MT16x16x16_SE_AF0EM1_AMAS2_ASEM1_BL0_DTL0_EPS0_FL0_GRVW2_GSU1_ISA000_K1_KLS_LPA0_LPB0_NLCA1_NLCB1_PGR1_PLR1_TT2_2_USFGRO0_VAW1_VW2_WG8_8_1_WGM1
+transA,transB,M,N,K,alpha,lda,ldb,beta,ldc,Batch_Count,rocblas-Gflops,us
+N,N,192,192,32,1,192,128,0,192,1000,208.3264,11325
+
+work group = 256, 1, 1    work items = 6144, 24, 1
+Cijk_Ailk_Bljk_SB_MT64x64x16_SN_AF0EM1_AMAS2_ASEM1_BL0_DTL0_EPS0_FL0_GRVW4_GSU1_ISA000_K1_KLS_LPA0_LPB0_NLCA1_NLCB1_PGR1_PLR1_TT4_4_USFGRO0_VAW1_VW4_WG16_16_1_WGM1
+transA,transB,M,N,K,alpha,lda,ldb,beta,ldc,Batch_Count,rocblas-Gflops,us
+N,N,1536,1536,32,1,1536,128,0,1536,1000,1917.279,78754.8
