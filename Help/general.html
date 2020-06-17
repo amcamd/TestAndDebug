@@ -1215,6 +1215,27 @@ or
     <li><code>apt-cache depends hcc</code> lists dependencies for hcc</li>
 </ul>
 
+<h1>Viewing hip trace (from Torre)</h1>
+<ul>
+	<li>On Linux or Windows you will need chrome or chromium installed.</li>
+	<li>Use the following command to generate results.* files: <code>/opt/rocm/bin/rocprof --obj-tracking on --hip-trace --timestamp --stats ./rocblas-bench -f gemm</code></li>
+	<li>copy results.* files to subdirectory</li>
+	<li>open chrome or chromium and go to address chrome://tracing</li>
+	<li>click "load" button, and enter output file "results.json"</li>
+	<li>use 'w' and 's' to zoom in and out</li>
+	<li>zoom in and move the view untill the colored stripes expand and the profile can be seen</li>
+</ul>
+
+<h1>spell check in vim</h1>
+<ul>
+	<li><code>:setlocal spell</code> to turn on spelling.</li>
+	<li><code>]s</code> to move to next word, <code>s[</code> to move to previous word.</li>
+	<li><code>z=</code> to get suggested list of alternatives.</li>
+	<li><code>zg</code> indicates misspelled word is correct.</li>
+	<li><code>:set nospell</code> turns off spell check.</li>
+	<li> </li>
+</ul>
+
 
 
 </body>
