@@ -128,8 +128,8 @@ int main() {
         hipExtModuleLaunchKernel(empty_function, 
             LEN, 1, 1, 
             LEN, 1, 1, 
-            0, my_stream, NULL, (void**)&empty_config, nullptr, nullptr, 0));
 //          0,         0, NULL, (void**)&empty_config, nullptr, nullptr, 0));
+            0, my_stream, NULL, (void**)&empty_config, nullptr, nullptr, 0));
     }
 
     hipDeviceSynchronize();
@@ -151,8 +151,8 @@ int main() {
         hipExtModuleLaunchKernel(empty_function, 
             LEN, 1, 1, 
             LEN, 1, 1, 
-            0, my_stream, NULL, (void**)&empty_config, nullptr, nullptr, 1));
 //          0,         0, NULL, (void**)&empty_config, nullptr, nullptr, 1));
+            0, my_stream, NULL, (void**)&empty_config, nullptr, nullptr, 1));
     }
 
     hipDeviceSynchronize();
@@ -176,8 +176,8 @@ int main() {
         hipExtModuleLaunchKernel(Function, 
             LEN, 1, 1, 
             LEN, 1, 1, 
-//          0, my_stream, NULL, (void**)&config, nullptr, nullptr, 0));
-            0,         0, NULL, (void**)&config, nullptr, nullptr, 0));
+//          0,         0, NULL, (void**)&config, nullptr, nullptr, 0));
+            0, my_stream, NULL, (void**)&config, nullptr, nullptr, 0));
     }
 
     hipDeviceSynchronize();
@@ -201,8 +201,8 @@ int main() {
         hipExtModuleLaunchKernel(Function, 
             LEN, 1, 1, 
             LEN, 1, 1, 
-//          0, my_stream, NULL, (void**)&config, nullptr, nullptr, 1));
-            0,         0, NULL, (void**)&config, nullptr, nullptr, 1));
+//          0,         0, NULL, (void**)&config, nullptr, nullptr, 1));
+            0, my_stream, NULL, (void**)&config, nullptr, nullptr, 1));
     }
 
     hipDeviceSynchronize();
