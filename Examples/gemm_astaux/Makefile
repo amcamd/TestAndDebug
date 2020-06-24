@@ -6,6 +6,7 @@ INC  += -I/opt/rocm/include
 LIB   = -L/opt/rocm/lib
 LIB  += -lhip_hcc
 
+EXE = a.out
 
 all: lib test
 
@@ -14,8 +15,8 @@ lib:
 	$(GCC) -shared -fPIC -o libastaux.so            ast_gemm.o
 
 test:
-	$(GCC) -D__HIP_PLATFORM_HCC__ -c test_gemm.cpp  $(INC)
-	$(GCC) -fopenmp -o test_gemm  test_gemm.o ./libastaux.so  $(LIB)
+	$(GCC) -D__HIP_PLATFORM_HCC__ -c main.cpp  $(INC)
+	$(GCC) -fopenmp -o $(EXE) main.o ./libastaux.so  $(LIB)
 
 clean:
-	rm -f *.o *.so test_gemm
+	rm -f *.o *.so $(EXE)
