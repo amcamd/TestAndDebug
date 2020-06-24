@@ -14,13 +14,6 @@
         exit(0);                                                                         \
     }
 
-/*
-template <typename T>
-void test_gemm(int m,int n, int k, int lda, int ldb, int ldc,
-               int batch_count, int iterations, int pattern)
-{
-}
-*/
 
 //----------------------------------------------------------------------------
 template <typename T>
@@ -216,18 +209,6 @@ int main(int argc, char** argv)
     test_gemm<float>(
         m, n, k, lda, ldb, ldc, batch_count, iterations, pattern);
     printf("\n");
-/*
-    test_gemm<double>(
-        m, n, k, lda, ldb, ldc, batch_count, iterations, pattern);
-    printf("\n");
 
-    test_gemm<std::complex<float>>(
-        m, n, k, lda, ldb, ldc, batch_count, iterations, pattern);
-    printf("\n");
-
-    test_gemm<std::complex<double>>(
-        m, n, k, lda, ldb, ldc, batch_count, iterations, pattern);
-    printf("\n");
-*/
     return (EXIT_SUCCESS);
 }
