@@ -2,11 +2,25 @@
 #include <complex>
 #include <iostream>
 #include <string>
+#include <random>
 
 #include <hip/hip_runtime.h>
 #include <omp.h>
 
+#include "rocblas.h"
 #include "astaux.h"
+
+#define M_DIM 128
+#define N_DIM 128
+#define K_DIM 8 
+#define TRANS_A rocblas_operation_none
+#define TRANS_B rocblas_operation_none
+#define ALPHA 1.1
+#define BETA 0.3
+#define P_MAX 8
+#define PERFORMANCE_TEST true
+#define CORRECTNESS_TEST false
+
 
 #define HIP_CHECK(status)                                                                \
     if (status != hipSuccess) {                                                          \
@@ -14,31 +28,366 @@
         exit(0);                                                                         \
     }
 
+typedef enum output_mode_
+{
+    terse = 0,
+    verbose = 1
+} output_mode;
+
+template <typename T>
+void printMatrix_batched(const char* name, T* A, rocblas_int m, rocblas_int n, rocblas_int lda, rocblas_int stride_a, rocblas_int batch_count)
+{
+    int m_max = 4, n_max = 4, batch_count_max = 4;
+    printf("---------- %s ----------\n", name);
+    for( int b = 0; b < batch_count && b < batch_count_max; b++)
+    {
+        for( int i = 0; i < m && i < m_max; i++)
+        {
+            for( int j = 0; j < n && j < n_max; j++)
+            {
+                printf("%f ",A[i + j * lda + b * stride_a]);
+            }
+            printf("\n");
+        }
+        printf("-----------------------------------------\n");
+    }
+}
+
+
+void usage(char *argv[])
+{
+//  printf("Usage: %s\n", argv[0]);
+//  printf(" -m<gemm m, default %d>\n", M_DIM);
+//  printf(" -n<gemm n, default %d>\n", N_DIM);
+//  printf(" -k<gemm k, default %d>\n", K_DIM);
+//  printf(" -t<gemm NN, NT, TN, TT, default NN>\n");
+//  printf(" -a<gemm lda, default %d>\n", M_DIM);
+//  printf(" -b<gemm ldb, default %d>\n", K_DIM);
+//  printf(" -c<gemm ldc, default %d>\n", M_DIM);
+//  printf(" -o<output verbose or terse: v or t, default v\n");
+//  printf(" -f<output first line: y or n, default y\n");
+//  exit (8);
+
+
+    std::cerr << "Usage: " << argv[0] << " <options>\n"
+        << "options:\n"
+        << "\t-h, --help\t\t\t\tShow this help message\n"
+        << "\t-p \t\t\tp\t\tprecision s, d, c, z, h\n"
+        << "\t-m \t\t\tm\t\trocblas_gemm_ex argument m\n"
+        << "\t-n \t\t\tn\t\trocblas_gemm_ex argument n\n"
+        << "\t-k \t\t\tk\t\trocblas_gemm_ex argument k\n"
+        << "\t--trans_a \t\ttrans_a \tn, N, t, or T\n"
+        << "\t--trans_b \t\ttrans_b \tn, N, t, or T\n"
+        << "\t--lda \t\t\tlda \t\trocblas_gemm_ex argument lda\n"
+        << "\t--ldb \t\t\tldb \t\trocblas_gemm_ex argument ldb\n"
+        << "\t--ldc \t\t\tldc \t\trocblas_gemm_ex argument ldc\n"
+        << "\t--alpha \t\talpha \t\trocblas_gemm_ex argument alpha\n"
+        << "\t--beta \t\t\tbeta \t\trocblas_gemm_ex argument beta\n"
+        << "\t--header \t\theader \t\tprint header for output\n"
+        << "\t-v, --verbose\t\t\t\tverbose output\n"
+        << std::endl;
+}
+
+
+int parse_args(int argc, char *argv[], int &m, int &n, int &k, int &batch_count, int &lda, int &ldb, int &ldc,
+                rocblas_operation &trans_a, rocblas_operation &trans_b, float &alpha, float &beta, bool &verbose, char &precision)
+{
+    if(argc >= 2)
+    {
+        for(int i = 1; i < argc; ++i)
+        {
+            std::string arg = argv[i];
+            if((arg.at(0) == '-') || ((arg.at(0) == '-') && (arg.at(1) == '-')))
+            {
+                if((arg == "-h") || (arg == "--help"))
+                {
+                    return EXIT_FAILURE;
+                }
+                if((arg == "-v") || (arg == "--verbose"))
+                {
+                    verbose = true;
+                }
+                else if((arg == "-p") && (i + 1 < argc))
+                {
+                    precision = *(argv[++i]);
+                }
+                else if((arg == "-m") && (i + 1 < argc))
+                {
+                    m = atoi(argv[++i]);
+                }
+                else if((arg == "-n") && (i + 1 < argc))
+                {
+                    n = atoi(argv[++i]);
+                }
+                else if((arg == "-k") && (i + 1 < argc))
+                {
+                    k = atoi(argv[++i]);
+                }
+                else if((arg == "--batch_count") && (i + 1 < argc))
+                {
+                    batch_count = atoi(argv[++i]);
+                }
+                else if((arg == "--lda") && (i + 1 < argc))
+                {
+                    lda = atoi(argv[++i]);
+                }
+                else if((arg == "--ldb") && (i + 1 < argc))
+                {
+                    ldb = atoi(argv[++i]);
+                }
+                else if((arg == "--ldc") && (i + 1 < argc))
+                {
+                    ldc = atoi(argv[++i]);
+                }
+                else if((arg == "--alpha") && (i + 1 < argc))
+                {
+                    alpha = static_cast<float>(atoi(argv[++i]));
+                }
+                else if((arg == "--beta") && (i + 1 < argc))
+                {
+                    beta = static_cast<float>(atoi(argv[++i]));
+                }
+
+                else if((arg == "--trans_a") && (i + 1 < argc))
+                {
+                    ++i;
+                    if(strncmp(argv[i], "N", 1) == 0 || strncmp(argv[i], "n", 1) == 0)
+                    {
+                        trans_a = rocblas_operation_none;
+                    }
+                    else if(strncmp(argv[i], "T", 1) == 0 || strncmp(argv[i], "t", 1) == 0)
+                    {
+                        trans_a = rocblas_operation_transpose;
+                    }
+                    else
+                    {
+                        std::cerr << "error with " << arg << std::endl;
+                        std::cerr << "do not recognize value " << argv[i];
+                        return EXIT_FAILURE;
+                    }
+                }
+                else if((arg == "--trans_b") && (i + 1 < argc))
+                {
+                    ++i;
+                    if(strncmp(argv[i], "N", 1) == 0 || strncmp(argv[i], "n", 1) == 0)
+                    {
+                        trans_b = rocblas_operation_none;
+                    }
+                    else if(strncmp(argv[i], "T", 1) == 0 || strncmp(argv[i], "t", 1) == 0)
+                    {
+                        trans_b = rocblas_operation_transpose;
+                    }
+                    else
+                    {
+                        std::cerr << "error with " << arg << std::endl;
+                        std::cerr << "do not recognize value " << argv[i];
+                        return EXIT_FAILURE;
+                    }
+                }
+
+
+
+
+
+            }
+        }
+    }
+    return EXIT_SUCCESS;
+
+
+
+/*
+    alpha = 2;
+    beta = 3;
+    while (argc > 1)
+    {
+        if (argv[1][0] == '-')
+        {
+            switch (argv[1][1])
+            {
+                case 't':
+                    if(strcmp(&argv[1][2], "NN") == 0)
+                    {
+                        trans_a = rocblas_operation_none;
+                        trans_b = rocblas_operation_none;
+                    }
+                    else if(strncmp(&argv[1][2], "NT", 2) == 0)
+                    {
+                        trans_a = rocblas_operation_none;
+                        trans_b = rocblas_operation_transpose;
+                    }
+                    else if(strncmp(&argv[1][2], "TN", 2) == 0)
+                    {
+                        trans_a = rocblas_operation_transpose;
+                        trans_b = rocblas_operation_none;
+                    }
+                    else if(strncmp(&argv[1][2], "TT", 2) == 0)
+                    {
+                        trans_a = rocblas_operation_transpose;
+                        trans_b = rocblas_operation_transpose;
+                    }
+                    break;
+                case 'o':
+                    if(strcmp(&argv[1][2], "v") == 0)
+                    {
+                        output = verbose;
+                    }
+                    else if(strcmp(&argv[1][2], "t") == 0)
+                    {
+                        output = terse;
+                    }
+                    break;
+                case 'f':
+                    if(strcmp(&argv[1][2], "y") == 0)
+                    {
+                        first = true;
+                    }
+                    else if(strcmp(&argv[1][2], "n") == 0)
+                    {
+                        first = false;
+                    }
+                    break;
+                case 'm':
+                    M = atoi(&argv[1][2]);
+                    break;
+                case 'n':
+                    N = atoi(&argv[1][2]);
+                    break;
+                case 'k':
+                    K = atoi(&argv[1][2]);
+                    break;
+                case 'a':
+                    lda = atoi(&argv[1][2]);
+                    break;
+                case 'b':
+                    ldb = atoi(&argv[1][2]);
+                    break;
+                case 'c':
+                    ldc = atoi(&argv[1][2]);
+                    break;
+                default:
+                    printf("Wrong Argument: %s\n", argv[1]);
+                    return (1);
+            }
+        }
+        else
+        {
+            printf("Wrong Argument: %s\n", argv[1]);
+            return (1);
+        }
+
+        ++argv;
+        --argc;
+    }
+    return (0);
+    */
+}
+
+template <typename T>
+void gemm_ref(rocblas_operation trans_a, rocblas_operation trans_b, rocblas_int m, rocblas_int n, rocblas_int k,
+        T alpha, T* a, rocblas_int lda, T* b, rocblas_int ldb, T beta, T* c, rocblas_int ldc)
+{
+    size_t a_inc_1 = trans_a == rocblas_operation_none ? 1 : lda;
+    size_t a_inc_2 = trans_a == rocblas_operation_none ? lda : 1;
+    size_t b_inc_1 = trans_b == rocblas_operation_none ? 1 : ldb;
+    size_t b_inc_2 = trans_b == rocblas_operation_none ? ldb : 1;
+    size_t c_inc_1 = 1, c_inc_2 = ldc;
+    for(int i1 = 0; i1 < m; i1++)
+    {
+        for(int i2 = 0; i2 < n; i2++)
+        {
+            T temp = 0;
+            for(int i3 = 0; i3 < k; i3++)
+            {
+                temp += a[i1*a_inc_1 + i3* a_inc_2] * b[i3*b_inc_1 + i2*b_inc_2];
+            }
+            c[i1*c_inc_1 + i2*c_inc_2] = beta * c[i1*c_inc_1 + i2*c_inc_2] + alpha * temp;
+        }
+    }
+}
+
+template <typename T>
+void batch_diff(rocblas_int m, rocblas_int n, 
+        T* Cref, rocblas_int ldc_ref, rocblas_stride stridec_ref,
+        T* h_C, rocblas_int ldc, rocblas_stride stridec,
+        rocblas_int batch_count)
+{
+    for(int i3 = 0; i3 < batch_count; i3++)
+    {
+        for(int i1 = 0; i1 < m; i1++)
+        {
+            for(int i2 = 0; i2 < n; i2++)
+            {
+                if(Cref[i1 + 12 * ldc_ref + i3 * stridec_ref] != h_C[i1 + 12 * ldc + i3 * stridec])
+                {
+                    std::cout << "ERROR: i1,i2,i3 = " << i1 << ", " << i2 << ", " << i3 << std::endl;
+                    return;
+                }
+
+            }
+        }
+    }
+}
+
+template <typename T>
+void alternating_signs(rocblas_int n1, rocblas_int n2, rocblas_int batch_count, rocblas_int lda, rocblas_int stride_a, T** matrix)
+{
+    // make b matrix entries have alternating signs like checkerboard
+    T sign;
+    for (int i3 = 0; i3 < batch_count; i3++)
+    {
+        for (int i1 = 0; i1 < n1; i1++)
+        {
+            for (int i2 = 0; i2 < n2; i2++)
+            {
+                sign = (i1 + i2) & 1 ? 1 : -1;
+                (*matrix)[i1 + i2*lda + i3*stride_a] *= sign;
+            }
+        }
+    }
+}
+
 
 //----------------------------------------------------------------------------
 template <typename T>
-void test_gemm(int m,int n, int k, int lda, int ldb, int ldc,
-               int batch_count, int iterations, int pattern)
+void test_gemm(rocblas_operation trans_a, rocblas_operation trans_b, 
+               int m, int n, int k, int lda, int ldb, int ldc,
+               T alpha, T beta, int batch_count, int iterations, int pattern)
 {
+    rocblas_int a_n_1, a_n_2, b_n_1, b_n_2, c_n_1, c_n_2;
+    a_n_1 = trans_a == rocblas_operation_none ? m : k;
+    a_n_2 = trans_a == rocblas_operation_none ? k : m;
+    b_n_1 = trans_b == rocblas_operation_none ? k : n;
+    b_n_2 = trans_b == rocblas_operation_none ? n : k;
+    c_n_1 = m;
+    c_n_2 = n;
+
+    rocblas_int stride_a = lda * a_n_2;
+    rocblas_int stride_b = ldb * b_n_2;
+    rocblas_int stride_c = ldc * c_n_2;
+
+    std::size_t size_a = stride_a * batch_count;
+    std::size_t size_b = stride_b * batch_count;
+    std::size_t size_c = stride_c * batch_count;
+
     //----------
     // GPU setup
-    std::size_t size_A = lda*k*batch_count;
-    std::size_t size_B = ldb*n*batch_count;
-    std::size_t size_C = ldc*n*batch_count;
-    T* h_A = (T*)malloc(sizeof(T)*size_A);
-    T* h_B = (T*)malloc(sizeof(T)*size_B);
-    T* h_C = (T*)malloc(sizeof(T)*size_C);
+    T* h_A = (T*)malloc(sizeof(T)*size_a);
+    T* h_B = (T*)malloc(sizeof(T)*size_b);
+    T* h_C = (T*)malloc(sizeof(T)*size_c);
+    T* Cref = (T*)malloc(sizeof(T)*size_c);
     assert(h_A != nullptr);
     assert(h_B != nullptr);
     assert(h_C != nullptr);
+    assert(Cref != nullptr);
 
 
     T* d_A;
     T* d_B;
     T* d_C;
-    HIP_CHECK(hipMalloc(&d_A, sizeof(T)*size_A));
-    HIP_CHECK(hipMalloc(&d_B, sizeof(T)*size_B));
-    HIP_CHECK(hipMalloc(&d_C, sizeof(T)*size_C));
+    HIP_CHECK(hipMalloc(&d_A, sizeof(T)*size_a));
+    HIP_CHECK(hipMalloc(&d_B, sizeof(T)*size_b));
+    HIP_CHECK(hipMalloc(&d_C, sizeof(T)*size_c));
     T** h_Aptr = (T**)malloc(sizeof(T*)*batch_count);
     T** h_Bptr = (T**)malloc(sizeof(T*)*batch_count);
     T** h_Cptr = (T**)malloc(sizeof(T*)*batch_count);
@@ -46,9 +395,9 @@ void test_gemm(int m,int n, int k, int lda, int ldb, int ldc,
     assert(h_Bptr != nullptr);
     assert(h_Cptr != nullptr);
     for (int i = 0; i < batch_count; ++i) {
-        h_Aptr[i] = d_A + lda*k*i;
-        h_Bptr[i] = d_B + ldb*n*i;
-        h_Cptr[i] = d_C + ldc*n*i;
+        h_Aptr[i] = d_A + stride_a * i;
+        h_Bptr[i] = d_B + stride_b * i;
+        h_Cptr[i] = d_C + stride_c * i;
     }
 
     T** d_Aptr;
@@ -57,46 +406,79 @@ void test_gemm(int m,int n, int k, int lda, int ldb, int ldc,
     HIP_CHECK(hipMalloc(&d_Aptr, sizeof(T*)*batch_count));
     HIP_CHECK(hipMalloc(&d_Bptr, sizeof(T*)*batch_count));
     HIP_CHECK(hipMalloc(&d_Cptr, sizeof(T*)*batch_count));
-    HIP_CHECK(hipMemcpy(d_Aptr, h_Aptr, sizeof(T*)*batch_count,
-                       hipMemcpyHostToDevice));
-    HIP_CHECK(hipMemcpy(d_Bptr, h_Bptr, sizeof(T*)*batch_count,
-                       hipMemcpyHostToDevice));
-    HIP_CHECK(hipMemcpy(d_Cptr, h_Cptr, sizeof(T*)*batch_count,
-                       hipMemcpyHostToDevice));
+    HIP_CHECK(hipMemcpy(d_Aptr, h_Aptr, sizeof(T*)*batch_count, hipMemcpyHostToDevice));
+    HIP_CHECK(hipMemcpy(d_Bptr, h_Bptr, sizeof(T*)*batch_count, hipMemcpyHostToDevice));
+    HIP_CHECK(hipMemcpy(d_Cptr, h_Cptr, sizeof(T*)*batch_count, hipMemcpyHostToDevice));
+
+
+    std::random_device rd;  //Will be used to obtain a seed for the random number engine
+    std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
+    std::uniform_int_distribution<> dis(1, 4);
+
+    for(int i = 0; i < size_a; i++){h_A[i] = dis(gen);}
+    for(int i = 0; i < size_b; i++){h_B[i] = dis(gen);}
+    for(int i = 0; i < size_c; i++){h_C[i] = dis(gen);}
+
+//  for(int i = 0; i < size_a; i++){h_A[i] = 1.0;}
+//  for(int i = 0; i < size_b; i++){h_B[i] = 1.0;}
+//  for(int i = 0; i < size_c; i++){h_C[i] = 1.0;}
+//
+//
+
+    std::cout << " size_b = " << size_b << std::endl;
+    alternating_signs(b_n_1, b_n_2, batch_count, ldb, stride_b, &h_B);
+
+    /*
+    // make b matrix entries have alternating signs like checkerboard
+    T sign;
+    for (int i3 = 0; i3 < batch_count; i3++)
+    {
+        for (int i1 = 0; i1 < b_n_1; i1++)
+        {
+            for (int i2 = 0; i2 < b_n_2; i2++)
+            {
+                sign = (i1 + i2) & 1 ? 1 : -1;
+                h_B[i1 + i2*ldb + i3*stride_b] *= sign;
+            }
+        }
+    }
+    */
+
+
+
+    memcpy(Cref, h_C, sizeof(T)*size_c);
 
     int iseed[4] = {0, 0, 0, 1};
-//  LAPACKE_larnv(2, iseed, size_A, h_A);
-//  LAPACKE_larnv(2, iseed, size_B, h_B);
-//  LAPACKE_larnv(2, iseed, size_C, h_C);
+//  LAPACKE_larnv(2, iseed, size_a, h_A);
+//  LAPACKE_larnv(2, iseed, size_b, h_B);
+//  LAPACKE_larnv(2, iseed, size_c, h_C);
 
 //  hipblasHandle_t handle;
 //  hipblasCreate(&handle);
 
-    T alpha;
-    T beta;
-    switch (pattern) {
-        case 1:
-            alpha = T(1.0);
-            beta = T(0.0);
-            break;
-        case 2:
-            alpha = T(1.0);
-            beta = T(1.0);
-            break;
-        case 3:
-            alpha = T(1.0);
-            beta = T(1.0);
-            break;
-        case 4:
-            alpha = T(-1.0);
-            beta = T(0.0);
-            break;
-        case 5:
-            alpha = T(1.0);
-            beta = T(0.0);
-            break;
-        default: assert(false);
-    }
+//  switch (pattern) {
+//      case 1:
+//          alpha = T(1.0);
+//          beta = T(0.0);
+//          break;
+//      case 2:
+//          alpha = T(1.0);
+//          beta = T(1.0);
+//          break;
+//      case 3:
+//          alpha = T(1.0);
+//          beta = T(1.0);
+//          break;
+//      case 4:
+//          alpha = T(-1.0);
+//          beta = T(0.0);
+//          break;
+//      case 5:
+//          alpha = T(1.0);
+//          beta = T(0.0);
+//          break;
+//      default: assert(false);
+//  }
 
     hipStream_t stream;
     HIP_CHECK(hipStreamCreate(&stream));
@@ -105,13 +487,11 @@ void test_gemm(int m,int n, int k, int lda, int ldb, int ldc,
     // GPU run
     double min_time = std::numeric_limits<double>::infinity();
 
-    T* Cref = (T*)malloc(sizeof(T)*size_C);
-
     for (int i = 0; i < iterations; ++i) {
 
-        HIP_CHECK(hipMemcpy(d_A, h_A, sizeof(T)*size_A, hipMemcpyHostToDevice));
-        HIP_CHECK(hipMemcpy(d_B, h_B, sizeof(T)*size_B, hipMemcpyHostToDevice));
-        HIP_CHECK(hipMemcpy(d_C, h_C, sizeof(T)*size_C, hipMemcpyHostToDevice));
+        HIP_CHECK(hipMemcpy(d_A, h_A, sizeof(T)*size_a, hipMemcpyHostToDevice));
+        HIP_CHECK(hipMemcpy(d_B, h_B, sizeof(T)*size_b, hipMemcpyHostToDevice));
+        HIP_CHECK(hipMemcpy(d_C, h_C, sizeof(T)*size_c, hipMemcpyHostToDevice));
 
         double start;
         double elapsed;
@@ -129,6 +509,8 @@ void test_gemm(int m,int n, int k, int lda, int ldb, int ldc,
             min_time = elapsed;
     }
 
+    HIP_CHECK(hipMemcpy(h_C, d_C, sizeof(T)*size_c, hipMemcpyDeviceToHost));
+    printMatrix_batched("C    after", h_C, m, n, ldc, stride_c, batch_count);
 
     double ops;
     double bytes;
@@ -148,14 +530,36 @@ void test_gemm(int m,int n, int k, int lda, int ldb, int ldc,
 
     //------------------
     // CPU setup and run
-    assert(Cref != nullptr);
-    memcpy(Cref, h_C, sizeof(T)*size_C);
+
+    /*
+    if(trans_a == rocblas_operation_none)
+    {
+        printMatrix_batched("h_A        ", h_A, m, k, lda, stride_a, batch_count);
+    }
+    else
+    {
+        printMatrix_batched("trans h_A  ", h_A, k, m, lda, stride_a, batch_count);
+    }
+    printMatrix_batched("h_B        ", h_B, k, n, ldb, stride_b, batch_count);
+    printMatrix_batched("Cref before", Cref, m, n, ldc, stride_c, batch_count);
+    */
+
+    for (int b = 0; b < batch_count; ++b) {
+        gemm_ref(trans_a, trans_b,
+                   m, n, k,
+                   alpha, &h_A[b*lda*k], lda,
+                          &h_B[b*ldb*n], ldb,
+                   beta,  &Cref[b*ldc*n], ldc);
+    }
+
+    std::cout << "alpha, beta = " << alpha << ", " << beta << "\n";
+    printMatrix_batched("Cref after", Cref, m, n, ldc, stride_c, batch_count);
+
 
     // compare GPU (h_C) to CPU (Cref)
-    HIP_CHECK(hipMemcpy(h_C, d_C, sizeof(T)*size_C, hipMemcpyDeviceToHost));
     // batch_print(m, n, Cref, ldc, batch_count);
     // batch_print(m, n, h_C, ldc, batch_count);
-//  batch_diff(m, n, Cref, ldc, h_C, ldc, batch_count);
+    batch_diff(m, n, Cref, ldc, stride_c, h_C, ldc, stride_c, batch_count);
 
 
     //--------
@@ -178,36 +582,59 @@ void test_gemm(int m,int n, int k, int lda, int ldb, int ldc,
     HIP_CHECK(hipStreamDestroy(stream));
 }
 
-
 //----------------------------------------------------------------------------
 int main(int argc, char** argv)
 {
-//  assert(argc == 10);
-//  int m = std::atoi(argv[1]);
-//  int n = std::atoi(argv[2]);
-//  int k = std::atoi(argv[3]);
-//  int lda = std::atoi(argv[4]);
-//  int ldb = std::atoi(argv[5]);
-//  int ldc = std::atoi(argv[6]);
-//  int batch_count = std::atoi(argv[7]);
-//  int iterations = std::atoi(argv[8]);
-//  int pattern = std::atoi(argv[9]);
-//  assert(argc == 10);
-    int m = 128;
-    int n = 128;
-    int k = 128;
-    int lda = 128;
-    int ldb = 128;
-    int ldc = 128;
+    int m = M_DIM;
+    int n = N_DIM;
+    int k = K_DIM;
+    int lda = 0;
+    int ldb = 0;
+    int ldc = 0;
     int batch_count = 2;
-    int iterations = 2;
+    int iterations = 1;
     int pattern = 1;
-    assert(lda >= m);
-    assert(ldb >= k);
-    assert(ldc >= m);
+    rocblas_operation trans_a = rocblas_operation_none;
+    rocblas_operation trans_b = rocblas_operation_none;
+    bool first = true;
+    output_mode output = verbose;
+    float alpha = 1, beta = 1;
+    char precision = 's';
+    bool verbose = false;
 
-    test_gemm<float>(
-        m, n, k, lda, ldb, ldc, batch_count, iterations, pattern);
+    if( parse_args(argc, argv, m, n, k, batch_count, lda, ldb, ldc, trans_a, trans_b, alpha, beta, verbose, precision))
+    {
+        usage(argv);
+        return -1;
+    }
+
+    rocblas_int a_n_1 = (trans_a == rocblas_operation_none ? m : k);
+    rocblas_int b_n_1 = (trans_b == rocblas_operation_none ? k : n);
+    rocblas_int c_n_1 = m;
+
+    lda = lda >= a_n_1 ? lda : a_n_1;
+    ldb = ldb >= b_n_1 ? ldb : b_n_1;
+    ldc = ldc >= c_n_1 ? ldc : c_n_1;
+
+    char trans_a_char = trans_a == rocblas_operation_none ? 'N' : 'T';
+    char trans_b_char = trans_b == rocblas_operation_none ? 'N' : 'T';
+
+    std::cout << "trans_a, trans_b, m, n, k, lda, ldb, ldc, alpha, beta, batch_count = " 
+        << trans_a_char << ", " << trans_b_char << ", " 
+        << m << ", " << n << ", " << k << ", " 
+        << lda << ", " << ldb << ", " << ldc << ", " 
+        << alpha << ", " << beta << ", " 
+        << batch_count << std::endl;
+
+    if(precision == 's')
+    {
+        test_gemm<float>(trans_a, trans_b, m, n, k, lda, ldb, ldc, alpha, beta, batch_count, iterations, pattern);
+    }
+    else
+    {
+        std::cout << "ERROR: precision not implemented" << std::endl;
+    }
+
     printf("\n");
 
     return (EXIT_SUCCESS);

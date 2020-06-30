@@ -1,10 +1,16 @@
 
+ROCBLAS_INSTALL_DIR=/home/achapman/repos/ROCmSoftwarePlatform/rocBLAS/build/release/rocblas-install/rocblas
+ROCBLAS_INCLUDE=$(ROCBLAS_INSTALL_DIR)/include
+ROCBLAS_LIB_PATH=$(ROCBLAS_INSTALL_DIR)/lib
+ROCBLAS_LIB=rocblas
+
+
 HIPCC = /opt/rocm/bin/hipcc
 GCC   = g++
 
-INC  += -I/opt/rocm/include
-LIB   = -L/opt/rocm/lib
-LIB  += -lhip_hcc
+INC  += -I/opt/rocm/include -I$(ROCBLAS_INCLUDE)
+LIB   = -L/opt/rocm/lib -L$(ROCBLAS_LIB_PATH)
+LIB  += -lhip_hcc -l$(ROCBLAS_LIB)
 
 EXE = a.out
 

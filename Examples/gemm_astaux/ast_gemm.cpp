@@ -102,6 +102,8 @@ static void ast_gemm_batched_kernel(
         for (int m = 0; m < BLK_M/DIM_M; ++m) {
             int coord_dCm = blx*BLK_M + m*DIM_M+thx;
             int coord_dCn = bly*BLK_N + n*DIM_N+thy;
+//              dC[coord_dCn*ldc + coord_dCm] = 9.0;
+ 
             if (alpha == 1 && beta == 1) {
                 dC[coord_dCn*ldc + coord_dCm] += rC[n][m];
             }
@@ -111,6 +113,7 @@ static void ast_gemm_batched_kernel(
             else if (alpha == 1 && beta == 0) {
                 dC[coord_dCn*ldc + coord_dCm] = rC[n][m];
             }
+
         }
     }
 }
@@ -133,21 +136,84 @@ void astGemmBatched(int m, int n, int k,
         const int blk_k =  4;
         dim3 dimBlock(dim_m, dim_n, 1);
         dim3 dimGrid(m/blk_m, n/blk_n, batch_count);
-        hipLaunchKernelGGL(
-            HIP_KERNEL_NAME(
-                ast_gemm_batched_kernel<
-                    T,
-                    dim_m, dim_n,
-                    blk_m, blk_n, blk_k,
-                    blk_m, blk_k,
-                    blk_k, blk_n,
-                    1, 1>),
-            dimGrid, dimBlock, 0, stream,
-            m, n, k,
-            dA_array, lda,
-            dB_array, ldb,
-            dC_array, ldc,
-            batch_count);
+        std::cout << "before hipLaunchKernelGGL" << std::endl;
+        std::cout << "*alpha, *beta = " << *alpha << ", " << *beta << std::endl;
+        if(*alpha == 1.0 && *beta == 1.0)
+        {
+            hipLaunchKernelGGL(
+                HIP_KERNEL_NAME(
+                    ast_gemm_batched_kernel<
+                        T,
+                        dim_m, dim_n,
+                        blk_m, blk_n, blk_k,
+                        blk_m, blk_k,
+                        blk_k, blk_n,
+                        1, 1>),
+                dimGrid, dimBlock, 0, stream,
+                m, n, k,
+                dA_array, lda,
+                dB_array, ldb,
+                dC_array, ldc,
+                batch_count);
+        }
+        else if(*alpha == 1.0 && *beta == -1.0)
+        {
+            hipLaunchKernelGGL(
+                HIP_KERNEL_NAME(
+                    ast_gemm_batched_kernel<
+                        T,
+                        dim_m, dim_n,
+                        blk_m, blk_n, blk_k,
+                        blk_m, blk_k,
+                        blk_k, blk_n,
+                        1, 1>),
+                dimGrid, dimBlock, 0, stream,
+                m, n, k,
+                dA_array, lda,
+                dB_array, ldb,
+                dC_array, ldc,
+                batch_count);
+        }
+        else if(*alpha == 1.0 && *beta == 0.0)
+        {
+            hipLaunchKernelGGL(
+                HIP_KERNEL_NAME(
+                    ast_gemm_batched_kernel<
+                        T,
+                        dim_m, dim_n,
+                        blk_m, blk_n, blk_k,
+                        blk_m, blk_k,
+                        blk_k, blk_n,
+                        1, 0>),
+                dimGrid, dimBlock, 0, stream,
+                m, n, k,
+                dA_array, lda,
+                dB_array, ldb,
+                dC_array, ldc,
+                batch_count);
+        }
+        else if(*alpha == -1.0 && *beta == 0.0)
+        {
+            hipLaunchKernelGGL(
+                HIP_KERNEL_NAME(
+                    ast_gemm_batched_kernel<
+                        T,
+                        dim_m, dim_n,
+                        blk_m, blk_n, blk_k,
+                        blk_m, blk_k,
+                        blk_k, blk_n,
+                        -1, 0>),
+                dimGrid, dimBlock, 0, stream,
+                m, n, k,
+                dA_array, lda,
+                dB_array, ldb,
+                dC_array, ldc,
+                batch_count);
+        }
+        else
+        {
+            std::cout << "ERROR, only supports (alpha,beta) = (1,1), (1,0), (-1,0)" << std::endl;
+        }
 //  }
 //  else if (pattern == 4) {
 //      // m is big, n is big, k = 32
