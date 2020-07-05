@@ -327,7 +327,7 @@ void test_gemm(rocblas_operation trans_a, rocblas_operation trans_b,
         double elapsed;
         start = omp_get_wtime();
 
-            astGemmBatched<T>(m, n, k,
+            gemm_batched_solution<T>(m, n, k,
                               &alpha, d_Aptr, lda,
                                       d_Bptr, ldb,
                               &beta,  d_Cptr, ldc,
@@ -445,8 +445,8 @@ int main(int argc, char** argv)
     char trans_a_char = trans_a == rocblas_operation_none ? 'N' : 'T';
     char trans_b_char = trans_b == rocblas_operation_none ? 'N' : 'T';
 
-    std::cout << "trans_a, trans_b, m, n, k, lda, ldb, ldc, alpha, beta, batch_count = " 
-        << trans_a_char << ", " << trans_b_char << ", " 
+    std::cout << "precision, trans_a, trans_b, m, n, k, lda, ldb, ldc, alpha, beta, batch_count = " 
+        << precision << trans_a_char << trans_b_char << ", " 
         << m << ", " << n << ", " << k << ", " 
         << lda << ", " << ldb << ", " << ldc << ", " 
         << alpha << ", " << beta << ", " 
@@ -460,6 +460,10 @@ int main(int argc, char** argv)
     if(precision == 's')
     {
         test_gemm<float>(trans_a, trans_b, m, n, k, lda, ldb, ldc, alpha, beta, batch_count, iterations, pattern, verbose);
+    }
+    else if(precision == 'd')
+    {
+        test_gemm<double>(trans_a, trans_b, m, n, k, lda, ldb, ldc, alpha, beta, batch_count, iterations, pattern, verbose);
     }
     else
     {

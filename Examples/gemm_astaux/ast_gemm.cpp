@@ -13,7 +13,7 @@ template <typename T,
           int DIM_M_B, int DIM_N_B>
 __attribute__((amdgpu_flat_work_group_size(DIM_M*DIM_N,DIM_M*DIM_N)))
 __global__
-static void ast_gemm_batched_kernel(
+static void gemm_batched_kernel(
     int M, int N, int K, const T alpha,
     const T* const dA_array[], int lda,
     const T* const dB_array[], int ldb,
@@ -89,7 +89,7 @@ template <typename T,
           int alpha, int beta>
 __attribute__((amdgpu_flat_work_group_size(DIM_M*DIM_N,DIM_M*DIM_N)))
 __global__
-static void ast_gemm_batched_kernel(
+static void gemm_batched_kernel(
     int M, int N, int K,
     const T* const dA_array[], int lda,
     const T* const dB_array[], int ldb,
@@ -154,6 +154,9 @@ static void ast_gemm_batched_kernel(
             if (alpha == 1 && beta == 1) {
                 dC[coord_dCn*ldc + coord_dCm] += rC[n][m];
             }
+            else if (alpha ==  1 && beta == -1) {
+                dC[coord_dCn*ldc + coord_dCm] = -dC[coord_dCn*ldc + coord_dCm] + rC[n][m];
+            }
             else if (alpha == -1 && beta == 0) {
                 dC[coord_dCn*ldc + coord_dCm] = -rC[n][m];
             }
@@ -167,7 +170,7 @@ static void ast_gemm_batched_kernel(
 
 //----------------------------------------------------------------------------
 template <typename T>
-void astGemmBatched(int m, int n, int k,
+void gemm_batched_solution(int m, int n, int k,
                     const T* alpha, const T* const dA_array[], int lda,
                                     const T* const dB_array[], int ldb,
                     const T* beta,        T* const dC_array[], int ldc,
@@ -187,7 +190,7 @@ void astGemmBatched(int m, int n, int k,
         {
             hipLaunchKernelGGL(
                 HIP_KERNEL_NAME(
-                    ast_gemm_batched_kernel<
+                    gemm_batched_kernel<
                         T,
                         dim_m, dim_n,
                         blk_m, blk_n, blk_k,
@@ -205,7 +208,7 @@ void astGemmBatched(int m, int n, int k,
         {
             hipLaunchKernelGGL(
                 HIP_KERNEL_NAME(
-                    ast_gemm_batched_kernel<
+                    gemm_batched_kernel<
                         T,
                         dim_m, dim_n,
                         blk_m, blk_n, blk_k,
@@ -223,7 +226,7 @@ void astGemmBatched(int m, int n, int k,
         {
             hipLaunchKernelGGL(
                 HIP_KERNEL_NAME(
-                    ast_gemm_batched_kernel<
+                    gemm_batched_kernel<
                         T,
                         dim_m, dim_n,
                         blk_m, blk_n, blk_k,
@@ -241,7 +244,7 @@ void astGemmBatched(int m, int n, int k,
         {
             hipLaunchKernelGGL(
                 HIP_KERNEL_NAME(
-                    ast_gemm_batched_kernel<
+                    gemm_batched_kernel<
                         T,
                         dim_m, dim_n,
                         blk_m, blk_n, blk_k,
@@ -259,7 +262,7 @@ void astGemmBatched(int m, int n, int k,
         {
             hipLaunchKernelGGL(
                 HIP_KERNEL_NAME(
-                    ast_gemm_batched_kernel<
+                    gemm_batched_kernel<
                         T,
                         dim_m, dim_n,
                         blk_m, blk_n, blk_k,
@@ -288,7 +291,7 @@ void astGemmBatched(int m, int n, int k,
         {
             hipLaunchKernelGGL(
                 HIP_KERNEL_NAME(
-                    ast_gemm_batched_kernel<
+                    gemm_batched_kernel<
                         T,
                         dim_m, dim_n,
                         blk_m, blk_n, blk_k,
@@ -306,7 +309,7 @@ void astGemmBatched(int m, int n, int k,
         {
             hipLaunchKernelGGL(
                 HIP_KERNEL_NAME(
-                    ast_gemm_batched_kernel<
+                    gemm_batched_kernel<
                         T,
                         dim_m, dim_n,
                         blk_m, blk_n, blk_k,
@@ -324,7 +327,7 @@ void astGemmBatched(int m, int n, int k,
         {
             hipLaunchKernelGGL(
                 HIP_KERNEL_NAME(
-                    ast_gemm_batched_kernel<
+                    gemm_batched_kernel<
                         T,
                         dim_m, dim_n,
                         blk_m, blk_n, blk_k,
@@ -342,7 +345,7 @@ void astGemmBatched(int m, int n, int k,
         {
             hipLaunchKernelGGL(
                 HIP_KERNEL_NAME(
-                    ast_gemm_batched_kernel<
+                    gemm_batched_kernel<
                         T,
                         dim_m, dim_n,
                         blk_m, blk_n, blk_k,
@@ -360,7 +363,7 @@ void astGemmBatched(int m, int n, int k,
         {
             hipLaunchKernelGGL(
                 HIP_KERNEL_NAME(
-                    ast_gemm_batched_kernel<
+                    gemm_batched_kernel<
                         T,
                         dim_m, dim_n,
                         blk_m, blk_n, blk_k,
@@ -385,7 +388,7 @@ void astGemmBatched(int m, int n, int k,
 
 //----------------------------------------------------------------------------
 template
-void astGemmBatched<float>(
+void gemm_batched_solution<float>(
     int m, int n, int k,
     const float* alpha,
     const float* const dA_array[], int lda,
@@ -393,9 +396,8 @@ void astGemmBatched<float>(
     const float* beta,
     float* const dC_array[], int ldc,
     int batch_count, int pattern, hipStream_t stream);
-/*
 template
-void astGemmBatched<double>(
+void gemm_batched_solution<double>(
     int m, int n, int k,
     const double* alpha,
     const double* const dA_array[], int lda,
@@ -404,8 +406,9 @@ void astGemmBatched<double>(
     double* const dC_array[], int ldc,
     int batch_count, int pattern, hipStream_t stream);
 
+/*
 template
-void astGemmBatched<std::complex<float>>(
+void gemm_batched_solution<std::complex<float>>(
     int m, int n, int k,
     const std::complex<float>* alpha,
     const std::complex<float>* const dA_array[], int lda,
@@ -415,7 +418,7 @@ void astGemmBatched<std::complex<float>>(
     int batch_count, int pattern, hipStream_t stream);
 
 template
-void astGemmBatched<std::complex<double>>(
+void gemm_batched_solution<std::complex<double>>(
     int m, int n, int k,
     const std::complex<double>* alpha,
     const std::complex<double>* const dA_array[], int lda,
