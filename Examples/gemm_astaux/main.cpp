@@ -10,29 +10,11 @@
 #include "rocblas.h"
 #include "astaux.h"
 
-#define M_DIM 128
-#define N_DIM 128
-#define K_DIM 8 
-#define TRANS_A rocblas_operation_none
-#define TRANS_B rocblas_operation_none
-#define ALPHA 1.1
-#define BETA 0.3
-#define P_MAX 8
-#define PERFORMANCE_TEST true
-#define CORRECTNESS_TEST false
-
-
 #define HIP_CHECK(status)                                                                \
     if (status != hipSuccess) {                                                          \
         std::cout << "Got Status: " << status << " at Line: " << __LINE__ << std::endl;  \
         exit(0);                                                                         \
     }
-
-typedef enum output_mode_
-{
-    terse = 0,
-    verbose = 1
-} output_mode;
 
 template <typename T>
 void printMatrix_batched(const char* name, T* A, rocblas_int m, rocblas_int n, rocblas_int lda, rocblas_int stride_a, rocblas_int batch_count)
@@ -53,22 +35,8 @@ void printMatrix_batched(const char* name, T* A, rocblas_int m, rocblas_int n, r
     }
 }
 
-
 void usage(char *argv[])
 {
-//  printf("Usage: %s\n", argv[0]);
-//  printf(" -m<gemm m, default %d>\n", M_DIM);
-//  printf(" -n<gemm n, default %d>\n", N_DIM);
-//  printf(" -k<gemm k, default %d>\n", K_DIM);
-//  printf(" -t<gemm NN, NT, TN, TT, default NN>\n");
-//  printf(" -a<gemm lda, default %d>\n", M_DIM);
-//  printf(" -b<gemm ldb, default %d>\n", K_DIM);
-//  printf(" -c<gemm ldc, default %d>\n", M_DIM);
-//  printf(" -o<output verbose or terse: v or t, default v\n");
-//  printf(" -f<output first line: y or n, default y\n");
-//  exit (8);
-
-
     std::cerr << "Usage: " << argv[0] << " <options>\n"
         << "options:\n"
         << "\t-h, --help\t\t\t\tShow this help message\n"
@@ -90,7 +58,8 @@ void usage(char *argv[])
 
 
 int parse_args(int argc, char *argv[], int &m, int &n, int &k, int &batch_count, int &lda, int &ldb, int &ldc,
-                rocblas_operation &trans_a, rocblas_operation &trans_b, float &alpha, float &beta, bool &verbose, char &precision)
+                rocblas_operation &trans_a, rocblas_operation &trans_b, 
+                float &alpha, float &beta, bool &verbose, char &precision)
 {
     if(argc >= 2)
     {
@@ -193,94 +162,6 @@ int parse_args(int argc, char *argv[], int &m, int &n, int &k, int &batch_count,
         }
     }
     return EXIT_SUCCESS;
-
-
-
-/*
-    alpha = 2;
-    beta = 3;
-    while (argc > 1)
-    {
-        if (argv[1][0] == '-')
-        {
-            switch (argv[1][1])
-            {
-                case 't':
-                    if(strcmp(&argv[1][2], "NN") == 0)
-                    {
-                        trans_a = rocblas_operation_none;
-                        trans_b = rocblas_operation_none;
-                    }
-                    else if(strncmp(&argv[1][2], "NT", 2) == 0)
-                    {
-                        trans_a = rocblas_operation_none;
-                        trans_b = rocblas_operation_transpose;
-                    }
-                    else if(strncmp(&argv[1][2], "TN", 2) == 0)
-                    {
-                        trans_a = rocblas_operation_transpose;
-                        trans_b = rocblas_operation_none;
-                    }
-                    else if(strncmp(&argv[1][2], "TT", 2) == 0)
-                    {
-                        trans_a = rocblas_operation_transpose;
-                        trans_b = rocblas_operation_transpose;
-                    }
-                    break;
-                case 'o':
-                    if(strcmp(&argv[1][2], "v") == 0)
-                    {
-                        output = verbose;
-                    }
-                    else if(strcmp(&argv[1][2], "t") == 0)
-                    {
-                        output = terse;
-                    }
-                    break;
-                case 'f':
-                    if(strcmp(&argv[1][2], "y") == 0)
-                    {
-                        first = true;
-                    }
-                    else if(strcmp(&argv[1][2], "n") == 0)
-                    {
-                        first = false;
-                    }
-                    break;
-                case 'm':
-                    M = atoi(&argv[1][2]);
-                    break;
-                case 'n':
-                    N = atoi(&argv[1][2]);
-                    break;
-                case 'k':
-                    K = atoi(&argv[1][2]);
-                    break;
-                case 'a':
-                    lda = atoi(&argv[1][2]);
-                    break;
-                case 'b':
-                    ldb = atoi(&argv[1][2]);
-                    break;
-                case 'c':
-                    ldc = atoi(&argv[1][2]);
-                    break;
-                default:
-                    printf("Wrong Argument: %s\n", argv[1]);
-                    return (1);
-            }
-        }
-        else
-        {
-            printf("Wrong Argument: %s\n", argv[1]);
-            return (1);
-        }
-
-        ++argv;
-        --argc;
-    }
-    return (0);
-    */
 }
 
 template <typename T>
@@ -327,6 +208,7 @@ void batch_diff(rocblas_int m, rocblas_int n,
             }
         }
     }
+    std::cout << "PASS: batch_diff" << std::endl;
 }
 
 template <typename T>
@@ -352,7 +234,7 @@ void alternating_signs(rocblas_int n1, rocblas_int n2, rocblas_int batch_count, 
 template <typename T>
 void test_gemm(rocblas_operation trans_a, rocblas_operation trans_b, 
                int m, int n, int k, int lda, int ldb, int ldc,
-               T alpha, T beta, int batch_count, int iterations, int pattern)
+               T alpha, T beta, int batch_count, int iterations, int pattern, bool verbose)
 {
     rocblas_int a_n_1, a_n_2, b_n_1, b_n_2, c_n_1, c_n_2;
     a_n_1 = trans_a == rocblas_operation_none ? m : k;
@@ -419,66 +301,14 @@ void test_gemm(rocblas_operation trans_a, rocblas_operation trans_b,
     for(int i = 0; i < size_b; i++){h_B[i] = dis(gen);}
     for(int i = 0; i < size_c; i++){h_C[i] = dis(gen);}
 
-//  for(int i = 0; i < size_a; i++){h_A[i] = 1.0;}
-//  for(int i = 0; i < size_b; i++){h_B[i] = 1.0;}
-//  for(int i = 0; i < size_c; i++){h_C[i] = 1.0;}
-//
-//
-
-    std::cout << " size_b = " << size_b << std::endl;
     alternating_signs(b_n_1, b_n_2, batch_count, ldb, stride_b, &h_B);
-
-    /*
-    // make b matrix entries have alternating signs like checkerboard
-    T sign;
-    for (int i3 = 0; i3 < batch_count; i3++)
-    {
-        for (int i1 = 0; i1 < b_n_1; i1++)
-        {
-            for (int i2 = 0; i2 < b_n_2; i2++)
-            {
-                sign = (i1 + i2) & 1 ? 1 : -1;
-                h_B[i1 + i2*ldb + i3*stride_b] *= sign;
-            }
-        }
-    }
-    */
-
-
 
     memcpy(Cref, h_C, sizeof(T)*size_c);
 
     int iseed[4] = {0, 0, 0, 1};
-//  LAPACKE_larnv(2, iseed, size_a, h_A);
-//  LAPACKE_larnv(2, iseed, size_b, h_B);
-//  LAPACKE_larnv(2, iseed, size_c, h_C);
 
 //  hipblasHandle_t handle;
 //  hipblasCreate(&handle);
-
-//  switch (pattern) {
-//      case 1:
-//          alpha = T(1.0);
-//          beta = T(0.0);
-//          break;
-//      case 2:
-//          alpha = T(1.0);
-//          beta = T(1.0);
-//          break;
-//      case 3:
-//          alpha = T(1.0);
-//          beta = T(1.0);
-//          break;
-//      case 4:
-//          alpha = T(-1.0);
-//          beta = T(0.0);
-//          break;
-//      case 5:
-//          alpha = T(1.0);
-//          beta = T(0.0);
-//          break;
-//      default: assert(false);
-//  }
 
     hipStream_t stream;
     HIP_CHECK(hipStreamCreate(&stream));
@@ -510,7 +340,7 @@ void test_gemm(rocblas_operation trans_a, rocblas_operation trans_b,
     }
 
     HIP_CHECK(hipMemcpy(h_C, d_C, sizeof(T)*size_c, hipMemcpyDeviceToHost));
-    printMatrix_batched("C    after", h_C, m, n, ldc, stride_c, batch_count);
+    if(verbose)printMatrix_batched("C    after", h_C, m, n, ldc, stride_c, batch_count);
 
     double ops;
     double bytes;
@@ -520,13 +350,13 @@ void test_gemm(rocblas_operation trans_a, rocblas_operation trans_b,
     {
         ops *= 4;
     }
-    printf("\t%lf\n", ops/min_time/1e9);
+//  printf("\t%lf\n", ops/min_time/1e9);
 
     bytes = sizeof(T)*m*n + sizeof(T)*m*k + sizeof(T)*k*n;
     if (beta != T(0.0))
         bytes += sizeof(T)*m*n;
     bytes *= batch_count;
-    printf("\t%lf\n", bytes/min_time/1e9);
+//  printf("\t%lf\n", bytes/min_time/1e9);
 
     //------------------
     // CPU setup and run
@@ -552,13 +382,10 @@ void test_gemm(rocblas_operation trans_a, rocblas_operation trans_b,
                    beta,  &Cref[b*ldc*n], ldc);
     }
 
-    std::cout << "alpha, beta = " << alpha << ", " << beta << "\n";
-    printMatrix_batched("Cref after", Cref, m, n, ldc, stride_c, batch_count);
+    if(verbose) printMatrix_batched("Cref after", Cref, m, n, ldc, stride_c, batch_count);
 
 
     // compare GPU (h_C) to CPU (Cref)
-    // batch_print(m, n, Cref, ldc, batch_count);
-    // batch_print(m, n, h_C, ldc, batch_count);
     batch_diff(m, n, Cref, ldc, stride_c, h_C, ldc, stride_c, batch_count);
 
 
@@ -585,9 +412,9 @@ void test_gemm(rocblas_operation trans_a, rocblas_operation trans_b,
 //----------------------------------------------------------------------------
 int main(int argc, char** argv)
 {
-    int m = M_DIM;
-    int n = N_DIM;
-    int k = K_DIM;
+    int m = 128;
+    int n = 128;
+    int k = 8;
     int lda = 0;
     int ldb = 0;
     int ldc = 0;
@@ -597,7 +424,6 @@ int main(int argc, char** argv)
     rocblas_operation trans_a = rocblas_operation_none;
     rocblas_operation trans_b = rocblas_operation_none;
     bool first = true;
-    output_mode output = verbose;
     float alpha = 1, beta = 1;
     char precision = 's';
     bool verbose = false;
@@ -626,9 +452,14 @@ int main(int argc, char** argv)
         << alpha << ", " << beta << ", " 
         << batch_count << std::endl;
 
+    if(trans_a != rocblas_operation_none || trans_b != rocblas_operation_none)
+    {
+        std::cout << "ERROR: only NN transpositon supported" << std::endl;
+        return (EXIT_FAILURE);
+    }
     if(precision == 's')
     {
-        test_gemm<float>(trans_a, trans_b, m, n, k, lda, ldb, ldc, alpha, beta, batch_count, iterations, pattern);
+        test_gemm<float>(trans_a, trans_b, m, n, k, lda, ldb, ldc, alpha, beta, batch_count, iterations, pattern, verbose);
     }
     else
     {
