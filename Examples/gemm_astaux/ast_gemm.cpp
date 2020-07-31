@@ -6,6 +6,7 @@
 #include <hip/hip_runtime.h>
 #include <iostream>
 
+// general alpha and beta
 template <typename T,
           int DIM_M, int DIM_N,
           int BLK_M, int BLK_N, int BLK_K,
@@ -81,6 +82,7 @@ static void gemm_batched_kernel(
 }
 
 
+// templated alpha and beta
 template <typename T,
           int DIM_M, int DIM_N,
           int BLK_M, int BLK_N, int BLK_K,
@@ -171,12 +173,12 @@ static void gemm_batched_kernel(
 //----------------------------------------------------------------------------
 template <typename T>
 void gemm_batched_solution(int m, int n, int k,
-                    const T* alpha, const T* const dA_array[], int lda,
+                    const T alpha, const T* const dA_array[], int lda,
                                     const T* const dB_array[], int ldb,
-                    const T* beta,        T* const dC_array[], int ldc,
-                    int batch_count, int pattern, hipStream_t stream)
+                    const T beta,        T* const dC_array[], int ldc,
+                    int batch_count, hipStream_t stream)
 {
-    if((!(m & 0b111111)) && (!(n & 0b111111)) && (!(k & 0b11))) 
+    if((m % 64 == 0) && (n % 64 == 0) && (k % 4 == 0)) 
     {
         //m is mult of 64, n is mult of 64, k is mult of 4
         const int dim_m = 16;
@@ -186,7 +188,7 @@ void gemm_batched_solution(int m, int n, int k,
         const int blk_k =  4;
         dim3 dimBlock(dim_m, dim_n, 1);
         dim3 dimGrid(m/blk_m, n/blk_n, batch_count);
-        if(*alpha == 1.0 && *beta == 1.0)
+        if(alpha == 1.0 && beta == 1.0)
         {
             hipLaunchKernelGGL(
                 HIP_KERNEL_NAME(
@@ -204,7 +206,7 @@ void gemm_batched_solution(int m, int n, int k,
                 dC_array, ldc,
                 batch_count);
         }
-        else if(*alpha == 1.0 && *beta == -1.0)
+        else if(alpha == 1.0 && beta == -1.0)
         {
             hipLaunchKernelGGL(
                 HIP_KERNEL_NAME(
@@ -222,7 +224,7 @@ void gemm_batched_solution(int m, int n, int k,
                 dC_array, ldc,
                 batch_count);
         }
-        else if(*alpha == 1.0 && *beta == 0.0)
+        else if(alpha == 1.0 && beta == 0.0)
         {
             hipLaunchKernelGGL(
                 HIP_KERNEL_NAME(
@@ -240,7 +242,7 @@ void gemm_batched_solution(int m, int n, int k,
                 dC_array, ldc,
                 batch_count);
         }
-        else if(*alpha == -1.0 && *beta == 0.0)
+        else if(alpha == -1.0 && beta == 0.0)
         {
             hipLaunchKernelGGL(
                 HIP_KERNEL_NAME(
@@ -269,15 +271,15 @@ void gemm_batched_solution(int m, int n, int k,
                         blk_m, blk_k,
                         blk_k, blk_n>),
                 dimGrid, dimBlock, 0, stream,
-                m, n, k, *alpha,
+                m, n, k, alpha,
                 dA_array, lda,
                 dB_array, ldb,
-                *beta,
+                beta,
                 dC_array, ldc,
                 batch_count);
         }
     }
-    else if((!(m & 0b11111)) && (!(n & 0b11111)) && (!(k & 0b111))) 
+    else if((m % 32 == 0) && (n % 32 == 0) && (k % 8 == 0)) 
     {
         // m is mult of 32, n is mult of 32, k is mult of 8
         const int dim_m = 16;
@@ -287,7 +289,7 @@ void gemm_batched_solution(int m, int n, int k,
         const int blk_k =  8;
         dim3 dimBlock(dim_m, dim_n, 1);
         dim3 dimGrid(m/blk_m, n/blk_n, batch_count);
-        if(*alpha == 1.0 && *beta == 1.0)
+        if(alpha == 1.0 && beta == 1.0)
         {
             hipLaunchKernelGGL(
                 HIP_KERNEL_NAME(
@@ -305,7 +307,7 @@ void gemm_batched_solution(int m, int n, int k,
                 dC_array, ldc,
                 batch_count);
         }
-        else if(*alpha == 1.0 && *beta == -1.0)
+        else if(alpha == 1.0 && beta == -1.0)
         {
             hipLaunchKernelGGL(
                 HIP_KERNEL_NAME(
@@ -323,7 +325,7 @@ void gemm_batched_solution(int m, int n, int k,
                 dC_array, ldc,
                 batch_count);
         }
-        else if(*alpha == 1.0 && *beta == 0.0)
+        else if(alpha == 1.0 && beta == 0.0)
         {
             hipLaunchKernelGGL(
                 HIP_KERNEL_NAME(
@@ -341,7 +343,7 @@ void gemm_batched_solution(int m, int n, int k,
                 dC_array, ldc,
                 batch_count);
         }
-        else if(*alpha == -1.0 && *beta == 0.0)
+        else if(alpha == -1.0 && beta == 0.0)
         {
             hipLaunchKernelGGL(
                 HIP_KERNEL_NAME(
@@ -370,10 +372,10 @@ void gemm_batched_solution(int m, int n, int k,
                         blk_m, blk_k,
                         blk_k, blk_n>),
                 dimGrid, dimBlock, 0, stream,
-                m, n, k, *alpha,
+                m, n, k, alpha,
                 dA_array, lda,
                 dB_array, ldb,
-                *beta,
+                beta,
                 dC_array, ldc,
                 batch_count);
         }
@@ -390,21 +392,22 @@ void gemm_batched_solution(int m, int n, int k,
 template
 void gemm_batched_solution<float>(
     int m, int n, int k,
-    const float* alpha,
+    const float alpha,
     const float* const dA_array[], int lda,
     const float* const dB_array[], int ldb,
-    const float* beta,
+    const float beta,
     float* const dC_array[], int ldc,
-    int batch_count, int pattern, hipStream_t stream);
+    int batch_count, hipStream_t stream);
+
 template
 void gemm_batched_solution<double>(
     int m, int n, int k,
-    const double* alpha,
+    const double alpha,
     const double* const dA_array[], int lda,
     const double* const dB_array[], int ldb,
-    const double* beta,
+    const double beta,
     double* const dC_array[], int ldc,
-    int batch_count, int pattern, hipStream_t stream);
+    int batch_count, hipStream_t stream);
 
 /*
 template
@@ -415,15 +418,15 @@ void gemm_batched_solution<std::complex<float>>(
     const std::complex<float>* const dB_array[], int ldb,
     const std::complex<float>* beta,
     std::complex<float>* const dC_array[], int ldc,
-    int batch_count, int pattern, hipStream_t stream);
+    int batch_count, hipStream_t stream);
 
 template
 void gemm_batched_solution<std::complex<double>>(
     int m, int n, int k,
-    const std::complex<double>* alpha,
+    const std::complex<double> alpha,
     const std::complex<double>* const dA_array[], int lda,
     const std::complex<double>* const dB_array[], int ldb,
-    const std::complex<double>* beta,
+    const std::complex<double> beta,
     std::complex<double>* const dC_array[], int ldc,
-    int batch_count, int pattern, hipStream_t stream);
+    int batch_count, hipStream_t stream);
 */

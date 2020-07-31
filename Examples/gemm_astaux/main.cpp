@@ -16,6 +16,28 @@
         exit(0);                                                                         \
     }
 
+#ifndef CHECK_ROCBLAS_ERROR
+#define CHECK_ROCBLAS_ERROR(error)                              \
+    if(error != rocblas_status_success)                         \
+    {                                                           \
+        fprintf(stderr, "rocBLAS error: ");                     \
+        if(error == rocblas_status_invalid_handle)              \
+            fprintf(stderr, "rocblas_status_invalid_handle");   \
+        if(error == rocblas_status_not_implemented)             \
+            fprintf(stderr, " rocblas_status_not_implemented"); \
+        if(error == rocblas_status_invalid_pointer)             \
+            fprintf(stderr, "rocblas_status_invalid_pointer");  \
+        if(error == rocblas_status_invalid_size)                \
+            fprintf(stderr, "rocblas_status_invalid_size");     \
+        if(error == rocblas_status_memory_error)                \
+            fprintf(stderr, "rocblas_status_memory_error");     \
+        if(error == rocblas_status_internal_error)              \
+            fprintf(stderr, "rocblas_status_internal_error");   \
+        fprintf(stderr, "\n");                                  \
+        exit(EXIT_FAILURE);                                     \
+    }
+#endif
+
 template <typename T>
 void printMatrix_batched(const char* name, T* A, rocblas_int m, rocblas_int n, rocblas_int lda, rocblas_int stride_a, rocblas_int batch_count)
 {
@@ -313,6 +335,9 @@ void test_gemm(rocblas_operation trans_a, rocblas_operation trans_b,
     hipStream_t stream;
     HIP_CHECK(hipStreamCreate(&stream));
 
+//  rocblas_handle handle;
+//  CHECK_ROCBLAS_ERROR(rocblas_create_handle(&handle));
+
     //--------
     // GPU run
     double min_time = std::numeric_limits<double>::infinity();
@@ -328,10 +353,10 @@ void test_gemm(rocblas_operation trans_a, rocblas_operation trans_b,
         start = omp_get_wtime();
 
             gemm_batched_solution<T>(m, n, k,
-                              &alpha, d_Aptr, lda,
+                              alpha, d_Aptr, lda,
                                       d_Bptr, ldb,
-                              &beta,  d_Cptr, ldc,
-                              batch_count, pattern,
+                              beta,  d_Cptr, ldc,
+                              batch_count,
                               stream);
             hipDeviceSynchronize();
         elapsed = omp_get_wtime() - start;
