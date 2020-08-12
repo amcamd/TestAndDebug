@@ -20,33 +20,24 @@ if [[ $? -ne 0 ]]; then
     exit 1
 fi
 
-git checkout develop
-
-echo "==============================================================="
-if [ "$(/opt/rocm/bin/rocm_agent_enumerator | grep -m 1 gfx900)" == "gfx900" ]; then
-    echo "=====ISA = gfx900, remove gfx906 YAML files, AMDGPU_TARGETS gfx900 ===================="
-    rm library/src/blas3/Tensile/Logic/asm_ci/vega20*yaml
-    sed -i 's/gfx803;gfx900;gfx906;gfx908/gfx900/' CMakeLists.txt
-elif [ "$(/opt/rocm/bin/rocm_agent_enumerator | grep -m 1 gfx906)" == "gfx906" ]; then
-    echo "=====ISA = gfx906, remove gfx900 YAML files, AMDGPU_TARGETS gfx906 ===================="
-    rm library/src/blas3/Tensile/Logic/asm_ci/vega10*yaml
-    sed -i 's/gfx803;gfx900;gfx906;gfx908/gfx906/' CMakeLists.txt
-else
-    echo "ISA != gfx900 and ISA != gfx906"
-    exit 1
-fi
-echo "==============================================================="
-
-#rm -f library/src/blas3/Tensile/Logic/asm_ci/vega*_HB.yaml
-#rm -f library/src/blas3/Tensile/Logic/asm_ci/vega*_HBH.yaml
-#rm -f library/src/blas3/Tensile/Logic/asm_ci/vega*_ZB.yaml
-#rm -f library/src/blas3/Tensile/Logic/asm_ci/vega*_CB.yaml
-#rm -f library/src/blas3/Tensile/Logic/asm_ci/vega*_4xi8BH.yaml
+git checkout trtri
 
 echo "==============================================================="
 echo "=====build=rocblas=with=install.sh============================="
 echo "==============================================================="
-time ./install.sh -lasm_ci -c
+if [ "$(/opt/rocm/bin/rocm_agent_enumerator | grep -m 1 gfx900)" == "gfx900" ]; then
+    echo "=====ISA = gfx900, use -agfx900 directive ===================="
+    time ./install.sh -agfx900 -c
+elif [ "$(/opt/rocm/bin/rocm_agent_enumerator | grep -m 1 gfx906)" == "gfx906" ]; then
+    echo "=====ISA = gfx906, use -agfx906 directive ===================="
+    time ./install.sh -agfx906 -c
+elif [ "$(/opt/rocm/bin/rocm_agent_enumerator | grep -m 1 gfx908)" == "gfx908" ]; then
+    echo "=====ISA = gfx908, use -agfx908 directive ===================="
+    time ./install.sh -agfx908 -c
+else
+    echo "build fat binary, ISA != gfx900 and ISA != gfx906 and ISA != gfx908"
+    time ./install.sh -c
+fi
 if [[ $? -ne 0 ]]; then
     echo "install error"
     exit 1

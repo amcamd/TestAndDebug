@@ -1,4 +1,5 @@
 #include "rocblas.h"
+#include <chrono>
 
 #ifndef CHECK_HIP_ERROR
 #define CHECK_HIP_ERROR(error)                    \
@@ -181,8 +182,41 @@ rocblas_status rocblas_dgmm(
     CHECK_HIP_ERROR( hipMemcpy(dc, hc, sizeof(T) * size_c, hipMemcpyHostToDevice));
     CHECK_HIP_ERROR( hipMemcpy(dx, hx, sizeof(T) * size_x, hipMemcpyHostToDevice));
 
+    int deviceId;
+    hipDeviceProp_t prop;
+    CHECK_HIP_ERROR( hipGetDevice(&deviceId));
+    CHECK_HIP_ERROR( hipGetDeviceProperties(&prop, deviceId));
+    int gcnArch = prop.gcnArch;
+    std::cout << "gcnArch = " << gcnArch << std::endl;
+    if(gcnArch == 906) std::cout << "gcnArch == 906" << std::endl;
+
+
+    double seconds;
+    std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
+    std::chrono::duration<double> dur;
+
+    start = std::chrono::high_resolution_clock::now();
+
     rocblas_handle handle;
     CHECK_ROCBLAS_ERROR(rocblas_create_handle(&handle));
+
+    end = std::chrono::high_resolution_clock::now();
+    dur= end - start;
+    seconds = dur.count();
+    std::cout << "rocblas_create_handle seconds = " << seconds << std::endl;
+
+
+
+    start = std::chrono::high_resolution_clock::now();
+
+    rocblas_initialize();
+
+    end = std::chrono::high_resolution_clock::now();
+    dur= end - start;
+    seconds = dur.count();
+    std::cout << "rocblas_initialize seconds = " << seconds << std::endl;
+
+
 
     status = rocblas_dgmm_template(handle, side, m, n, da, lda, dx, incx, dc, ldc);
 
