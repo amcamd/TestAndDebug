@@ -20,7 +20,7 @@ if [[ $? -ne 0 ]]; then
     exit 1
 fi
 
-git checkout trtri
+git checkout develop
 
 echo "==============================================================="
 echo "=====build=rocblas=with=install.sh============================="
