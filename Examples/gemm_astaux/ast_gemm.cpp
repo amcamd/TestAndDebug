@@ -44,6 +44,11 @@ static void gemm_batched_kernel(
     int coord_A = (blx*BLK_M     + thyA*lda) + thxA;
     int coord_B = (bly*BLK_N*ldb + thyB*ldb) + thxB;
 
+    int a_i_offset = thxA + BLK_M * blx;
+    int a_j_offset = thyA;
+    int b_i_offset = thxB;
+    int b_j_offset = thyB + BLK_N * bly;
+
     for (int n = 0; n < BLK_N/DIM_N; ++n)
         for (int m = 0; m < BLK_M/DIM_M; ++m)
             rC[n][m] = 0.0;
@@ -52,12 +57,37 @@ static void gemm_batched_kernel(
     for (; kk < K; kk += BLK_K)
     {
         for (int n = 0; n < BLK_K; n += DIM_N_A)
+        {
             for (int m = 0; m < BLK_M; m += DIM_M_A)
+            {
+                // need guard
                 sA[n+thyA][m+thxA] = dA[coord_A + (n*lda+m)];
 
+                int i =  m + a_i_offset;
+                int j =  n + kk + a_j_offset;
+//              if(i < M && j < K)
+//                  sA[n+thyA][m+thxA] = dA[i + j*lda];
+//              else
+//                  sA[n+thyA][m+thxA] = 0.0;
+            }
+        }
+
+
         for (int n = 0; n < BLK_N; n += DIM_N_B)
+        {
             for (int m = 0; m < BLK_K; m += DIM_M_B)
+            {
+                // need guard
                 sB[n+thyB][m+thxB] = dB[coord_B + (n*ldb+m)];
+
+                int i =  m + kk + b_i_offset;
+                int j =  n + b_j_offset;
+//              if(i < K && j < N)
+//                  sB[n+thyB][m+thxB] = dB[i + j*ldb];
+//              else
+//                  sB[n+thyB][m+thxB] = 0;
+            }
+        }
 
         __syncthreads();
 
@@ -76,7 +106,11 @@ static void gemm_batched_kernel(
         for (int m = 0; m < BLK_M/DIM_M; ++m) {
             int coord_dCm = blx*BLK_M + m*DIM_M+thx;
             int coord_dCn = bly*BLK_N + n*DIM_N+thy;
-                dC[coord_dCn*ldc + coord_dCm] = alpha * rC[n][m] + beta * dC[coord_dCn*ldc + coord_dCm]; 
+                // need guard
+//              if(coord_dCn < N && coord_dCm < M)
+//              {
+                    dC[coord_dCn*ldc + coord_dCm] = alpha * rC[n][m] + beta * dC[coord_dCn*ldc + coord_dCm]; 
+//              }
         }
     }
 }

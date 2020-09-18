@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include <random>
+#include <iomanip>
 
 #include <hip/hip_runtime.h>
 #include <omp.h>
@@ -252,6 +253,115 @@ void alternating_signs(rocblas_int n1, rocblas_int n2, rocblas_int batch_count, 
 }
 
 
+template <int DIM_M, int DIM_N,
+          int BLK_M, int BLK_N, int BLK_K,
+          int DIM_M_A, int DIM_N_A,
+          int DIM_M_B, int DIM_N_B>
+void gemm_indices_kernel ( int b0, int b1, int b2, int t0, int t1,
+        int M, int N, int K, int lda, int ldb, int ldc, int batch_count)
+{
+    int thx = t0; int thy = t1;
+    int idt = DIM_M*thy + thx; // thread's number
+    int blx = b0;        // block's m position
+    int bly = b1;        // block's n position
+    int blz = b2;        // block's matrix in the batch
+    int thxA = idt % DIM_M_A;  // thread's m position for loading A
+    int thyA = idt / DIM_M_A;  // thread's n position for loading A
+    int thxB = idt % DIM_M_B;  // thread's m position for loading B
+    int thyB = idt / DIM_M_B;  // thread's n position for loading B
+
+    std::cout << "b = " << b0 << ", " << b1 << "  t = " << t0 << ", " << t1;
+    std::cout << "  idt =" << std::setw(3) << idt << "  DIM_M_A = " << DIM_M_A << ", " << thxA << ", " << thyA;
+
+//  int coord_A = (blx*BLK_M     + thyA*lda) + thxA;
+//  int coord_B = (bly*BLK_N*ldb + thyB*ldb) + thxB;
+//  std::cout << "   coord = " << std::setw(4) << coord_A;
+
+    int a_i_offset = thxA + BLK_M * blx;
+    int a_j_offset = thyA;
+    int b_i_offset = thxB;
+    int b_j_offset = thyB + BLK_N * bly;
+
+    std::cout << "     (n,m,k  i,j) = " ;
+    for (int kk = 0; kk < K; kk += BLK_K)
+    {
+/*
+        for (int n = 0; n < BLK_K; n += DIM_N_A)
+            for (int m = 0; m < BLK_M; m += DIM_M_A)
+            {
+                {
+                    int i =  m + a_i_offset;
+                    int j =  n + kk + a_j_offset;
+                    std::cout << "(" << m << "," << n << "," << kk << "  " << i << ", " << j << ") ";
+                    if(i < M && j < K)
+//                      sA[n+thyA][m+thxA] = dA[i + j*lda];
+//                  else
+//                      sA[n+thyA][m+thxA] = 0.0;
+                }
+            }
+*/
+        for (int n = 0; n < BLK_N; n += DIM_N_B)
+            for (int m = 0; m < BLK_K; m += DIM_M_B)
+            { {
+                    int i =  m + kk + b_i_offset;
+                    int j =  n + b_j_offset;
+                    std::cout << "(" << m << "," << n << "," << kk << "  " << i << ", " << j << ") ";
+//                  if(i < K && j < N)
+//                      sB[n+thyB][m+thxB] = dB[i + j*ldb];
+//                  else
+//                      sB[n+thyB][m+thxB] = 0;
+              
+            } }
+
+    }
+    std::cout << std::endl;
+}
+
+void gemm_indices_solution(int m, int n, int k, int lda, int ldb, int ldc, int batch_count)
+{
+    batch_count = 1; m = 4 ; n = 8 ; k = 4;
+//  const int dim_m =  4; const int dim_n =  4;
+    const int dim_m =  2; const int dim_n =  2;                        // thread block
+    const int blk_m =  8; const int blk_n =  8; const int blk_k =  4;  // macrotile, unroll
+//  const int blk_m =  8; const int blk_n =  8; const int blk_k =  2;  // macrotile, unroll
+    const int blk_m_a = 2, blk_k_a = 2, blk_k_b = 2, blk_n_b = 2;      // lds tiles for matrices a and b
+
+    if(dim_m*dim_n != blk_m_a*blk_k_a) {std::cout << "dim_m*dim_n != blk_m_a*blk_k_a"; exit (EXIT_FAILURE);}
+    if(dim_m*dim_n != blk_k_b*blk_n_b) {std::cout << "dim_m*dim_n != blk_k_b*blk_n_b"; exit (EXIT_FAILURE);}
+    if(blk_m_a > blk_m || blk_k_a > blk_k || blk_k_b > blk_k || blk_n_b > blk_n){std::cout <<
+        "blk_m_a > blk_m || blk_k_a > blk_k || blk_k_b > blk_k || blk_n_b > blk_n"; exit (EXIT_FAILURE);}
+
+    int block[3]; block[0] = dim_m;  block[1] = dim_n;  block[2] = 1;
+    int grid[3]; grid[0]=m/blk_m; grid[1] = n/blk_n; grid[2] = batch_count;
+
+    for(int b0 = 0; b0 < grid[0] || b0 == 0; b0++)
+    for(int b1 = 0; b1 < grid[1] || b1 == 0; b1++)
+    for(int b2 = 0; b2 < grid[2]; b2++) { { {
+          for(int t1 = 0; t1 < block[1]; t1++)
+          for(int t0 = 0; t0 < block[0]; t0++)
+          {  {
+                gemm_indices_kernel<
+                    dim_m, dim_n,           // thread block
+                    blk_m, blk_n, blk_k,    // macro-tile
+                    blk_m_a, blk_k_a,           // block for loading a into lds
+                    blk_k_b, blk_n_b>           // block for loading b into lds
+                        (
+            b0, b1, b2, t0, t1, m, n, k, lda, ldb, ldc, batch_count);
+
+             }  }
+    }  } }
+
+    std::cout << "m, n, k = " << m << ", " << n << ", " << k << std::endl;
+    std::cout << "macrotile   = (" << blk_m << "," << blk_n << ")" << "    unroll = " << blk_k << std::endl;
+    std::cout << "microtile   = (" << blk_m/dim_m << "," << blk_n/dim_n << ")" << std::endl;
+    std::cout << "thread tile = (" << dim_m << "," << dim_n << ")" << std::endl;
+    std::cout << "block = (" << block[0] << "," << block[1] << "," << block[2] << ")" << std::endl;
+    std::cout << "grid  = (" << grid[0] << "," << grid[1] << "," << grid[2] << ")" << std::endl;
+    
+  
+}
+
+
 //----------------------------------------------------------------------------
 template <typename T>
 void test_gemm(rocblas_operation trans_a, rocblas_operation trans_b, 
@@ -413,6 +523,8 @@ void test_gemm(rocblas_operation trans_a, rocblas_operation trans_b,
     // compare GPU (h_C) to CPU (Cref)
     batch_diff(m, n, Cref, ldc, stride_c, h_C, ldc, stride_c, batch_count);
 
+//  gemm_indices_solution(m, n, k, lda, ldb, ldc, batch_count);
+
 
     //--------
     // cleanup
@@ -471,7 +583,7 @@ int main(int argc, char** argv)
     char trans_b_char = trans_b == rocblas_operation_none ? 'N' : 'T';
 
     std::cout << "precision, trans_a, trans_b, m, n, k, lda, ldb, ldc, alpha, beta, batch_count = " 
-        << precision << trans_a_char << trans_b_char << ", " 
+        << precision << ", " << trans_a_char << trans_b_char << ", " 
         << m << ", " << n << ", " << k << ", " 
         << lda << ", " << ldb << ", " << ldc << ", " 
         << alpha << ", " << beta << ", " 

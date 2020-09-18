@@ -22,7 +22,7 @@ lib:
 
 test:
 	$(GCC) -D__HIP_PLATFORM_HCC__ -c main.cpp  $(INC)
-	$(GCC) -fopenmp -o $(EXE) main.o ./libastaux.so  $(LIB)
+	$(HIPCC) -fopenmp -o $(EXE) main.o ./libastaux.so
 
 clean:
 	rm -f *.o *.so $(EXE)
