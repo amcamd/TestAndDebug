@@ -42,7 +42,7 @@
 template <typename T>
 void printMatrix_batched(const char* name, T* A, rocblas_int m, rocblas_int n, rocblas_int lda, rocblas_int stride_a, rocblas_int batch_count)
 {
-    int m_max = 4, n_max = 4, batch_count_max = 4;
+    int m_max =12, n_max =12, batch_count_max =12;
     printf("---------- %s ----------\n", name);
     for( int b = 0; b < batch_count && b < batch_count_max; b++)
     {
@@ -222,16 +222,17 @@ void batch_diff(rocblas_int m, rocblas_int n,
         {
             for(int i2 = 0; i2 < n; i2++)
             {
-                if(Cref[i1 + 12 * ldc_ref + i3 * stridec_ref] != h_C[i1 + 12 * ldc + i3 * stridec])
+                if(Cref[i1 + i2 * ldc_ref + i3 * stridec_ref] != h_C[i1 + i2 * ldc + i3 * stridec])
                 {
                     std::cout << "ERROR: i1,i2,i3 = " << i1 << ", " << i2 << ", " << i3 << std::endl;
+                    std::cout << "ERROR: Cref, h_C= " << Cref[i1 + 12 * ldc_ref + i3 * stridec_ref] << ", " << h_C[i1 + 12 * ldc + i3 * stridec] << std::endl;
                     return;
                 }
 
             }
         }
     }
-    std::cout << "PASS: batch_diff" << std::endl;
+    std::cout << "PASS: batch_diff\n" << std::endl;
 }
 
 template <typename T>
@@ -319,6 +320,7 @@ void gemm_indices_kernel ( int b0, int b1, int b2, int t0, int t1,
 
 void gemm_indices_solution(int m, int n, int k, int lda, int ldb, int ldc, int batch_count)
 {
+    std::cout << "\\/ \\/  \\/---gemm_indices_solution---\\/ \\/ \\/\n";
     batch_count = 1; m = 4 ; n = 8 ; k = 4;
 //  const int dim_m =  4; const int dim_n =  4;
     const int dim_m =  2; const int dim_n =  2;                        // thread block
@@ -452,6 +454,23 @@ void test_gemm(rocblas_operation trans_a, rocblas_operation trans_b,
     // GPU run
     double min_time = std::numeric_limits<double>::infinity();
 
+    if(verbose)
+    {
+        if(trans_a == rocblas_operation_none)
+        {
+            std::cout << std::endl;
+            printMatrix_batched("h_A", h_A, m, k, lda, stride_a, batch_count);
+        }
+        else
+        {
+            printMatrix_batched("trans h_A  ", h_A, k, m, lda, stride_a, batch_count);
+        }
+        printMatrix_batched("h_B", h_B, k, n, ldb, stride_b, batch_count);
+
+        printMatrix_batched("h_C", Cref, m, n, ldc, stride_c, batch_count);
+
+    }
+
     for (int i = 0; i < iterations; ++i) {
 
         HIP_CHECK(hipMemcpy(d_A, h_A, sizeof(T)*size_a, hipMemcpyHostToDevice));
@@ -475,7 +494,7 @@ void test_gemm(rocblas_operation trans_a, rocblas_operation trans_b,
     }
 
     HIP_CHECK(hipMemcpy(h_C, d_C, sizeof(T)*size_c, hipMemcpyDeviceToHost));
-    if(verbose)printMatrix_batched("C    after", h_C, m, n, ldc, stride_c, batch_count);
+    if(verbose)printMatrix_batched("\nC    after", h_C, m, n, ldc, stride_c, batch_count);
 
     double ops;
     double bytes;
@@ -496,18 +515,6 @@ void test_gemm(rocblas_operation trans_a, rocblas_operation trans_b,
     //------------------
     // CPU setup and run
 
-    /*
-    if(trans_a == rocblas_operation_none)
-    {
-        printMatrix_batched("h_A        ", h_A, m, k, lda, stride_a, batch_count);
-    }
-    else
-    {
-        printMatrix_batched("trans h_A  ", h_A, k, m, lda, stride_a, batch_count);
-    }
-    printMatrix_batched("h_B        ", h_B, k, n, ldb, stride_b, batch_count);
-    printMatrix_batched("Cref before", Cref, m, n, ldc, stride_c, batch_count);
-    */
 
     for (int b = 0; b < batch_count; ++b) {
         gemm_ref(trans_a, trans_b,
@@ -561,7 +568,7 @@ int main(int argc, char** argv)
     rocblas_operation trans_a = rocblas_operation_none;
     rocblas_operation trans_b = rocblas_operation_none;
     bool first = true;
-    float alpha = 1, beta = 1;
+    float alpha = -1, beta = -1;
     char precision = 's';
     bool verbose = false;
 
@@ -587,7 +594,7 @@ int main(int argc, char** argv)
         << m << ", " << n << ", " << k << ", " 
         << lda << ", " << ldb << ", " << ldc << ", " 
         << alpha << ", " << beta << ", " 
-        << batch_count << std::endl;
+        << batch_count << ".  ";
 
     if(trans_a != rocblas_operation_none || trans_b != rocblas_operation_none)
     {

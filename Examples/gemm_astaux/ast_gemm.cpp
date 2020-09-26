@@ -33,6 +33,8 @@ static void gemm_batched_kernel(
     int thxB = idt % DIM_M_B;  // thread's m position for loading B
     int thyB = idt / DIM_M_B;  // thread's n position for loading B
 
+//  printf("*** thx,thy,DIM_M,DIM_N=%d,%d,%d,%d\n",thx,thy,DIM_M,DIM_N);
+
     const T* dA = dA_array[blz];
     const T* dB = dB_array[blz];
     T* dC = dC_array[blz];
@@ -61,14 +63,17 @@ static void gemm_batched_kernel(
             for (int m = 0; m < BLK_M; m += DIM_M_A)
             {
                 // need guard
-                sA[n+thyA][m+thxA] = dA[coord_A + (n*lda+m)];
+//              sA[n+thyA][m+thxA] = dA[coord_A + (n*lda+m)];
 
                 int i =  m + a_i_offset;
                 int j =  n + kk + a_j_offset;
-//              if(i < M && j < K)
-//                  sA[n+thyA][m+thxA] = dA[i + j*lda];
-//              else
-//                  sA[n+thyA][m+thxA] = 0.0;
+                if(i < M && j < K)
+                    sA[n+thyA][m+thxA] = dA[i + j*lda];
+                else
+                    sA[n+thyA][m+thxA] = 0.0;
+
+                if( i+j*lda != coord_A + (n*lda+m) )
+                    printf("---------- i+j*lda, coord_A+(n*lda+m) = %d,  %d\n",i+j*lda,coord_A + (n*lda+m));
             }
         }
 
@@ -78,14 +83,16 @@ static void gemm_batched_kernel(
             for (int m = 0; m < BLK_K; m += DIM_M_B)
             {
                 // need guard
-                sB[n+thyB][m+thxB] = dB[coord_B + (n*ldb+m)];
+//              sB[n+thyB][m+thxB] = dB[coord_B + (n*ldb+m)];
 
                 int i =  m + kk + b_i_offset;
                 int j =  n + b_j_offset;
-//              if(i < K && j < N)
-//                  sB[n+thyB][m+thxB] = dB[i + j*ldb];
-//              else
-//                  sB[n+thyB][m+thxB] = 0;
+                if(i < K && j < N)
+                    sB[n+thyB][m+thxB] = dB[i + j*ldb];
+                else
+                    sB[n+thyB][m+thxB] = 0;
+                if( i+j*ldb != coord_B + (n*ldb+m))
+                    printf("---------- i+j*ldb, coord_B + (n*ldb+m)= %d,  %d\n",i+j*ldb,coord_B + (n*ldb+m));
             }
         }
 
@@ -107,10 +114,10 @@ static void gemm_batched_kernel(
             int coord_dCm = blx*BLK_M + m*DIM_M+thx;
             int coord_dCn = bly*BLK_N + n*DIM_N+thy;
                 // need guard
-//              if(coord_dCn < N && coord_dCm < M)
-//              {
+                if(coord_dCn < N && coord_dCm < M)
+                {
                     dC[coord_dCn*ldc + coord_dCm] = alpha * rC[n][m] + beta * dC[coord_dCn*ldc + coord_dCm]; 
-//              }
+                }
         }
     }
 }
@@ -212,8 +219,11 @@ void gemm_batched_solution(int m, int n, int k,
                     const T beta,        T* const dC_array[], int ldc,
                     int batch_count, hipStream_t stream)
 {
-    if((m % 64 == 0) && (n % 64 == 0) && (k % 4 == 0)) 
+    printf("\n+++gemm_batched_solution+++");
+//  if((m % 64 == 0) && (n % 64 == 0) && (k % 4 == 0)) 
+    if(true)
     {
+        printf("   --m 64 --n 64 --k 4   ");
         //m is mult of 64, n is mult of 64, k is mult of 4
         const int dim_m = 16;
         const int dim_n = 16;
@@ -221,9 +231,11 @@ void gemm_batched_solution(int m, int n, int k,
         const int blk_n = 64;
         const int blk_k =  4;
         dim3 dimBlock(dim_m, dim_n, 1);
-        dim3 dimGrid(m/blk_m, n/blk_n, batch_count);
+//      dim3 dimGrid(m/blk_m, n/blk_n, batch_count);
+        dim3 dimGrid(((m-1)/blk_m)+1, ((n-1)/blk_n)+1, batch_count);
         if(alpha == 1.0 && beta == 1.0)
         {
+            printf("alpha==1  beta==1 \n");
             hipLaunchKernelGGL(
                 HIP_KERNEL_NAME(
                     gemm_batched_kernel<
@@ -242,6 +254,7 @@ void gemm_batched_solution(int m, int n, int k,
         }
         else if(alpha == 1.0 && beta == -1.0)
         {
+            printf("alpha==1  beta==-1 \n");
             hipLaunchKernelGGL(
                 HIP_KERNEL_NAME(
                     gemm_batched_kernel<
@@ -260,6 +273,7 @@ void gemm_batched_solution(int m, int n, int k,
         }
         else if(alpha == 1.0 && beta == 0.0)
         {
+            printf("alpha==1  beta==0 \n");
             hipLaunchKernelGGL(
                 HIP_KERNEL_NAME(
                     gemm_batched_kernel<
@@ -278,6 +292,7 @@ void gemm_batched_solution(int m, int n, int k,
         }
         else if(alpha == -1.0 && beta == 0.0)
         {
+            printf("alpha==-1  beta==0 \n");
             hipLaunchKernelGGL(
                 HIP_KERNEL_NAME(
                     gemm_batched_kernel<
@@ -296,6 +311,7 @@ void gemm_batched_solution(int m, int n, int k,
         }
         else
         {
+            printf("general alpha  beta   ");
             hipLaunchKernelGGL(
                 HIP_KERNEL_NAME(
                     gemm_batched_kernel<
@@ -315,6 +331,7 @@ void gemm_batched_solution(int m, int n, int k,
     }
     else if((m % 32 == 0) && (n % 32 == 0) && (k % 8 == 0)) 
     {
+        printf("   --m 32 --n 32 --k 8   ");
         // m is mult of 32, n is mult of 32, k is mult of 8
         const int dim_m = 16;
         const int dim_n = 16;
@@ -325,6 +342,7 @@ void gemm_batched_solution(int m, int n, int k,
         dim3 dimGrid(m/blk_m, n/blk_n, batch_count);
         if(alpha == 1.0 && beta == 1.0)
         {
+            printf("alpha==1  beta==1 \n");
             hipLaunchKernelGGL(
                 HIP_KERNEL_NAME(
                     gemm_batched_kernel<
@@ -343,6 +361,7 @@ void gemm_batched_solution(int m, int n, int k,
         }
         else if(alpha == 1.0 && beta == -1.0)
         {
+            printf("alpha==1  beta==-1 \n");
             hipLaunchKernelGGL(
                 HIP_KERNEL_NAME(
                     gemm_batched_kernel<
@@ -361,6 +380,7 @@ void gemm_batched_solution(int m, int n, int k,
         }
         else if(alpha == 1.0 && beta == 0.0)
         {
+            printf("alpha==1  beta==0 \n");
             hipLaunchKernelGGL(
                 HIP_KERNEL_NAME(
                     gemm_batched_kernel<
@@ -379,6 +399,7 @@ void gemm_batched_solution(int m, int n, int k,
         }
         else if(alpha == -1.0 && beta == 0.0)
         {
+            printf("alpha==-1  beta==0 \n");
             hipLaunchKernelGGL(
                 HIP_KERNEL_NAME(
                     gemm_batched_kernel<
@@ -397,6 +418,7 @@ void gemm_batched_solution(int m, int n, int k,
         }
         else
         {
+            printf("general alpha  beta   ");
             hipLaunchKernelGGL(
                 HIP_KERNEL_NAME(
                     gemm_batched_kernel<
