@@ -40,17 +40,19 @@
 #endif
 
 template <typename T>
-void printMatrix_batched(const char* name, T* A, rocblas_int m, rocblas_int n, rocblas_int lda, rocblas_int stride_a, rocblas_int batch_count)
+void printMatrix_batched(const char* name, rocblas_operation trans, T* A, rocblas_int m, rocblas_int n, rocblas_int lda, rocblas_int s3, rocblas_int batch_count)
 {
+    size_t s1 = trans == rocblas_operation_none ? 1 : lda;
+    size_t s2 = trans == rocblas_operation_none ? lda : 1;
     int m_max =12, n_max =12, batch_count_max =12;
     printf("---------- %s ----------\n", name);
     for( int b = 0; b < batch_count && b < batch_count_max; b++)
     {
-        for( int i = 0; i < m && i < m_max; i++)
+        for( int i1 = 0; i1 < m && i1 < m_max; i1++)
         {
-            for( int j = 0; j < n && j < n_max; j++)
+            for( int i2 = 0; i2 < n && i2 < n_max; i2++)
             {
-                printf("%f ",A[i + j * lda + b * stride_a]);
+                printf("%f ",A[i1 * s1 + i2 * s2 + b * s3]);
             }
             printf("\n");
         }
@@ -191,11 +193,11 @@ template <typename T>
 void gemm_ref(rocblas_operation trans_a, rocblas_operation trans_b, rocblas_int m, rocblas_int n, rocblas_int k,
         T alpha, T* a, rocblas_int lda, T* b, rocblas_int ldb, T beta, T* c, rocblas_int ldc)
 {
-    size_t a_inc_1 = trans_a == rocblas_operation_none ? 1 : lda;
-    size_t a_inc_2 = trans_a == rocblas_operation_none ? lda : 1;
-    size_t b_inc_1 = trans_b == rocblas_operation_none ? 1 : ldb;
-    size_t b_inc_2 = trans_b == rocblas_operation_none ? ldb : 1;
-    size_t c_inc_1 = 1, c_inc_2 = ldc;
+    size_t a_s1 = trans_a == rocblas_operation_none ? 1 : lda;
+    size_t a_s2 = trans_a == rocblas_operation_none ? lda : 1;
+    size_t b_s1 = trans_b == rocblas_operation_none ? 1 : ldb;
+    size_t b_s2 = trans_b == rocblas_operation_none ? ldb : 1;
+    size_t c_s1 = 1, c_s2 = ldc;
     for(int i1 = 0; i1 < m; i1++)
     {
         for(int i2 = 0; i2 < n; i2++)
@@ -203,9 +205,9 @@ void gemm_ref(rocblas_operation trans_a, rocblas_operation trans_b, rocblas_int 
             T temp = 0;
             for(int i3 = 0; i3 < k; i3++)
             {
-                temp += a[i1*a_inc_1 + i3* a_inc_2] * b[i3*b_inc_1 + i2*b_inc_2];
+                temp += a[i1*a_s1 + i3* a_s2] * b[i3*b_s1 + i2*b_s2];
             }
-            c[i1*c_inc_1 + i2*c_inc_2] = beta * c[i1*c_inc_1 + i2*c_inc_2] + alpha * temp;
+            c[i1*c_s1 + i2*c_s2] = beta * c[i1*c_s1 + i2*c_s2] + alpha * temp;
         }
     }
 }
@@ -236,8 +238,10 @@ void batch_diff(rocblas_int m, rocblas_int n,
 }
 
 template <typename T>
-void alternating_signs(rocblas_int n1, rocblas_int n2, rocblas_int batch_count, rocblas_int lda, rocblas_int stride_a, T** matrix)
+void alternating_signs(rocblas_operation trans, rocblas_int n1, rocblas_int n2, rocblas_int batch_count, rocblas_int lda, rocblas_int s3, T** matrix)
 {
+    size_t s1 = trans == rocblas_operation_none ? 1 : lda;
+    size_t s2 = trans == rocblas_operation_none ? lda : 1;
     // make b matrix entries have alternating signs like checkerboard
     T sign;
     for (int i3 = 0; i3 < batch_count; i3++)
@@ -247,7 +251,7 @@ void alternating_signs(rocblas_int n1, rocblas_int n2, rocblas_int batch_count, 
             for (int i2 = 0; i2 < n2; i2++)
             {
                 sign = (i1 + i2) & 1 ? 1 : -1;
-                (*matrix)[i1 + i2*lda + i3*stride_a] *= sign;
+                (*matrix)[i1*s1 + i2*s2 + i3*s3] *= sign;
             }
         }
     }
@@ -370,21 +374,21 @@ void test_gemm(rocblas_operation trans_a, rocblas_operation trans_b,
                int m, int n, int k, int lda, int ldb, int ldc,
                T alpha, T beta, int batch_count, int iterations, int pattern, bool verbose)
 {
-    rocblas_int a_n_1, a_n_2, b_n_1, b_n_2, c_n_1, c_n_2;
-    a_n_1 = trans_a == rocblas_operation_none ? m : k;
-    a_n_2 = trans_a == rocblas_operation_none ? k : m;
-    b_n_1 = trans_b == rocblas_operation_none ? k : n;
-    b_n_2 = trans_b == rocblas_operation_none ? n : k;
-    c_n_1 = m;
-    c_n_2 = n;
+    rocblas_int a_n1, a_n2, b_n1, b_n2, c_n1, c_n2;
+    a_n1 = trans_a == rocblas_operation_none ? m : k;
+    a_n2 = trans_a == rocblas_operation_none ? k : m;
+    b_n1 = trans_b == rocblas_operation_none ? k : n;
+    b_n2 = trans_b == rocblas_operation_none ? n : k;
+    c_n1 = m;
+    c_n2 = n;
 
-    rocblas_int stride_a = lda * a_n_2;
-    rocblas_int stride_b = ldb * b_n_2;
-    rocblas_int stride_c = ldc * c_n_2;
+    rocblas_int a_s3 = lda * a_n2;
+    rocblas_int b_s3 = ldb * b_n2;
+    rocblas_int c_s3 = ldc * c_n2;
 
-    std::size_t size_a = stride_a * batch_count;
-    std::size_t size_b = stride_b * batch_count;
-    std::size_t size_c = stride_c * batch_count;
+    std::size_t size_a = a_s3 * batch_count;
+    std::size_t size_b = b_s3 * batch_count;
+    std::size_t size_c = c_s3 * batch_count;
 
     //----------
     // GPU setup
@@ -411,9 +415,9 @@ void test_gemm(rocblas_operation trans_a, rocblas_operation trans_b,
     assert(h_Bptr != nullptr);
     assert(h_Cptr != nullptr);
     for (int i = 0; i < batch_count; ++i) {
-        h_Aptr[i] = d_A + stride_a * i;
-        h_Bptr[i] = d_B + stride_b * i;
-        h_Cptr[i] = d_C + stride_c * i;
+        h_Aptr[i] = d_A + a_s3 * i;
+        h_Bptr[i] = d_B + b_s3 * i;
+        h_Cptr[i] = d_C + c_s3 * i;
     }
 
     T** d_Aptr;
@@ -435,7 +439,7 @@ void test_gemm(rocblas_operation trans_a, rocblas_operation trans_b,
     for(int i = 0; i < size_b; i++){h_B[i] = dis(gen);}
     for(int i = 0; i < size_c; i++){h_C[i] = dis(gen);}
 
-    alternating_signs(b_n_1, b_n_2, batch_count, ldb, stride_b, &h_B);
+    alternating_signs(trans_b, b_n1, b_n2, batch_count, ldb, b_s3, &h_B);
 
     memcpy(Cref, h_C, sizeof(T)*size_c);
 
@@ -459,15 +463,15 @@ void test_gemm(rocblas_operation trans_a, rocblas_operation trans_b,
         if(trans_a == rocblas_operation_none)
         {
             std::cout << std::endl;
-            printMatrix_batched("h_A", h_A, m, k, lda, stride_a, batch_count);
+            printMatrix_batched("h_A", trans_a, h_A, m, k, lda, a_s3, batch_count);
         }
         else
         {
-            printMatrix_batched("trans h_A  ", h_A, k, m, lda, stride_a, batch_count);
+            printMatrix_batched("trans h_A  ", trans_a, h_A, m, k, lda, a_s3, batch_count);
         }
-        printMatrix_batched("h_B", h_B, k, n, ldb, stride_b, batch_count);
+        printMatrix_batched("h_B", trans_b, h_B, k, n, ldb, b_s3, batch_count);
 
-        printMatrix_batched("h_C", Cref, m, n, ldc, stride_c, batch_count);
+        printMatrix_batched("h_C", rocblas_operation_none, Cref, m, n, ldc, c_s3, batch_count);
 
     }
 
@@ -494,7 +498,7 @@ void test_gemm(rocblas_operation trans_a, rocblas_operation trans_b,
     }
 
     HIP_CHECK(hipMemcpy(h_C, d_C, sizeof(T)*size_c, hipMemcpyDeviceToHost));
-    if(verbose)printMatrix_batched("\nC    after", h_C, m, n, ldc, stride_c, batch_count);
+    if(verbose)printMatrix_batched("\nC    after", rocblas_operation_none, h_C, m, n, ldc, c_s3, batch_count);
 
     double ops;
     double bytes;
@@ -524,11 +528,11 @@ void test_gemm(rocblas_operation trans_a, rocblas_operation trans_b,
                    beta,  &Cref[b*ldc*n], ldc);
     }
 
-    if(verbose) printMatrix_batched("Cref after", Cref, m, n, ldc, stride_c, batch_count);
+    if(verbose) printMatrix_batched("Cref after", rocblas_operation_none, Cref, m, n, ldc, c_s3, batch_count);
 
 
     // compare GPU (h_C) to CPU (Cref)
-    batch_diff(m, n, Cref, ldc, stride_c, h_C, ldc, stride_c, batch_count);
+    batch_diff(m, n, Cref, ldc, c_s3, h_C, ldc, c_s3, batch_count);
 
 //  gemm_indices_solution(m, n, k, lda, ldb, ldc, batch_count);
 
@@ -578,13 +582,13 @@ int main(int argc, char** argv)
         return -1;
     }
 
-    rocblas_int a_n_1 = (trans_a == rocblas_operation_none ? m : k);
-    rocblas_int b_n_1 = (trans_b == rocblas_operation_none ? k : n);
-    rocblas_int c_n_1 = m;
+    rocblas_int a_n1 = (trans_a == rocblas_operation_none ? m : k);
+    rocblas_int b_n1 = (trans_b == rocblas_operation_none ? k : n);
+    rocblas_int c_n1 = m;
 
-    lda = lda >= a_n_1 ? lda : a_n_1;
-    ldb = ldb >= b_n_1 ? ldb : b_n_1;
-    ldc = ldc >= c_n_1 ? ldc : c_n_1;
+    lda = lda >= a_n1 ? lda : a_n1;
+    ldb = ldb >= b_n1 ? ldb : b_n1;
+    ldc = ldc >= c_n1 ? ldc : c_n1;
 
     char trans_a_char = trans_a == rocblas_operation_none ? 'N' : 'T';
     char trans_b_char = trans_b == rocblas_operation_none ? 'N' : 'T';
