@@ -5,6 +5,7 @@
 #include <complex>
 #include <hip/hip_runtime.h>
 #include <iostream>
+#include "rocblas.h"
 
 // general alpha, beta, m, n, k
 template <typename T,
@@ -322,7 +323,8 @@ static void gemm_batched_kernel(
 }
 
 template <typename T>
-void gemm_batched_solution(int m, int n, int k,
+void gemm_batched_solution(rocblas_operation trans_a, rocblas_operation trans_b,
+                    int m, int n, int k,
                     const T alpha, const T* const dA_array[], int lda,
                                     const T* const dB_array[], int ldb,
                     const T beta,        T* const dC_array[], int ldc,
@@ -574,6 +576,7 @@ void gemm_batched_solution(int m, int n, int k,
 //----------------------------------------------------------------------------
 template
 void gemm_batched_solution<float>(
+    rocblas_operation trans_a, rocblas_operation trans_b,
     int m, int n, int k,
     const float alpha,
     const float* const dA_array[], int lda,
@@ -584,6 +587,7 @@ void gemm_batched_solution<float>(
 
 template
 void gemm_batched_solution<double>(
+    rocblas_operation trans_a, rocblas_operation trans_b,
     int m, int n, int k,
     const double alpha,
     const double* const dA_array[], int lda,

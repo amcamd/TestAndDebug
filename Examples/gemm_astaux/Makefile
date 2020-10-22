@@ -17,7 +17,7 @@ EXE = a.out
 all: lib test
 
 lib:
-	$(HIPCC) -O3 -fno-gpu-rdc -fPIC -c ast_gemm.cpp
+	$(HIPCC) -O3 -fno-gpu-rdc -fPIC $(INC) -c ast_gemm.cpp
 	$(GCC) -shared -fPIC -o libastaux.so            ast_gemm.o
 
 test:

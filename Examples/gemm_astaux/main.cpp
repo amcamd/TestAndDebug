@@ -469,7 +469,14 @@ void test_gemm(rocblas_operation trans_a, rocblas_operation trans_b,
         {
             printMatrix_batched("trans h_A  ", trans_a, h_A, m, k, lda, a_s3, batch_count);
         }
-        printMatrix_batched("h_B", trans_b, h_B, k, n, ldb, b_s3, batch_count);
+        if(trans_b == rocblas_operation_none)
+        {
+            printMatrix_batched("h_B", trans_b, h_B, k, n, ldb, b_s3, batch_count);
+        }
+        else
+        {
+            printMatrix_batched("trans h_B", trans_b, h_B, k, n, ldb, b_s3, batch_count);
+        }
 
         printMatrix_batched("h_C", rocblas_operation_none, Cref, m, n, ldc, c_s3, batch_count);
 
@@ -485,7 +492,7 @@ void test_gemm(rocblas_operation trans_a, rocblas_operation trans_b,
         double elapsed;
         start = omp_get_wtime();
 
-            gemm_batched_solution<T>(m, n, k,
+            gemm_batched_solution<T>(trans_a, trans_b, m, n, k,
                               alpha, d_Aptr, lda,
                                       d_Bptr, ldb,
                               beta,  d_Cptr, ldc,
@@ -600,11 +607,11 @@ int main(int argc, char** argv)
         << alpha << ", " << beta << ", " 
         << batch_count << ".  ";
 
-    if(trans_a != rocblas_operation_none || trans_b != rocblas_operation_none)
-    {
-        std::cout << "ERROR: only NN transpositon supported" << std::endl;
-        return (EXIT_FAILURE);
-    }
+//  if(trans_a != rocblas_operation_none || trans_b != rocblas_operation_none)
+//  {
+//      std::cout << "ERROR: only NN transpositon supported" << std::endl;
+//      return (EXIT_FAILURE);
+//  }
     if(precision == 's')
     {
         test_gemm<float>(trans_a, trans_b, m, n, k, lda, ldb, ldc, alpha, beta, batch_count, iterations, pattern, verbose);
