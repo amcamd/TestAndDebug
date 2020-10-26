@@ -69,6 +69,7 @@ void usage(char *argv[])
         << "\t-m \t\t\tm\t\trocblas_gemm_ex argument m\n"
         << "\t-n \t\t\tn\t\trocblas_gemm_ex argument n\n"
         << "\t-k \t\t\tk\t\trocblas_gemm_ex argument k\n"
+        << "\t--batch_count \t\tbatch_count \trocblas_gemm_ex argument batch_count\n"
         << "\t--trans_a \t\ttrans_a \tn, N, t, or T\n"
         << "\t--trans_b \t\ttrans_b \tn, N, t, or T\n"
         << "\t--lda \t\t\tlda \t\trocblas_gemm_ex argument lda\n"
@@ -213,7 +214,7 @@ void gemm_ref(rocblas_operation trans_a, rocblas_operation trans_b, rocblas_int 
 }
 
 template <typename T>
-void batch_diff(rocblas_int m, rocblas_int n, 
+void batch_diff( rocblas_int m, rocblas_int n, 
         T* Cref, rocblas_int ldc_ref, rocblas_stride stridec_ref,
         T* h_C, rocblas_int ldc, rocblas_stride stridec,
         rocblas_int batch_count)
@@ -381,7 +382,6 @@ void test_gemm(rocblas_operation trans_a, rocblas_operation trans_b,
     b_n2 = trans_b == rocblas_operation_none ? n : k;
     c_n1 = m;
     c_n2 = n;
-
     rocblas_int a_s3 = lda * a_n2;
     rocblas_int b_s3 = ldb * b_n2;
     rocblas_int c_s3 = ldc * c_n2;
@@ -439,20 +439,12 @@ void test_gemm(rocblas_operation trans_a, rocblas_operation trans_b,
     for(int i = 0; i < size_b; i++){h_B[i] = dis(gen);}
     for(int i = 0; i < size_c; i++){h_C[i] = dis(gen);}
 
-    alternating_signs(trans_b, b_n1, b_n2, batch_count, ldb, b_s3, &h_B);
+    alternating_signs(trans_b, k, n, batch_count, ldb, b_s3, &h_B);
 
     memcpy(Cref, h_C, sizeof(T)*size_c);
 
-    int iseed[4] = {0, 0, 0, 1};
-
-//  hipblasHandle_t handle;
-//  hipblasCreate(&handle);
-
     hipStream_t stream;
     HIP_CHECK(hipStreamCreate(&stream));
-
-//  rocblas_handle handle;
-//  CHECK_ROCBLAS_ERROR(rocblas_create_handle(&handle));
 
     //--------
     // GPU run
@@ -526,13 +518,12 @@ void test_gemm(rocblas_operation trans_a, rocblas_operation trans_b,
     //------------------
     // CPU setup and run
 
-
     for (int b = 0; b < batch_count; ++b) {
         gemm_ref(trans_a, trans_b,
                    m, n, k,
-                   alpha, &h_A[b*lda*k], lda,
-                          &h_B[b*ldb*n], ldb,
-                   beta,  &Cref[b*ldc*n], ldc);
+                   alpha, &h_A[a_s3*b], lda,
+                          &h_B[b_s3*b], ldb,
+                   beta,  &Cref[c_s3*b], ldc);
     }
 
     if(verbose) printMatrix_batched("Cref after", rocblas_operation_none, Cref, m, n, ldc, c_s3, batch_count);
@@ -579,7 +570,7 @@ int main(int argc, char** argv)
     rocblas_operation trans_a = rocblas_operation_none;
     rocblas_operation trans_b = rocblas_operation_none;
     bool first = true;
-    float alpha = -1, beta = -1;
+    float alpha = 1, beta = 0;
     char precision = 's';
     bool verbose = false;
 
@@ -624,8 +615,6 @@ int main(int argc, char** argv)
     {
         std::cout << "ERROR: precision not implemented" << std::endl;
     }
-
-    printf("\n");
 
     return (EXIT_SUCCESS);
 }
