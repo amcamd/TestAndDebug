@@ -12,7 +12,8 @@ template <typename T,
           int DIM_M, int DIM_N,
           int BLK_M, int BLK_N, int BLK_K,
           int DIM_M_A, int DIM_N_A,
-          int DIM_M_B, int DIM_N_B>
+          int DIM_M_B, int DIM_N_B,
+          bool TRANS_A, bool TRANS_B>
 __attribute__((amdgpu_flat_work_group_size(DIM_M*DIM_N,DIM_M*DIM_N)))
 __global__
 static void gemm_batched_general_kernel(
@@ -61,7 +62,14 @@ static void gemm_batched_general_kernel(
                 int i =  m + a_i_offset;
                 int j =  n + kk + a_j_offset;
                 if(i < M && j < K)
-                    sA[n+thyA][m+thxA] = dA[i + j*lda];
+                    if(TRANS_A)
+                    {
+                        sA[n+thyA][m+thxA] = dA[i*lda + j];
+                    }
+                    else
+                    {
+                        sA[n+thyA][m+thxA] = dA[i + j*lda];
+                    }
                 else
                     sA[n+thyA][m+thxA] = 0.0;
             }
@@ -75,7 +83,14 @@ static void gemm_batched_general_kernel(
                 int i =  m + kk + b_i_offset;
                 int j =  n + b_j_offset;
                 if(i < K && j < N)
-                    sB[n+thyB][m+thxB] = dB[i + j*ldb];
+                    if(TRANS_B)
+                    {
+                        sB[n+thyB][m+thxB] = dB[i*ldb + j];
+                    }
+                    else
+                    {
+                        sB[n+thyB][m+thxB] = dB[i + j*ldb];
+                    }
                 else
                     sB[n+thyB][m+thxB] = 0;
             }
@@ -555,14 +570,16 @@ void gemm_batched_solution(rocblas_operation trans_a, rocblas_operation trans_b,
         dim3 dimBlock(dim_m, dim_n, 1);
         dim3 dimGrid(((m-1)/blk_m)+1, ((n-1)/blk_n)+1, batch_count);
         printf("general alpha  beta  m  n  k    ");
-        hipLaunchKernelGGL(
+        if(rocblas_operation_none == trans_a && rocblas_operation_none == trans_b)
+        {
+            hipLaunchKernelGGL(
             HIP_KERNEL_NAME(
                 gemm_batched_general_kernel<
                     T,
                     dim_m, dim_n,
                     blk_m, blk_n, blk_k,
                     blk_m, blk_k,
-                    blk_k, blk_n>),
+                    blk_k, blk_n, false, false>),
             dimGrid, dimBlock, 0, stream,
             m, n, k, alpha,
             dA_array, lda,
@@ -570,6 +587,61 @@ void gemm_batched_solution(rocblas_operation trans_a, rocblas_operation trans_b,
             beta,
             dC_array, ldc,
             batch_count);
+        }
+        else if(rocblas_operation_transpose == trans_a && rocblas_operation_none == trans_b)
+        {
+            hipLaunchKernelGGL(
+            HIP_KERNEL_NAME(
+                gemm_batched_general_kernel<
+                    T,
+                    dim_m, dim_n,
+                    blk_m, blk_n, blk_k,
+                    blk_m, blk_k,
+                    blk_k, blk_n, true, false>),
+            dimGrid, dimBlock, 0, stream,
+            m, n, k, alpha,
+            dA_array, lda,
+            dB_array, ldb,
+            beta,
+            dC_array, ldc,
+            batch_count);
+        }
+        else if(rocblas_operation_none == trans_a && rocblas_operation_transpose == trans_b)
+        {
+            hipLaunchKernelGGL(
+            HIP_KERNEL_NAME(
+                gemm_batched_general_kernel<
+                    T,
+                    dim_m, dim_n,
+                    blk_m, blk_n, blk_k,
+                    blk_m, blk_k,
+                    blk_k, blk_n, false, true>),
+            dimGrid, dimBlock, 0, stream,
+            m, n, k, alpha,
+            dA_array, lda,
+            dB_array, ldb,
+            beta,
+            dC_array, ldc,
+            batch_count);
+        }
+        else if(rocblas_operation_transpose == trans_a && rocblas_operation_transpose == trans_b)
+        {
+            hipLaunchKernelGGL(
+            HIP_KERNEL_NAME(
+                gemm_batched_general_kernel<
+                    T,
+                    dim_m, dim_n,
+                    blk_m, blk_n, blk_k,
+                    blk_m, blk_k,
+                    blk_k, blk_n, true, true>),
+            dimGrid, dimBlock, 0, stream,
+            m, n, k, alpha,
+            dA_array, lda,
+            dB_array, ldb,
+            beta,
+            dC_array, ldc,
+            batch_count);
+        }
     }
 }
 
