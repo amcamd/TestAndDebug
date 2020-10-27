@@ -126,7 +126,8 @@ template <typename T,
           int DIM_M_A,
           int DIM_N_A,
           int DIM_M_B,
-          int DIM_N_B>
+          int DIM_N_B,
+          bool TRANS_A, bool TRANS_B>
 __attribute__((amdgpu_flat_work_group_size(DIM_M * DIM_N, DIM_M* DIM_N))) __global__ static void
     gemm_batched_kernel(int    M,
                         int    N,
@@ -189,23 +190,52 @@ __attribute__((amdgpu_flat_work_group_size(DIM_M * DIM_N, DIM_M* DIM_N))) __glob
         __shared__ T sB[BLK_N][BLK_K]; // shared memory for B
         T            rC[BLK_N / DIM_N][BLK_M / DIM_M]; // registers for C
 
-        int coord_A = (blx * BLK_M + thyA * lda) + thxA;
-        int coord_B = (bly * BLK_N * ldb + thyB * ldb) + thxB;
-
         for(int n = 0; n < BLK_N / DIM_N; ++n)
             for(int m = 0; m < BLK_M / DIM_M; ++m)
                 rC[n][m] = 0.0;
+
+        int coord_A, coord_B;
+        if(TRANS_A)
+        {
+            coord_A = (thxA + blx * BLK_M) * lda + (thyA);
+        }
+        else
+        {
+            coord_A = (thxA + blx * BLK_M) + (thyA) * lda;
+        }
+        if(TRANS_B)
+        {
+            coord_B = thxB * ldb + (bly * BLK_N + thyB);
+        }
+        else
+        {
+            coord_B = thxB + (bly * BLK_N + thyB) * ldb;
+        }
 
         int kk = 0;
         for(; kk < K; kk += BLK_K)
         {
             for(int n = 0; n < BLK_K; n += DIM_N_A)
                 for(int m = 0; m < BLK_M; m += DIM_M_A)
-                    sA[n + thyA][m + thxA] = dA[coord_A + (n * lda + m)];
+                    if(TRANS_A)
+                    {
+                        sA[n + thyA][m + thxA] = dA[coord_A + m * lda + n];
+                    }
+                    else
+                    {
+                        sA[n + thyA][m + thxA] = dA[coord_A + m + n * lda];
+                    }
 
             for(int n = 0; n < BLK_N; n += DIM_N_B)
                 for(int m = 0; m < BLK_K; m += DIM_M_B)
-                    sB[n + thyB][m + thxB] = dB[coord_B + (n * ldb + m)];
+                    if(TRANS_B)
+                    {
+                        sB[n + thyB][m + thxB] = dB[coord_B + m * ldb + n];
+                    }
+                    else
+                    {
+                        sB[n + thyB][m + thxB] = dB[coord_B + m + n * ldb];
+                    }
 
             __syncthreads();
 
@@ -216,8 +246,22 @@ __attribute__((amdgpu_flat_work_group_size(DIM_M * DIM_N, DIM_M* DIM_N))) __glob
 
             __syncthreads();
 
-            coord_A += BLK_K * lda;
-            coord_B += BLK_K;
+            if(TRANS_A)
+            {
+                coord_A += BLK_K;
+            }
+            else
+            {
+                coord_A += BLK_K * lda;
+            }
+            if(TRANS_B)
+            {
+                coord_B += BLK_K * ldb;
+            }
+            else
+            {
+                coord_B += BLK_K;
+            }
         }
 
         if(beta == 0)
@@ -435,15 +479,17 @@ void gemm_batched_solution(rocblas_operation trans_a, rocblas_operation trans_b,
         }
         else
         {
-            printf("general alpha  beta   ");
-            hipLaunchKernelGGL(
+            if(rocblas_operation_none == trans_a && rocblas_operation_none == trans_b)
+            {
+                printf("general alpha  beta  NN   ");
+                hipLaunchKernelGGL(
                 HIP_KERNEL_NAME(
                     gemm_batched_kernel<
                         T,
                         dim_m, dim_n,
                         blk_m, blk_n, blk_k,
                         blk_m, blk_k,
-                        blk_k, blk_n>),
+                        blk_k, blk_n, false, false>),
                 dimGrid, dimBlock, 0, stream,
                 m, n, k, alpha,
                 dA_array, lda,
@@ -451,6 +497,64 @@ void gemm_batched_solution(rocblas_operation trans_a, rocblas_operation trans_b,
                 beta,
                 dC_array, ldc,
                 batch_count);
+            }
+            else if(rocblas_operation_transpose == trans_a && rocblas_operation_none == trans_b)
+            {
+                printf("general alpha  beta  TN  ");
+                hipLaunchKernelGGL(
+                HIP_KERNEL_NAME(
+                    gemm_batched_kernel<
+                        T,
+                        dim_m, dim_n,
+                        blk_m, blk_n, blk_k,
+                        blk_m, blk_k,
+                        blk_k, blk_n, true, false>),
+                dimGrid, dimBlock, 0, stream,
+                m, n, k, alpha,
+                dA_array, lda,
+                dB_array, ldb,
+                beta,
+                dC_array, ldc,
+                batch_count);
+            }
+            else if(rocblas_operation_none == trans_a && rocblas_operation_transpose == trans_b)
+            {
+                printf("general alpha  beta  NT  ");
+                hipLaunchKernelGGL(
+                HIP_KERNEL_NAME(
+                    gemm_batched_kernel<
+                        T,
+                        dim_m, dim_n,
+                        blk_m, blk_n, blk_k,
+                        blk_m, blk_k,
+                        blk_k, blk_n, false, true>),
+                dimGrid, dimBlock, 0, stream,
+                m, n, k, alpha,
+                dA_array, lda,
+                dB_array, ldb,
+                beta,
+                dC_array, ldc,
+                batch_count);
+            }
+            else if(rocblas_operation_transpose == trans_a && rocblas_operation_transpose == trans_b)
+            {
+                printf("general alpha  beta  TT  ");
+                hipLaunchKernelGGL(
+                HIP_KERNEL_NAME(
+                    gemm_batched_kernel<
+                        T,
+                        dim_m, dim_n,
+                        blk_m, blk_n, blk_k,
+                        blk_m, blk_k,
+                        blk_k, blk_n, true, true >),
+                dimGrid, dimBlock, 0, stream,
+                m, n, k, alpha,
+                dA_array, lda,
+                dB_array, ldb,
+                beta,
+                dC_array, ldc,
+                batch_count);
+            }
         }
     }
     else if((m % 32 == 0) && (n % 32 == 0) && (k % 8 == 0)) 
@@ -542,15 +646,17 @@ void gemm_batched_solution(rocblas_operation trans_a, rocblas_operation trans_b,
         }
         else
         {
-            printf("general alpha  beta   ");
-            hipLaunchKernelGGL(
+            if(rocblas_operation_none == trans_a && rocblas_operation_none == trans_b)
+            {
+                printf("general alpha  beta  NN  ");
+                hipLaunchKernelGGL(
                 HIP_KERNEL_NAME(
                     gemm_batched_kernel<
                         T,
                         dim_m, dim_n,
                         blk_m, blk_n, blk_k,
                         blk_m, blk_k,
-                        blk_k, blk_n>),
+                        blk_k, blk_n, false, false>),
                 dimGrid, dimBlock, 0, stream,
                 m, n, k, alpha,
                 dA_array, lda,
@@ -558,6 +664,64 @@ void gemm_batched_solution(rocblas_operation trans_a, rocblas_operation trans_b,
                 beta,
                 dC_array, ldc,
                 batch_count);
+            }
+            else if(rocblas_operation_transpose == trans_a && rocblas_operation_none == trans_b)
+            {
+                printf("general alpha  beta  TN  ");
+                hipLaunchKernelGGL(
+                HIP_KERNEL_NAME(
+                    gemm_batched_kernel<
+                        T,
+                        dim_m, dim_n,
+                        blk_m, blk_n, blk_k,
+                        blk_m, blk_k,
+                        blk_k, blk_n, true, false>),
+                dimGrid, dimBlock, 0, stream,
+                m, n, k, alpha,
+                dA_array, lda,
+                dB_array, ldb,
+                beta,
+                dC_array, ldc,
+                batch_count);
+            }
+            else if(rocblas_operation_none == trans_a && rocblas_operation_transpose == trans_b)
+            {
+                printf("general alpha  beta  NT  ");
+                hipLaunchKernelGGL(
+                HIP_KERNEL_NAME(
+                    gemm_batched_kernel<
+                        T,
+                        dim_m, dim_n,
+                        blk_m, blk_n, blk_k,
+                        blk_m, blk_k,
+                        blk_k, blk_n, false, true>),
+                dimGrid, dimBlock, 0, stream,
+                m, n, k, alpha,
+                dA_array, lda,
+                dB_array, ldb,
+                beta,
+                dC_array, ldc,
+                batch_count);
+            }
+            else if(rocblas_operation_transpose == trans_a && rocblas_operation_transpose == trans_b)
+            {
+                printf("general alpha  beta  TT  ");
+                hipLaunchKernelGGL(
+                HIP_KERNEL_NAME(
+                    gemm_batched_kernel<
+                        T,
+                        dim_m, dim_n,
+                        blk_m, blk_n, blk_k,
+                        blk_m, blk_k,
+                        blk_k, blk_n, true, true>),
+                dimGrid, dimBlock, 0, stream,
+                m, n, k, alpha,
+                dA_array, lda,
+                dB_array, ldb,
+                beta,
+                dC_array, ldc,
+                batch_count);
+            }
         }
     }
     else
