@@ -25,18 +25,24 @@ git checkout develop
 echo "==============================================================="
 echo "=====build=rocblas=with=install.sh============================="
 echo "==============================================================="
+
+
+export HIPCC_LINK_FLAGS_APPEND="-O3 -parallel-jobs=4"
+export HIPCC_COMPILE_FLAGS_APPEND="-O3 -Wno-format-nonliteral -parallel-jobs=4"
+
+
 if [ "$(/opt/rocm/bin/rocm_agent_enumerator | grep -m 1 gfx900)" == "gfx900" ]; then
     echo "=====ISA = gfx900, use -agfx900 directive ===================="
-    time ./install.sh -agfx900 -c
+    time VERBOSE=1 ./install.sh -agfx900 -c 2>&1 | tee install.out
 elif [ "$(/opt/rocm/bin/rocm_agent_enumerator | grep -m 1 gfx906)" == "gfx906" ]; then
     echo "=====ISA = gfx906, use -agfx906 directive ===================="
-    time ./install.sh -agfx906 -c
+    time VERBOSE=1 ./install.sh -agfx906 -c 2>&1 | tee install.out
 elif [ "$(/opt/rocm/bin/rocm_agent_enumerator | grep -m 1 gfx908)" == "gfx908" ]; then
     echo "=====ISA = gfx908, use -agfx908 directive ===================="
-    time ./install.sh -agfx908 -c
+    time VERBOSE=1 ./install.sh -agfx908 -c 2>&1 | tee install.out
 else
     echo "build fat binary, ISA != gfx900 and ISA != gfx906 and ISA != gfx908"
-    time ./install.sh -c
+    time VERBOSE=1 ./install.sh -c 2>&1 | tee install.out
 fi
 if [[ $? -ne 0 ]]; then
     echo "install error"
