@@ -941,6 +941,7 @@ Docker containers used in Jenkins.
 <ul>
 	<li><code>sudo docker run -it --rm --device "/dev/kfd" --device "/dev/dri" --group-add video sunway513/ubuntu14.04:promote-free-v2</code></li>
 	<li><code>sudo docker run -it --rm --device "/dev/kfd" --device "/dev/dri" --group-add video rocm/rocm-terminal</code></li>
+    <li><code>sudo docker run --name andrew -tid --ipc=host --cap-add=SYS_PTRACE --privileged --security-opt seccomp=unconfined --device=/dev/kfd --device=/dev/dri --group-add video --group-add 44 -v /home:/home $image /bin/bash || exit 1</code></li>
 </ul></p>
 <p>To remove a docker container, first get CONTAINER ID with 
 <ul>
@@ -952,7 +953,7 @@ Docker containers used in Jenkins.
 
 <ul>
     <li> first get <code>container</code> with: <code>sudo docker ps</code></li>
-    <li> next use: <code>docker exec -e COLUMNS="`tput cols`" -e LINES="`tput lines`" -ti container /bin/bash</code></li>
+    <li> next use: <code>sudo docker exec -e COLUMNS="`tput cols`" -e LINES="`tput lines`" -ti container /bin/bash</code></li>
 </ul>
 
 <p>to copy a file to a docker container
