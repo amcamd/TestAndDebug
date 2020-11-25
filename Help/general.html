@@ -282,6 +282,26 @@ th, td {
 </tr>
 </table>
 
+<h4>using SSH key</h4>
+<ul>
+    <li>follow instructions at the following link to
+    <ul>
+        <li>generate a key</li>
+        <li>add ssh key to the ssh-agent</li>
+        <li>add the ssh key to Github account</li>
+    </ul>
+<a href="https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent#generating-a-new-ssh-key">Generating a new SSH key and adding it to the ssh-agent</a>
+    </li>
+    <li> Enalbe SSO on ssh keys. This is in your github account under [settings] [SSH and GPG keys]</li>
+    <li> <code>git clone git@github.com:ROCmSoftwarePlatform/rocBLAS-internal.git</li>
+    <li> You may need to add the following to ~/.ssh/config</li>
+<pre>
+Host github.com
+     Hostname ssh.github.com
+     Port 443
+</pre>
+</ul>
+
 <h1>Useful Git commands</h1>
 <h4>Create a tag</h4>
 <ul>
