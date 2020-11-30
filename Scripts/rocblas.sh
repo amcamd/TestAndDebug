@@ -8,7 +8,9 @@
 
 echo "=====clone=rocblas============================================="
 echo "==============================================================="
-git clone https://github.com/amcamd/rocBLAS-internal.git 
+#git clone https://github.com/amcamd/rocBLAS.git 
+git clone git@github.com:amcamd/rocBLAS-internal.git
+#git clone git@github.com:ROCmSoftwarePlatform/rocBLAS-internal.git https://github.com/amcamd/rocBLAS-internal.git 
 if [[ $? -ne 0 ]]; then
     echo "clone error"
     exit 1
