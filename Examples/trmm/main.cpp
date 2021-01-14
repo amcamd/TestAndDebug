@@ -8,11 +8,12 @@
 #include <stdlib.h>
 #include <hip/hip_runtime.h>
 #include "rocblas.h"
-#include "rocblas-types.h"
+//#include "rocblas-types.h"
 #include "dcld.hpp"
 #include "trmm_reference.hpp"
 #include "trmm_gemm_based.hpp"
-#include "rocblas_trmm.hpp"
+#include "trmm_recursive.hpp"
+//#include "rocblas_trmm.hpp"
 
 #ifndef CHECK_HIP_ERROR
 #define CHECK_HIP_ERROR(error)                    \
@@ -359,16 +360,22 @@ void template_trmm(rocblas_side side,
               ha.data(), lda,
               hb_gemm_based.data(), ldb);
 
-      status = rocblas_trmm(side, uplo, trans, diag,
+//    status = rocblas_trmm(side, uplo, trans, diag,
+//            m, n, alpha,
+//            ha.data(), lda,
+//            hb_rocblas.data(), ldb);
+
+      status = trmm_recursive(side, uplo, trans, diag,
               m, n, alpha,
               ha.data(), lda,
               hb_rocblas.data(), ldb);
+
 
     if(verbose)
     {
         print_matrix("b_legacy output", hb_legacy, ldb, n, ldb);
         print_matrix("b_gemm_based output", hb_gemm_based, ldb, n, ldb);
-        print_matrix("rocblas_trmm", hb_rocblas, ldb, n, ldb);
+//      print_matrix("rocblas_trmm", hb_rocblas, ldb, n, ldb);
     }
 
     T norm_err = 0.0;
@@ -382,8 +389,8 @@ void template_trmm(rocblas_side side,
         {
             T t = hb_gemm_based[i1+i2*ldb] - hb_legacy[i1+i2*ldb];
             norm_err += t * t;
-            t = hb_rocblas[i1+i2*ldb] - hb_legacy[i1+i2*ldb];
-            norm_err_rocblas_trmm += t * t;
+//          t = hb_rocblas[i1+i2*ldb] - hb_legacy[i1+i2*ldb];
+//          norm_err_rocblas_trmm += t * t;
 	    if(t != t)
 	    {
 	        std::cout << "i1, i2, t, norm_err_rocblas_trmm = " << i1 << ", " << i2 << ", " 
@@ -394,7 +401,7 @@ void template_trmm(rocblas_side side,
         }
     }
     norm_err = sqrt(norm_err);
-    norm_err_rocblas_trmm = sqrt(norm_err_rocblas_trmm);
+//  norm_err_rocblas_trmm = sqrt(norm_err_rocblas_trmm);
     norm_ref = sqrt(norm_ref);
     if (norm_err < norm_ref * eps * tolerance)
     {
@@ -405,17 +412,17 @@ void template_trmm(rocblas_side side,
         std::cout << "FAIL, norm_ref * eps * tol = " << norm_ref * eps * tolerance << std::endl;
         std::cout << "  norm_err = " << norm_err;
     }
-    if (norm_err_rocblas_trmm < norm_ref * eps * tolerance)
-    {
-        std::cout << "PASS ";
-    }
-    else
-    {
-        std::cout << "  FAIL, norm_ref * eps * tol = " << norm_ref * eps * tolerance << std::endl;
-        std::cout << "  norm_err = " << norm_err_rocblas_trmm;
-    }
+//  if (norm_err_rocblas_trmm < norm_ref * eps * tolerance)
+//  {
+//      std::cout << "PASS ";
+//  }
+//  else
+//  {
+//      std::cout << "  FAIL, norm_ref * eps * tol = " << norm_ref * eps * tolerance << std::endl;
+//      std::cout << "  norm_err = " << norm_err_rocblas_trmm;
+//  }
     
-    std::cout << "norm_err = " << norm_err << ", " << norm_err_rocblas_trmm;
+//  std::cout << "norm_err = " << norm_err << ", " << norm_err_rocblas_trmm;
 }
 
 void strmm(rocblas_side side, 

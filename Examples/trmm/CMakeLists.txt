@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.5.1)
 
 set(CMAKE_CXX_COMPILER "/opt/rocm/bin/hipcc")
 set(ROCBLAS_INSTALL "/home/achapman/repos/ROCmSoftwarePlatform/rocBLAS/build/release/rocblas-install")
+set(ROCBLAS_INTERNAL "/home/achapman/repos/ROCmSoftwarePlatform/rocBLAS/library/src/")
 
 project ( i8_test LANGUAGES CXX )
 
@@ -16,11 +17,11 @@ endif()
 
 SET(CXX_BUILTIN "")
 
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX_BUILTIN}")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX_BUILTIN} -std=c++14")
 
 SET(SOURCES main.cpp)
 
-include_directories(${ROCBLAS_INSTALL}/include)
+include_directories(${ROCBLAS_INSTALL}/include ${ROCBLAS_INTERNAL}/include)
 link_directories(${ROCBLAS_INSTALL}/lib)
 
 add_executable(trmm_test main.cpp)

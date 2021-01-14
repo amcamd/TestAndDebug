@@ -1,5 +1,5 @@
 #include <algorithm>
-#include "rocblas-types.h"
+#include "rocblas.h"
 
 template <typename T>
 rocblas_status copy_reference(rocblas_int n, T* x, rocblas_int incx, T* y, rocblas_int incy)
