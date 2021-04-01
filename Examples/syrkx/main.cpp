@@ -44,6 +44,24 @@ void print_matrix(const char* name, rocblas_operation trans, T* A, rocblas_int m
     }
 }
 
+template <typename T>
+void print_matrix_pattern(const char* name, rocblas_operation trans, T* A, rocblas_int m, rocblas_int n, rocblas_int lda)
+{
+    size_t s1 = trans == rocblas_operation_none ? 1 : lda;
+    size_t s2 = trans == rocblas_operation_none ? lda : 1;
+    int m_max =60, n_max =60;
+    printf("---------- %s ----------\n", name);
+    for( int i1 = 0; i1 < m && i1 < m_max; i1++)
+    {
+        for( int i2 = 0; i2 < n && i2 < n_max; i2++)
+        {
+            printf("%2d ",static_cast<int>(A[i1 * s1 + i2 * s2]));
+        }
+        printf("\n");
+    }
+}
+
+
 void usage(char *argv[])
 {
     std::cerr << "Usage: " << argv[0] << " <options>\n"
@@ -162,6 +180,56 @@ int parse_args(int argc, char *argv[], int &n, int &k, int &batch_count, int &ld
     return EXIT_SUCCESS;
 }
 
+template <typename T>
+void mat_mat_mult(T alpha, T beta, int M, int N, int K,
+        T* a, int as1, int as2,
+        T* b, int bs1, int bs2,
+        T* c, int cs1, int cs2)
+{
+    for(int i1=0; i1<M; i1++)
+    {
+        for(int i2=0; i2<N; i2++)
+        {
+            T t = 0.0;
+            for(int i3=0; i3<K; i3++)
+            {
+                t +=  a[i1 * as1 + i3 * as2] * b[i3 * bs1 + i2 * bs2];
+            }
+            c[i1*cs1 +i2*cs2] = beta * c[i1*cs1+i2*cs2] + alpha * t ;
+        }
+    }
+}
+
+template <typename T>
+rocblas_status gemm_reference(rocblas_operation transA, rocblas_operation transB,
+        rocblas_int m, rocblas_int n, rocblas_int k, T alpha,
+        T* a, rocblas_int lda,
+        T* b, rocblas_int ldb, T beta,
+        T* c, rocblas_int ldc)
+{
+    rocblas_int a_s1 = transA == rocblas_operation_none ? 1 : lda;
+    rocblas_int a_s2 = transA == rocblas_operation_none ? lda : 1;
+
+    rocblas_int b_s1 = transB == rocblas_operation_none ? 1 : ldb;
+    rocblas_int b_s2 = transB == rocblas_operation_none ? ldb : 1;
+
+    rocblas_int c_s1 = 1, c_s2 = ldc;
+
+    for(int i1 = 0; i1 < m; i1++)
+    {
+        for(int i2 = 0; i2 < n; i2++)
+        {
+            T t = 0.0;
+            for(int i3 = 0; i3 < k; i3++)
+            {
+                t +=  a[i1*a_s1 + i3*a_s2] * b[i3*b_s1 + i2*b_s2];
+            }
+            c[i1*c_s1 + i2*c_s2] = beta * c[i1*c_s1 + i2*c_s2] + alpha * t ;
+        }
+    }
+
+    return rocblas_status_success;
+}
 
 
 void syrkx_ref(rocblas_fill uplo, rocblas_operation trans, 
@@ -195,6 +263,111 @@ void syrkx_ref(rocblas_fill uplo, rocblas_operation trans,
     return;
 }
 
+void iterative_algorithm(rocblas_int n, float* c, rocblas_int s1, rocblas_int s2)
+{
+    for (int i1 = 0; i1 < n; i1++)
+        for (int i2 = 0; i2 < n; i2++)
+            c[(i1 * s1) + (i2 * s2)] = 0;
+
+    rocblas_int nb_min = 3;
+    rocblas_int nb = nb_min;
+//  rocblas_int n_diag_blocks = (n + (nb - 1)) / nb;
+    rocblas_int ii, nn;
+
+    rocblas_int n_nb, rem, n_rem, skip, i_start = 0;
+
+    n_nb = n / nb;
+    rem = n % nb;
+    n_rem = rem == 0 ? 0 : 1;
+
+    std::cout << "n, nb_min, n_nb, n_rem = " << n << ", " << nb_min << ", " << n_nb << ", " << n_rem;
+    if(n_rem == 1) std::cout << "  rem = " << rem; std::cout << std::endl;
+
+
+    for (int i = 0; i < n_nb; i++)
+    {
+        ii = i * nb;
+        nn = nb;
+        // diag matrix at c[ii, ii], size of diag matrix is nn
+        std::cout << "[(" << ii << ", " << ii << "), " << nn << "], ";
+        for (int i1 = 0; i1 < nn; i1++)
+            for (int i2 = 0; i2 <= i1; i2++)
+                c[(ii+i1)*s1 + (ii+i2)*s2] = 1;
+    }
+    std::cout << std::endl;
+    if(n_rem == 1)
+    {
+        ii = n_nb * nb;
+        nn = n - ii;
+        // diag matrix at c[ii, ii], size of diag matrix is nn
+        std::cout << "[(" << ii << ", " << ii << "), " << nn << "]" << std::endl;
+        for (int i1 = 0; i1 < nn; i1++)
+            for (int i2 = 0; i2 <= i1; i2++)
+                c[(ii+i1)*s1 + (ii+i2)*s2] = 2;
+    }
+
+
+    i_start = 0;
+
+
+    rocblas_int iteration = 1;
+
+    for (iteration = 1; iteration < 10; iteration++)
+    {
+        std::cout << std::endl;
+
+        i_start += nb;
+        if(i_start > n) break;
+        nb = iteration == 1 ? nb_min : nb * 2;
+        skip = nb * 2;
+        n_nb = (n - i_start) / skip;
+        rem  = (n - i_start) % skip;
+        if(rem >= nb)
+        {
+            rem = 0;
+            n_nb += 1;
+        }
+        n_rem = rem == 0 ? 0 : 1;
+    
+        std::cout << "i_start, nb, skip, n_nb";
+        if(n_rem == 1) std::cout << ", n_rem, rem"; std::cout << " = ";
+        std::cout << i_start << ", " << nb << ", " << skip << ", " << n_nb << ", " ;
+        if(n_rem == 1) std::cout << ", " << n_rem << ", " << rem; std::cout << std::endl;
+    
+        for(int i = 0; i < n_nb; i++)
+        {
+            rocblas_int i1 = i_start + (i * skip);
+            rocblas_int i2 = i1 - nb;
+            std::cout << "[(" << i1 << ", " << i2 << "), " << nb << "],  ";
+            for (int i_i1 = 0; i_i1 < nb; i_i1++)
+                for (int i_i2 = 0; i_i2 < nb; i_i2++)
+                    c[(i1+i_i1)*s1 + (i2+i_i2)*s2] = iteration*2+1;
+        }
+        std::cout << std::endl;
+    
+        if(n_rem == 1)
+        {
+            rocblas_int i1 = i_start + n_nb * skip;
+            rocblas_int i2 = i1 - nb;
+            rocblas_int n1 = n - i1;
+            rocblas_int n2 = nb;
+            std::cout << "[i1,i2], [n1,n2] = " << "[" << i1 << ", " << i2 << "], " << "[" << n1 << ", " << n2 << "]" << std::endl;
+            for (int i_i1 = 0; i_i1 < n1; i_i1++)
+                for (int i_i2 = 0; i_i2 < n2; i_i2++)
+                    c[(i1+i_i1)*s1 + (i2+i_i2)*s2] = iteration*2+2;
+        }
+
+    }
+
+
+    return;
+
+
+
+
+
+    
+}
 
 
 int main(int argc, char** argv)
@@ -240,6 +413,14 @@ int main(int argc, char** argv)
     float* c_h = (float*)malloc(sizeof(float)*size_c); assert(c_h != nullptr);
     float* Cref = (float*)malloc(sizeof(float)*size_c); assert(Cref != nullptr);
 
+    iterative_algorithm(n, c_h, 1, ldc);
+
+    print_matrix_pattern("matrix C", rocblas_operation_none, c_h, n, n, ldc); 
+
+    return 0;
+
+
+
     std::random_device rd;  //Will be used to obtain a seed for the random number engine
     std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
     std::uniform_int_distribution<> dis(1, 4);
@@ -276,6 +457,12 @@ int main(int argc, char** argv)
     {
         print_matrix("matrix C", rocblas_operation_none, c_h, n, n, ldc); 
     }
+
+    rocblas_int m = n;
+    gemm_reference(trans, trans, m, n, k, alpha,
+        a_h, lda,
+        b_h, ldb, beta,
+        c_h, ldc);
 
     return 0;
 }
