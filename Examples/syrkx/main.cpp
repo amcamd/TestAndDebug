@@ -213,6 +213,17 @@ void initialize(rocblas_operation trans, rocblas_int n, rocblas_int k,
             c_h[i1 + i2*ldc] = 0;
 }
 
+bool verify_result(rocblas_int n, float *c_h, float *c_ref, rocblas_int ldc)
+{
+
+    bool pass = false;
+    for(int i1 = 0; i1 < n; i1++)
+    for(int i2 = 0; i2 < n; i2++)
+            if(c_h[i1 + i2*ldc] != c_ref[i1 + i2*ldc]) return false;
+    return true;
+
+}
+
 
 template <typename T>
 void mat_mat_mult(T alpha, T beta, int M, int N, int K,
@@ -355,8 +366,7 @@ void iterative_algorithm( rocblas_fill uplo, rocblas_operation trans,
     // diagonal blocks of size nb
     for (int i_nb = 0; i_nb < n_nb; i_nb++)
     {
-        i_diag = i_nb * nb;
-        // diag matrix at c[i_diag, i_diag], size of diag matrix is nn
+        i_diag = i_nb * nb; // diag block at c[i_diag, i_diag], size is nb
 
         syrkx_ref(uplo, trans, 
         nb, k, alpha, 
@@ -365,11 +375,11 @@ void iterative_algorithm( rocblas_fill uplo, rocblas_operation trans,
         &(c[i_diag + i_diag * ldc]), ldc);
     }
 
-    // remainder diagonal block of size nn
+    // remainder diagonal block of size nn < nb
     if(n_rem == 1)
     {
-        i_diag = n_nb * nb;
-        nn = n - i_diag;
+        i_diag = n_nb * nb; // diag block at c[i_diag, i_diag], size is nn
+        nn = n - i_diag; 
 
         syrkx_ref(uplo, trans, 
         nn, k, alpha, 
@@ -378,34 +388,11 @@ void iterative_algorithm( rocblas_fill uplo, rocblas_operation trans,
         &(c[i_diag + i_diag * ldc]), ldc);
     }
 
-
-    // calculate number of recursions
-    rocblas_int n_recursion = 0;
-    {
-        nb = nb_min;
-        i_start = nb_min;
-        while(n > i_start)
-        {
-            i_start += nb;
-            nb *= 2;
-            n_recursion += 1;
-        }
-    }
-
-
-    rocblas_int recursion = 1;
-    nb = nb_min;
-    i_start = 0;
-
     rocblas_operation trans_a = rocblas_operation_none == trans ? rocblas_operation_none : rocblas_operation_transpose;
     rocblas_operation trans_b = rocblas_operation_none == trans ?  rocblas_operation_transpose : rocblas_operation_none;
 
-    for (recursion = 1; recursion <= n_recursion; recursion++)
+    for (nb = nb_min, i_start = nb_min; i_start < n; i_start += nb, nb *= 2)
     {
-
-        i_start += nb;     if(i_start > n) std::cout << "ERROR: i_start > n" << std::endl;
-        nb = recursion == 1 ? nb_min : nb * 2;
-
         stride = nb * 2;
         n_nb = (n - i_start) / stride;
         rem  = (n - i_start) % stride;
@@ -421,7 +408,7 @@ void iterative_algorithm( rocblas_fill uplo, rocblas_operation trans,
         }
     
         rocblas_int c_s1, c_s2;
-        // gemm blocks of size nbxnb
+        // gemm blocks of size nb x nb
         for(int i = 0; i < n_nb; i++)
         {
             rocblas_int i1 = i_start + (i * stride);
@@ -447,13 +434,12 @@ void iterative_algorithm( rocblas_fill uplo, rocblas_operation trans,
         }
         std::cout << std::endl;
     
-        // remainder gemm block of size n1xn2
+        // remainder gemm block of size n1 x nb where n1 < nb
         if(n_rem == 1)
         {
             rocblas_int i1 = i_start + n_nb * stride;
             rocblas_int i2 = i1 - nb;
             rocblas_int n1 = n - i1;
-            rocblas_int n2 = nb;
 
             if(rocblas_fill_lower == uplo)
             {
@@ -465,7 +451,7 @@ void iterative_algorithm( rocblas_fill uplo, rocblas_operation trans,
             }
             else
             {
-                // if for lower C = A B^T then to get upper (or transpose) C^T = B A^T
+                // The lower triangle of c is the transpose of the upper triangle so if  C = A B^T  then  C^T = B A^T. 
                 c_s1 = ldc; c_s2 = 1;
                 gemm_reference(trans_a, trans_b, nb, n1, k, alpha,
                     &(b[i2*b_s1]), ldb,
@@ -473,7 +459,6 @@ void iterative_algorithm( rocblas_fill uplo, rocblas_operation trans,
                     &(c[i1*c_s1+i2*c_s2]), ldc);
             }
         }
-
     }
 
     return;
@@ -487,8 +472,7 @@ int main(int argc, char** argv)
     bool verbose = true;
     char precision = 's';
 
-//  rocblas_operation trans = rocblas_operation_none;
-    rocblas_operation trans = rocblas_operation_transpose;
+    rocblas_operation trans = rocblas_operation_none;
     rocblas_fill uplo = rocblas_fill_upper;
 
     parse_args(argc, argv, n, k, batch_count, lda, ldb, ldc,
@@ -517,48 +501,39 @@ int main(int argc, char** argv)
     if(ldb < b_n1)ldb = b_n1;
     if(ldc < n)ldc = n;
 
-//  rocblas_int lda = rocblas_operation_none == trans ? n : k;
-//  rocblas_int ldb = rocblas_operation_none == trans ? n : k;
-
-    int size_a = lda * a_n2;
-    int size_b = ldb * b_n2;
-    int size_c = ldc * n;
-
-    float* a_h = (float*)malloc(sizeof(float)*size_a); assert(a_h != nullptr);
-    float* b_h = (float*)malloc(sizeof(float)*size_b); assert(b_h != nullptr);
-    float* c_h = (float*)malloc(sizeof(float)*size_c); assert(c_h != nullptr);
-    float* Cref = (float*)malloc(sizeof(float)*size_c); assert(Cref != nullptr);
+    int size_a = lda * a_n2; float*   a_h = (float*)malloc(sizeof(float)*size_a); assert(a_h != nullptr);
+    int size_b = ldb * b_n2; float*   b_h = (float*)malloc(sizeof(float)*size_b); assert(b_h != nullptr);
+    int size_c = ldc * n;    float*   c_h = (float*)malloc(sizeof(float)*size_c); assert(c_h != nullptr);
+                             float* c_ref = (float*)malloc(sizeof(float)*size_c); assert(c_ref != nullptr);
 
     initialize(trans, n, k, a_h, lda, b_h, ldb, c_h, ldc);
 
     iterative_algorithm( uplo, trans, n, k, alpha, a_h, lda, b_h, ldb, beta, c_h, ldc);
 
-    print_matrix_pattern("matrix C", rocblas_operation_none, c_h, n, n, ldc); 
-
-//  return 0;
-
-    initialize(trans, n, k, a_h, lda, b_h, ldb, c_h, ldc);
-
-//void printMatrix(const char* name, rocblas_operation trans, T* A, rocblas_int m, rocblas_int n, rocblas_int lda)
     if(verbose)
     {
-        print_matrix("matrix A", rocblas_operation_none, a_h, a_n1, a_n2, lda); 
-        print_matrix("matrix B", rocblas_operation_none, b_h, a_n1, a_n2, ldb); 
-        print_matrix("matrix C", rocblas_operation_none, c_h, n, n, ldc); 
+        print_matrix("matrix a_h", rocblas_operation_none, a_h, a_n1, a_n2, lda); 
+        print_matrix("matrix b_h", rocblas_operation_none, b_h, a_n1, a_n2, ldb); 
+        print_matrix("matrix c_h", rocblas_operation_none, c_h, n, n, ldc); 
     }
 
-    syrkx_ref(uplo, trans, n, k, alpha, a_h, lda, b_h, ldb, beta, c_h, ldc);
+    initialize(trans, n, k, a_h, lda, b_h, ldb, c_ref, ldc);
+
+    syrkx_ref(uplo, trans, n, k, alpha, a_h, lda, b_h, ldb, beta, c_ref, ldc);
 
     if(verbose)
     {
-        print_matrix("matrix C", rocblas_operation_none, c_h, n, n, ldc); 
+        print_matrix("matrix c_ref", rocblas_operation_none, c_ref, n, n, ldc); 
     }
 
-    rocblas_int m = n;
-    gemm_reference(trans, trans, m, n, k, alpha,
-        a_h, lda,
-        b_h, ldb, beta,
-        c_h, ldc);
+    if (verify_result(n, c_h, c_ref, ldc) == true) 
+    {
+        std::cout << "--- PASS ---" << std::endl;
+    }
+    else
+    {
+        std::cout << "*** FAIL ***" << std::endl;
+    }
 
     return 0;
 }
