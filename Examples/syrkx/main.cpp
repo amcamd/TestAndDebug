@@ -344,7 +344,7 @@ void gemm_block(int value, rocblas_fill uplo, rocblas_int i1, rocblas_int i2, ro
 }
 
 void iterative_algorithm( rocblas_fill uplo, rocblas_operation trans, 
-       rocblas_int n, rocblas_int k, float alpha, 
+      rocblas_int n, rocblas_int k, float alpha, 
       float *a, rocblas_int lda,
       float *b, rocblas_int ldb, float beta,
       float* c, rocblas_int ldc)
@@ -355,13 +355,12 @@ void iterative_algorithm( rocblas_fill uplo, rocblas_operation trans,
 
     rocblas_int nb_min = 3;
     rocblas_int nb = nb_min;
-    rocblas_int i_diag, nn;
+    rocblas_int i_diag, n_diag;
 
-    rocblas_int n_nb, rem, n_rem, stride, i_start = 0;
+    rocblas_int n_nb, rem, stride, i_start = 0;
 
-    n_nb = n / nb;
-    rem = n % nb;
-    n_rem = rem == 0 ? 0 : 1;
+    n_nb = n / nb;  // number of diagonal blocks of size nb
+    rem = n % nb;   // size of remainder block when n is not multiple of nb
 
     // diagonal blocks of size nb
     for (int i_nb = 0; i_nb < n_nb; i_nb++)
@@ -375,14 +374,14 @@ void iterative_algorithm( rocblas_fill uplo, rocblas_operation trans,
         &(c[i_diag + i_diag * ldc]), ldc);
     }
 
-    // remainder diagonal block of size nn < nb
-    if(n_rem == 1)
+    // remainder diagonal block of size n_diag < nb
+    if(rem != 0)
     {
-        i_diag = n_nb * nb; // diag block at c[i_diag, i_diag], size is nn
-        nn = n - i_diag; 
+        i_diag = n_nb * nb; // diag block at c[i_diag, i_diag], size is n_diag
+        n_diag = n - i_diag; 
 
         syrkx_ref(uplo, trans, 
-        nn, k, alpha, 
+        n_diag, k, alpha, 
         &(a[i_diag * a_s1]), lda, 
         &(b[i_diag * b_s1]), ldb, beta, 
         &(c[i_diag + i_diag * ldc]), ldc);
@@ -391,6 +390,8 @@ void iterative_algorithm( rocblas_fill uplo, rocblas_operation trans,
     rocblas_operation trans_a = rocblas_operation_none == trans ? rocblas_operation_none : rocblas_operation_transpose;
     rocblas_operation trans_b = rocblas_operation_none == trans ?  rocblas_operation_transpose : rocblas_operation_none;
 
+    // calls to gemm with m == n == nb. Start with nb == nb_min, and each iteration of the loop nb doubles, and ]
+    // the number of gemm calls halves.
     for (nb = nb_min, i_start = nb_min; i_start < n; i_start += nb, nb *= 2)
     {
         stride = nb * 2;
@@ -398,13 +399,8 @@ void iterative_algorithm( rocblas_fill uplo, rocblas_operation trans,
         rem  = (n - i_start) % stride;
         if(rem >= nb)
         {
-            n_rem = 0;
             rem = 0;
             n_nb += 1;
-        }
-        else
-        {
-            n_rem = 1;
         }
     
         rocblas_int c_s1, c_s2;
@@ -424,7 +420,9 @@ void iterative_algorithm( rocblas_fill uplo, rocblas_operation trans,
             }
             else
             {
-                // if for lower C = A B^T then to get upper (or transpose) C^T = B A^T
+                // The lower triangle of c is the transpose of the upper triangle of c
+                // if  C = A B^T gives lower then  C^T = B A^T gives upper. We do not
+                // need to swap trans_a and trans_b because trans_a ^ T == trans_b 
                 c_s1 = ldc; c_s2 = 1;
                 gemm_reference(trans_a, trans_b, nb, nb, k, alpha,
                     &(b[i2*b_s1]), ldb,
@@ -435,7 +433,7 @@ void iterative_algorithm( rocblas_fill uplo, rocblas_operation trans,
         std::cout << std::endl;
     
         // remainder gemm block of size n1 x nb where n1 < nb
-        if(n_rem == 1)
+        if(rem != 0)
         {
             rocblas_int i1 = i_start + n_nb * stride;
             rocblas_int i2 = i1 - nb;
@@ -451,7 +449,9 @@ void iterative_algorithm( rocblas_fill uplo, rocblas_operation trans,
             }
             else
             {
-                // The lower triangle of c is the transpose of the upper triangle so if  C = A B^T  then  C^T = B A^T. 
+                // The lower triangle of c is the transpose of the upper triangle of c
+                // if  C = A B^T gives lower then  C^T = B A^T gives upper. We do not
+                // need to swap trans_a and trans_b because trans_a ^ T == trans_b 
                 c_s1 = ldc; c_s2 = 1;
                 gemm_reference(trans_a, trans_b, nb, n1, k, alpha,
                     &(b[i2*b_s1]), ldb,
@@ -460,7 +460,6 @@ void iterative_algorithm( rocblas_fill uplo, rocblas_operation trans,
             }
         }
     }
-
     return;
 }
 
