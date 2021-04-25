@@ -47,17 +47,17 @@ elif [ "$(/opt/rocm/bin/rocm_agent_enumerator | grep -m 1 gfx906)" == "gfx906" ]
 elif [ "$(/opt/rocm/bin/rocm_agent_enumerator | grep -m 1 gfx908)" == "gfx908" ]; then
     echo "=====ISA = gfx908, use -agfx908:xnack- directive ===================="
     time VERBOSE=1 ./install.sh -agfx908:xnack- -c 2>&1 | tee install.out
-elif [ "$(/opt/rocm/bin/rocm_agent_enumerator | grep -m 1 gfx90a)" == "gfx908" ]; then
-    echo "=====ISA = gfx908, use -agfx908:xnack- directive ===================="
+elif [ "$(/opt/rocm/bin/rocm_agent_enumerator | grep -m 1 gfx90a)" == "gfx90a" ]; then
+    echo "=====ISA = gfx90a, use -agfx90a:xnack- directive ===================="
     time VERBOSE=1 ./install.sh -agfx90a:xnack- -c 2>&1 | tee install.out
-elif [ "$(/opt/rocm/bin/rocm_agent_enumerator | grep -m 1 gfx1010)" == "gfx908" ]; then
-    echo "=====ISA = gfx908, use -agfx908:xnack- directive ===================="
+elif [ "$(/opt/rocm/bin/rocm_agent_enumerator | grep -m 1 gfx1010)" == "gfx1010" ]; then
+    echo "=====ISA = gfx1010, use -agfx1010:xnack- directive ===================="
     time VERBOSE=1 ./install.sh -agfx1010 -c 2>&1 | tee install.out
-elif [ "$(/opt/rocm/bin/rocm_agent_enumerator | grep -m 1 gfx1012)" == "gfx908" ]; then
-    echo "=====ISA = gfx908, use -agfx908:xnack- directive ===================="
+elif [ "$(/opt/rocm/bin/rocm_agent_enumerator | grep -m 1 gfx1012)" == "gfx1012" ]; then
+    echo "=====ISA = gfx1012, use -agfx1012:xnack- directive ===================="
     time VERBOSE=1 ./install.sh -agfx1012 -c 2>&1 | tee install.out
-elif [ "$(/opt/rocm/bin/rocm_agent_enumerator | grep -m 1 gfx1030)" == "gfx908" ]; then
-    echo "=====ISA = gfx908, use -agfx908:xnack- directive ===================="
+elif [ "$(/opt/rocm/bin/rocm_agent_enumerator | grep -m 1 gfx1030)" == "gfx1030" ]; then
+    echo "=====ISA = gfx1030, use -agfx1030:xnack- directive ===================="
     time VERBOSE=1 ./install.sh -agfx1030 -c 2>&1 | tee install.out
 else
     echo "build fat binary, ISA != gfx900 and ISA != gfx906 and ISA != gfx908"
