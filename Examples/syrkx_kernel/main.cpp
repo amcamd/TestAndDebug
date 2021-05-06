@@ -8,6 +8,12 @@
 #include "rocblas.h"
 #include "gemm_batched.h"
 
+#define HIP_CHECK(status)                                                                \
+    if (status != hipSuccess) {                                                          \
+        std::cout << "Got Status: " << status << " at Line: " << __LINE__ << std::endl;  \
+        exit(0);                                                                         \
+    }
+
 template <typename T>
 void print_matrix_strided_batched(const char* name, rocblas_operation trans, T* A, rocblas_int m, rocblas_int n, rocblas_int lda, rocblas_int stride, rocblas_int batch_count)
 {
@@ -320,6 +326,46 @@ void syrkx_ref(rocblas_fill uplo, rocblas_operation trans,
 }
 
 
+template <typename T>
+void syrkx_strided_batched(rocblas_fill uplo, rocblas_operation trans, 
+        rocblas_int n, rocblas_int k, T alpha, 
+        T* h_a, rocblas_int lda, rocblas_stride stride_a, 
+        T* h_b, rocblas_int ldb, rocblas_stride stride_b, T beta, 
+        T* h_c, rocblas_int ldc, rocblas_stride stride_c, rocblas_int batch_count)
+{
+    T* d_a; int size_a = stride_a * batch_count; HIP_CHECK(hipMalloc(&d_a, sizeof(T)*size_a));
+    T* d_b; int size_b = stride_b * batch_count; HIP_CHECK(hipMalloc(&d_b, sizeof(T)*size_b));
+    T* d_c; int size_c = stride_c * batch_count; HIP_CHECK(hipMalloc(&d_c, sizeof(T)*size_c));
+
+    HIP_CHECK(hipMemcpy(d_a, h_a, sizeof(T)*size_a, hipMemcpyHostToDevice));
+    HIP_CHECK(hipMemcpy(d_b, h_b, sizeof(T)*size_b, hipMemcpyHostToDevice));
+    HIP_CHECK(hipMemcpy(d_c, h_c, sizeof(T)*size_c, hipMemcpyHostToDevice));
+
+    hipStream_t stream;
+    HIP_CHECK(hipStreamCreate(&stream));
+
+    // convert to gemm
+    rocblas_operation trans_b = rocblas_operation_none == trans ?  rocblas_operation_transpose : rocblas_operation_none;
+    rocblas_int m = n;
+
+    syrkx_batched_solution(trans, trans_b, m, n, k, alpha,
+                               d_a, lda, stride_a,
+                               d_b, ldb, stride_b, beta,
+                               d_c, ldc, stride_c, batch_count, stream);
+
+
+
+
+
+    HIP_CHECK(hipMemcpy(h_c, d_c, sizeof(T)*size_c, hipMemcpyDeviceToHost));
+
+    hipFree(d_a);
+    hipFree(d_b);
+    hipFree(d_c);
+
+    HIP_CHECK(hipStreamDestroy(stream));
+}
+
 
 int main(int argc, char** argv)
 {
@@ -357,9 +403,9 @@ int main(int argc, char** argv)
     if(ldb < b_n1)ldb = b_n1;
     if(ldc < n)ldc = n;
 
-    int stride_a = lda * a_n2; int size_a = stride_a * batch_count;
-    int stride_b = ldb * b_n2; int size_b = stride_b * batch_count;
-    int stride_c = ldc * n;    int size_c = stride_c * batch_count;
+    rocblas_stride stride_a = lda * a_n2; int size_a = stride_a * batch_count;
+    rocblas_stride stride_b = ldb * b_n2; int size_b = stride_b * batch_count;
+    rocblas_stride stride_c = ldc * n;    int size_c = stride_c * batch_count;
 
     float*   a_h = (float*)malloc(sizeof(float)*size_a); assert(a_h != nullptr);
     float*   b_h = (float*)malloc(sizeof(float)*size_b); assert(b_h != nullptr);
@@ -368,9 +414,12 @@ int main(int argc, char** argv)
 
     initialize(trans, n, k, a_h, lda, stride_a, b_h, ldb, stride_b, c_h, ldc, stride_c, batch_count);
 
-    syrkx_ref(uplo, trans, n, k, alpha, a_h, lda, stride_a, 
-                                        b_h, ldb, stride_b, beta, 
-                                        c_h, ldc, stride_c, batch_count);
+    syrkx_strided_batched(uplo, trans, 
+        n, k, alpha, 
+        a_h, lda, stride_a, 
+        b_h, ldb, stride_b, beta, 
+        c_h, ldc, stride_c, batch_count);
+
 
     if(verbose)
     {

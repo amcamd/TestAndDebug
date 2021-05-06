@@ -12,9 +12,6 @@
 #include "rocblas.h"
 
 
-
-namespace
-{
     // large index support is not needed for lda, ldb, ldc as this kernel is only intended for small m, n, k
     // general alpha, beta, m, n, k
     template <typename T,
@@ -429,19 +426,22 @@ namespace
     }
 
     template <typename T>
-    void gemm_batched_solution(rocblas_operation trans_a,
+    void syrkx_batched_solution(rocblas_operation trans_a,
                                rocblas_operation trans_b,
                                rocblas_int       m,
                                rocblas_int       n,
                                rocblas_int       k,
-                               const T           alpha,
-                               const T* const    dA_array[],
+                               T                 alpha,
+                               T*                dA_array,
                                rocblas_int       lda,
-                               const T* const    dB_array[],
+                               rocblas_stride    stride_a,
+                               T*                dB_array,
                                rocblas_int       ldb,
-                               const T           beta,
-                               T* const          dC_array[],
+                               rocblas_stride    stride_b,
+                               T                 beta,
+                               T*                dC_array,
                                rocblas_int       ldc,
+                               rocblas_stride    stride_c,
                                rocblas_int       batch_count,
                                hipStream_t       stream)
     {
@@ -451,526 +451,531 @@ namespace
         if(alpha == 0)
             k = 0;
 
-        if((m % 64 == 0) && (n % 64 == 0) && (k % 4 == 0))
-        {
-            //m is mult of 64, n is mult of 64, k is mult of 4
-            const int dim_m = 16;
-            const int dim_n = 16;
-            const int blk_m = 64;
-            const int blk_n = 64;
-            const int blk_k = 4;
-            dim3      dimBlock(dim_m, dim_n, 1);
-            dim3      dimGrid(m / blk_m, n / blk_n, batch_count);
-            if(alpha == T(1.0) && beta == T(1.0))
-            {
-                // clang-format off
-                if(rocblas_operation_none == trans_a && rocblas_operation_none == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 1, 'N', 'N'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                else if(rocblas_operation_transpose == trans_a && rocblas_operation_none == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 1, 'T', 'N'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                else if(rocblas_operation_none == trans_a && rocblas_operation_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 1, 'N', 'T'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                else if(rocblas_operation_transpose == trans_a && rocblas_operation_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 1, 'T', 'T'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                else if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 1, 'C', 'C'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                else if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_none == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 1, 'C', 'N'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                else if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 1, 'C', 'T'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                else if(rocblas_operation_none == trans_a && rocblas_operation_conjugate_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 1, 'N', 'C'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                else if(rocblas_operation_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 1, 'T', 'C'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                // clang-format on
-            }
-            else if(alpha == 1.0 && beta == -1.0)
-            {
-                // clang-format off
-                if(rocblas_operation_none == trans_a && rocblas_operation_none == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, -1, 'N', 'N'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                else if(rocblas_operation_transpose == trans_a && rocblas_operation_none == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, -1, 'T', 'N'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                else if(rocblas_operation_none == trans_a && rocblas_operation_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, -1, 'N', 'T'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                else if(rocblas_operation_transpose == trans_a && rocblas_operation_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, -1, 'T', 'T'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                else if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, -1, 'C', 'C'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                else if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_none == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, -1, 'C', 'N'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                else if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, -1, 'C', 'T'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                else if(rocblas_operation_none == trans_a && rocblas_operation_conjugate_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, -1, 'N', 'C'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                else if(rocblas_operation_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, -1, 'T', 'C'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                // clang-format on
-            }
-            else if(alpha == 1.0 && beta == 0.0)
-            {
-                // clang-format off
-                if(rocblas_operation_none == trans_a && rocblas_operation_none == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 0, 'N', 'N'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                if(rocblas_operation_transpose == trans_a && rocblas_operation_none == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 0, 'T', 'N'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                if(rocblas_operation_none == trans_a && rocblas_operation_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 0, 'N', 'T'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                if(rocblas_operation_transpose == trans_a && rocblas_operation_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 0, 'T', 'T'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 0, 'C', 'C'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_none == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 0, 'C', 'N'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 0, 'C', 'T'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                if(rocblas_operation_none == trans_a && rocblas_operation_conjugate_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 0, 'N', 'C'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                if(rocblas_operation_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 0, 'T', 'C'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                // clang-format on
-            }
-            else if(alpha == -1.0 && beta == 0.0)
-            {
-                // clang-format off
-                if(rocblas_operation_none == trans_a && rocblas_operation_none == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, -1, 0, 'N', 'N'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                if(rocblas_operation_transpose == trans_a && rocblas_operation_none == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, -1, 0, 'T', 'N'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                if(rocblas_operation_none == trans_a && rocblas_operation_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, -1, 0, 'N', 'T'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                if(rocblas_operation_transpose == trans_a && rocblas_operation_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, -1, 0, 'T', 'T'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, -1, 0, 'C', 'C'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_none == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, -1, 0, 'C', 'N'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, -1, 0, 'C', 'T'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                if(rocblas_operation_none == trans_a && rocblas_operation_conjugate_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, -1, 0, 'N', 'C'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                if(rocblas_operation_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, -1, 0, 'T', 'C'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                // clang-format on
-            }
-            else if(beta == 0)
-            {
-                // general alpha; beta == 0
-                // clang-format off
-                if(rocblas_operation_none == trans_a && rocblas_operation_none == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'N', 'N'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                if(rocblas_operation_transpose == trans_a && rocblas_operation_none == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'T' , 'N'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                if(rocblas_operation_none == trans_a && rocblas_operation_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'N', 'T'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                if(rocblas_operation_transpose == trans_a && rocblas_operation_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'T', 'T'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'C', 'C'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_none == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'C', 'N'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'C', 'T'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                if(rocblas_operation_none == trans_a && rocblas_operation_conjugate_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'N', 'C'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                if(rocblas_operation_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'T', 'C'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                // clang-format on
-            }
-            else
-            {
-                // general alpha, beta
-                // clang-format off
-                if(rocblas_operation_none == trans_a && rocblas_operation_none == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'N', 'N'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                if(rocblas_operation_transpose == trans_a && rocblas_operation_none == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'T', 'N'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                if(rocblas_operation_none == trans_a && rocblas_operation_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'N', 'T'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                if(rocblas_operation_transpose == trans_a && rocblas_operation_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'T', 'T'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'C', 'C'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_none == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'C', 'N'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'C', 'T'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                if(rocblas_operation_none == trans_a && rocblas_operation_conjugate_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'N', 'C'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                if(rocblas_operation_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'T', 'C'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                // clang-format on
-            }
-        }
-        else if((m % 32 == 0) && (n % 32 == 0) && (k % 8 == 0))
-        {
-            // m is mult of 32, n is mult of 32, k is mult of 8
-            const int dim_m = 16;
-            const int dim_n = 16;
-            const int blk_m = 32;
-            const int blk_n = 32;
-            const int blk_k = 8;
-            dim3      dimBlock(dim_m, dim_n, 1);
-            dim3      dimGrid(m / blk_m, n / blk_n, batch_count);
-            if(alpha == 1.0 && beta == 1.0)
-            {
-                // clang-format off
-                if(rocblas_operation_none == trans_a && rocblas_operation_none == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 1, 'N', 'N'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                if(rocblas_operation_transpose == trans_a && rocblas_operation_none == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 1, 'T', 'N'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                if(rocblas_operation_none == trans_a && rocblas_operation_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 1, 'N', 'T' >),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                if(rocblas_operation_transpose == trans_a && rocblas_operation_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 1, 'T', 'T' >),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 1, 'C', 'C'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_none == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 1, 'C', 'N'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 1, 'C', 'T'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                if(rocblas_operation_none == trans_a && rocblas_operation_conjugate_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 1, 'N', 'C'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                if(rocblas_operation_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 1, 'T', 'C'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                // clang-format on
-            }
-            else if(alpha == 1.0 && beta == -1.0)
-            {
-                // clang-format off
-                if(rocblas_operation_none == trans_a && rocblas_operation_none == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, -1, 'N', 'N'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                if(rocblas_operation_transpose == trans_a && rocblas_operation_none == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, -1, 'T', 'N'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                if(rocblas_operation_none == trans_a && rocblas_operation_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, -1, 'N', 'T' >),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                if(rocblas_operation_transpose == trans_a && rocblas_operation_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, -1, 'T', 'T' >),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, -1, 'C', 'C'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_none == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, -1, 'C', 'N'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, -1, 'C', 'T'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                if(rocblas_operation_none == trans_a && rocblas_operation_conjugate_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, -1, 'N', 'C'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                if(rocblas_operation_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, -1, 'T', 'C'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                // clang-format on
-            }
-            else if(alpha == 1.0 && beta == 0.0)
-            {
-                // clang-format off
-                if(rocblas_operation_none == trans_a && rocblas_operation_none == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 0, 'N', 'N'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                if(rocblas_operation_transpose == trans_a && rocblas_operation_none == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 0, 'T', 'N'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                if(rocblas_operation_none == trans_a && rocblas_operation_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 0, 'N', 'T' >),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                if(rocblas_operation_transpose == trans_a && rocblas_operation_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 0, 'T', 'T' >),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 0, 'C', 'C'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_none == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 0, 'C', 'N'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 0, 'C', 'T'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                if(rocblas_operation_none == trans_a && rocblas_operation_conjugate_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 0, 'N', 'C'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                if(rocblas_operation_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 0, 'T', 'C'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                // clang-format on
-            }
-            else if(alpha == -1.0 && beta == 0.0)
-            {
-                // clang-format off
-                if(rocblas_operation_none == trans_a && rocblas_operation_none == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, -1, 0, 'N', 'N'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                if(rocblas_operation_transpose == trans_a && rocblas_operation_none == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, -1, 0, 'T', 'N'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                if(rocblas_operation_none == trans_a && rocblas_operation_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, -1, 0, 'N', 'T' >),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                if(rocblas_operation_transpose == trans_a && rocblas_operation_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, -1, 0, 'T', 'T' >),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, -1, 0, 'C', 'C'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_none == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, -1, 0, 'C', 'N'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, -1, 0, 'C', 'T'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                if(rocblas_operation_none == trans_a && rocblas_operation_conjugate_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, -1, 0, 'N', 'C'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                if(rocblas_operation_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, -1, 0, 'T', 'C'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
-                // clang-format on
-            }
-            else if(beta == 0)
-            {
-                // general alpha; beta == 0
-                // clang-format off
-                if(rocblas_operation_none == trans_a && rocblas_operation_none == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'N', 'N'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                if(rocblas_operation_transpose == trans_a && rocblas_operation_none == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'T', 'N'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                if(rocblas_operation_none == trans_a && rocblas_operation_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'N', 'T' >),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                if(rocblas_operation_transpose == trans_a && rocblas_operation_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'T', 'T' >),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'C', 'C' >),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_none == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'C', 'N' >),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'C', 'T' >),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                if(rocblas_operation_none == trans_a && rocblas_operation_conjugate_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'N', 'C' >),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                if(rocblas_operation_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'T', 'C' >),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                // clang-format on
-            }
-            else
-            {
-                // general alpha, beta
-                // clang-format off
-                if(rocblas_operation_none == trans_a && rocblas_operation_none == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'N', 'N'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                if(rocblas_operation_transpose == trans_a && rocblas_operation_none == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'T', 'N'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                if(rocblas_operation_none == trans_a && rocblas_operation_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'N', 'T'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                if(rocblas_operation_transpose == trans_a && rocblas_operation_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'T', 'T'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'C', 'C'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_none == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'C', 'N'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'C', 'T'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                if(rocblas_operation_none == trans_a && rocblas_operation_conjugate_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'N', 'C'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                if(rocblas_operation_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'T', 'C'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                // clang-format on
-            }
-        }
-        else
-        {
+        std::cout << "sbs:m,n,k,batch_count = " << m << ", " << n << ", " << k << ", " << batch_count << std::endl;
+
+          if((m % 64 == 0) && (n % 64 == 0) && (k % 4 == 0))
+          {
+              std::cout << "m,n mult of 64, k mult of 4" << std::endl;
+//            //m is mult of 64, n is mult of 64, k is mult of 4
+//            const int dim_m = 16;
+//            const int dim_n = 16;
+//            const int blk_m = 64;
+//            const int blk_n = 64;
+//            const int blk_k = 4;
+//            dim3      dimBlock(dim_m, dim_n, 1);
+//            dim3      dimGrid(m / blk_m, n / blk_n, batch_count);
+//            if(alpha == T(1.0) && beta == T(1.0))
+//            {
+//                // clang-format off
+//                if(rocblas_operation_none == trans_a && rocblas_operation_none == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 1, 'N', 'N'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                else if(rocblas_operation_transpose == trans_a && rocblas_operation_none == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 1, 'T', 'N'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                else if(rocblas_operation_none == trans_a && rocblas_operation_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 1, 'N', 'T'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                else if(rocblas_operation_transpose == trans_a && rocblas_operation_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 1, 'T', 'T'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                else if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 1, 'C', 'C'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                else if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_none == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 1, 'C', 'N'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                else if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 1, 'C', 'T'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                else if(rocblas_operation_none == trans_a && rocblas_operation_conjugate_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 1, 'N', 'C'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                else if(rocblas_operation_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 1, 'T', 'C'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                // clang-format on
+//            }
+//            else if(alpha == 1.0 && beta == -1.0)
+//            {
+//                // clang-format off
+//                if(rocblas_operation_none == trans_a && rocblas_operation_none == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, -1, 'N', 'N'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                else if(rocblas_operation_transpose == trans_a && rocblas_operation_none == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, -1, 'T', 'N'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                else if(rocblas_operation_none == trans_a && rocblas_operation_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, -1, 'N', 'T'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                else if(rocblas_operation_transpose == trans_a && rocblas_operation_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, -1, 'T', 'T'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                else if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, -1, 'C', 'C'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                else if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_none == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, -1, 'C', 'N'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                else if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, -1, 'C', 'T'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                else if(rocblas_operation_none == trans_a && rocblas_operation_conjugate_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, -1, 'N', 'C'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                else if(rocblas_operation_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, -1, 'T', 'C'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                // clang-format on
+//            }
+//            else if(alpha == 1.0 && beta == 0.0)
+//            {
+//                // clang-format off
+//                if(rocblas_operation_none == trans_a && rocblas_operation_none == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 0, 'N', 'N'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                if(rocblas_operation_transpose == trans_a && rocblas_operation_none == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 0, 'T', 'N'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                if(rocblas_operation_none == trans_a && rocblas_operation_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 0, 'N', 'T'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                if(rocblas_operation_transpose == trans_a && rocblas_operation_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 0, 'T', 'T'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 0, 'C', 'C'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_none == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 0, 'C', 'N'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 0, 'C', 'T'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                if(rocblas_operation_none == trans_a && rocblas_operation_conjugate_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 0, 'N', 'C'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                if(rocblas_operation_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 0, 'T', 'C'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                // clang-format on
+//            }
+//            else if(alpha == -1.0 && beta == 0.0)
+//            {
+//                // clang-format off
+//                if(rocblas_operation_none == trans_a && rocblas_operation_none == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, -1, 0, 'N', 'N'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                if(rocblas_operation_transpose == trans_a && rocblas_operation_none == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, -1, 0, 'T', 'N'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                if(rocblas_operation_none == trans_a && rocblas_operation_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, -1, 0, 'N', 'T'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                if(rocblas_operation_transpose == trans_a && rocblas_operation_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, -1, 0, 'T', 'T'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, -1, 0, 'C', 'C'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_none == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, -1, 0, 'C', 'N'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, -1, 0, 'C', 'T'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                if(rocblas_operation_none == trans_a && rocblas_operation_conjugate_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, -1, 0, 'N', 'C'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                if(rocblas_operation_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, -1, 0, 'T', 'C'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                // clang-format on
+//            }
+//            else if(beta == 0)
+//            {
+//                // general alpha; beta == 0
+//                // clang-format off
+//                if(rocblas_operation_none == trans_a && rocblas_operation_none == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'N', 'N'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_transpose == trans_a && rocblas_operation_none == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'T' , 'N'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_none == trans_a && rocblas_operation_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'N', 'T'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_transpose == trans_a && rocblas_operation_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'T', 'T'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'C', 'C'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_none == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'C', 'N'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'C', 'T'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_none == trans_a && rocblas_operation_conjugate_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'N', 'C'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'T', 'C'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                // clang-format on
+//            }
+//            else
+//            {
+//                // general alpha, beta
+//                // clang-format off
+//                if(rocblas_operation_none == trans_a && rocblas_operation_none == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'N', 'N'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_transpose == trans_a && rocblas_operation_none == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'T', 'N'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_none == trans_a && rocblas_operation_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'N', 'T'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_transpose == trans_a && rocblas_operation_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'T', 'T'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'C', 'C'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_none == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'C', 'N'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'C', 'T'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_none == trans_a && rocblas_operation_conjugate_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'N', 'C'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'T', 'C'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                // clang-format on
+//            }
+          }
+          else if((m % 32 == 0) && (n % 32 == 0) && (k % 8 == 0))
+          {
+              std::cout << "m,n mult of 32, k mult of 8" << std::endl;
+//            // m is mult of 32, n is mult of 32, k is mult of 8
+//            const int dim_m = 16;
+//            const int dim_n = 16;
+//            const int blk_m = 32;
+//            const int blk_n = 32;
+//            const int blk_k = 8;
+//            dim3      dimBlock(dim_m, dim_n, 1);
+//            dim3      dimGrid(m / blk_m, n / blk_n, batch_count);
+//            if(alpha == 1.0 && beta == 1.0)
+//            {
+//                // clang-format off
+//                if(rocblas_operation_none == trans_a && rocblas_operation_none == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 1, 'N', 'N'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                if(rocblas_operation_transpose == trans_a && rocblas_operation_none == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 1, 'T', 'N'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                if(rocblas_operation_none == trans_a && rocblas_operation_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 1, 'N', 'T' >),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                if(rocblas_operation_transpose == trans_a && rocblas_operation_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 1, 'T', 'T' >),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 1, 'C', 'C'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_none == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 1, 'C', 'N'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 1, 'C', 'T'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                if(rocblas_operation_none == trans_a && rocblas_operation_conjugate_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 1, 'N', 'C'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                if(rocblas_operation_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 1, 'T', 'C'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                // clang-format on
+//            }
+//            else if(alpha == 1.0 && beta == -1.0)
+//            {
+//                // clang-format off
+//                if(rocblas_operation_none == trans_a && rocblas_operation_none == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, -1, 'N', 'N'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                if(rocblas_operation_transpose == trans_a && rocblas_operation_none == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, -1, 'T', 'N'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                if(rocblas_operation_none == trans_a && rocblas_operation_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, -1, 'N', 'T' >),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                if(rocblas_operation_transpose == trans_a && rocblas_operation_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, -1, 'T', 'T' >),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, -1, 'C', 'C'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_none == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, -1, 'C', 'N'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, -1, 'C', 'T'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                if(rocblas_operation_none == trans_a && rocblas_operation_conjugate_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, -1, 'N', 'C'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                if(rocblas_operation_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, -1, 'T', 'C'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                // clang-format on
+//            }
+//            else if(alpha == 1.0 && beta == 0.0)
+//            {
+//                // clang-format off
+//                if(rocblas_operation_none == trans_a && rocblas_operation_none == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 0, 'N', 'N'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                if(rocblas_operation_transpose == trans_a && rocblas_operation_none == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 0, 'T', 'N'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                if(rocblas_operation_none == trans_a && rocblas_operation_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 0, 'N', 'T' >),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                if(rocblas_operation_transpose == trans_a && rocblas_operation_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 0, 'T', 'T' >),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 0, 'C', 'C'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_none == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 0, 'C', 'N'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 0, 'C', 'T'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                if(rocblas_operation_none == trans_a && rocblas_operation_conjugate_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 0, 'N', 'C'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                if(rocblas_operation_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, 1, 0, 'T', 'C'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                // clang-format on
+//            }
+//            else if(alpha == -1.0 && beta == 0.0)
+//            {
+//                // clang-format off
+//                if(rocblas_operation_none == trans_a && rocblas_operation_none == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, -1, 0, 'N', 'N'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                if(rocblas_operation_transpose == trans_a && rocblas_operation_none == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, -1, 0, 'T', 'N'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                if(rocblas_operation_none == trans_a && rocblas_operation_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, -1, 0, 'N', 'T' >),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                if(rocblas_operation_transpose == trans_a && rocblas_operation_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, -1, 0, 'T', 'T' >),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, -1, 0, 'C', 'C'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_none == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, -1, 0, 'C', 'N'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, -1, 0, 'C', 'T'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                if(rocblas_operation_none == trans_a && rocblas_operation_conjugate_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, -1, 0, 'N', 'C'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                if(rocblas_operation_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, -1, 0, 'T', 'C'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, dA_array, lda, dB_array, ldb, dC_array, ldc, batch_count);
+//                // clang-format on
+//            }
+//            else if(beta == 0)
+//            {
+//                // general alpha; beta == 0
+//                // clang-format off
+//                if(rocblas_operation_none == trans_a && rocblas_operation_none == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'N', 'N'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_transpose == trans_a && rocblas_operation_none == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'T', 'N'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_none == trans_a && rocblas_operation_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'N', 'T' >),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_transpose == trans_a && rocblas_operation_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'T', 'T' >),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'C', 'C' >),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_none == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'C', 'N' >),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'C', 'T' >),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_none == trans_a && rocblas_operation_conjugate_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'N', 'C' >),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'T', 'C' >),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                // clang-format on
+//            }
+//            else
+//            {
+//                // general alpha, beta
+//                // clang-format off
+//                if(rocblas_operation_none == trans_a && rocblas_operation_none == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'N', 'N'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_transpose == trans_a && rocblas_operation_none == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'T', 'N'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_none == trans_a && rocblas_operation_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'N', 'T'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_transpose == trans_a && rocblas_operation_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'T', 'T'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'C', 'C'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_none == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'C', 'N'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'C', 'T'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_none == trans_a && rocblas_operation_conjugate_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'N', 'C'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'T', 'C'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                // clang-format on
+//            }
+          }
+          else
+          {
+              std::cout << "general m, n, k";
             const int dim_m = 16;
             const int dim_n = 16;
             const int blk_m = 32;
@@ -980,88 +985,110 @@ namespace
             dim3      dimGrid(((m - 1) / blk_m) + 1, ((n - 1) / blk_n) + 1, batch_count);
             if(beta == 0)
             {
-                // general m, n, k, alpha; beta == 0
-                // clang-format off
-                if(rocblas_operation_none == trans_a && rocblas_operation_none == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_general_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'N', 'N'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                if(rocblas_operation_transpose == trans_a && rocblas_operation_none == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_general_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'T', 'N'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                if(rocblas_operation_none == trans_a && rocblas_operation_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_general_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true,'N', 'T'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                if(rocblas_operation_transpose == trans_a && rocblas_operation_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_general_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'T', 'T'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_general_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'C', 'C'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_none == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_general_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'C', 'N'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_general_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'C', 'T'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                if(rocblas_operation_none == trans_a && rocblas_operation_conjugate_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_general_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'N', 'C'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                if(rocblas_operation_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_general_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'T', 'C'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                // clang-format on
+                std::cout << ", alpha, beta == 0" << std::endl;
+//                // general m, n, k, alpha; beta == 0
+//                // clang-format off
+//                if(rocblas_operation_none == trans_a && rocblas_operation_none == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_general_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'N', 'N'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_transpose == trans_a && rocblas_operation_none == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_general_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'T', 'N'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_none == trans_a && rocblas_operation_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_general_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true,'N', 'T'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_transpose == trans_a && rocblas_operation_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_general_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'T', 'T'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_general_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'C', 'C'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_none == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_general_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'C', 'N'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_general_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'C', 'T'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_none == trans_a && rocblas_operation_conjugate_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_general_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'N', 'C'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
+//                    hipLaunchKernelGGL((gemm_batched_general_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, true, 'T', 'C'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                // clang-format on
             }
             else
             {
+                std::cout << ", alpha, beta" << std::endl;
                 // general m, n, k, alpha, beta
                 // clang-format off
-                if(rocblas_operation_none == trans_a && rocblas_operation_none == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_general_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'N', 'N'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                if(rocblas_operation_transpose == trans_a && rocblas_operation_none == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_general_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'T', 'N'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                if(rocblas_operation_none == trans_a && rocblas_operation_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_general_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'N', 'T'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                if(rocblas_operation_transpose == trans_a && rocblas_operation_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_general_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'T', 'T'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_general_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'C', 'C'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_none == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_general_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'C', 'N'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_general_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'C', 'T'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                if(rocblas_operation_none == trans_a && rocblas_operation_conjugate_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_general_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'N', 'C'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
-                if(rocblas_operation_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
-                    hipLaunchKernelGGL((gemm_batched_general_kernel
-                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'T', 'C'>),
-                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_none == trans_a && rocblas_operation_none == trans_b)
+//                    hipLaunchKernelGGL( HIP_KERNEL_NAME(gemm_batched_general_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'N', 'N'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_transpose == trans_a && rocblas_operation_none == trans_b)
+//                    hipLaunchKernelGGL( HIP_KERNEL_NAME(gemm_batched_general_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'T', 'N'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_none == trans_a && rocblas_operation_transpose == trans_b)
+//                    hipLaunchKernelGGL( HIP_KERNEL_NAME(gemm_batched_general_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'N', 'T'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_transpose == trans_a && rocblas_operation_transpose == trans_b)
+//                    hipLaunchKernelGGL( HIP_KERNEL_NAME(gemm_batched_general_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'T', 'T'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
+//                    hipLaunchKernelGGL( HIP_KERNEL_NAME(gemm_batched_general_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'C', 'C'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_none == trans_b)
+//                    hipLaunchKernelGGL( HIP_KERNEL_NAME(gemm_batched_general_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'C', 'N'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_conjugate_transpose == trans_a && rocblas_operation_transpose == trans_b)
+//                    hipLaunchKernelGGL( HIP_KERNEL_NAME(gemm_batched_general_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'C', 'T'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_none == trans_a && rocblas_operation_conjugate_transpose == trans_b)
+//                    hipLaunchKernelGGL( HIP_KERNEL_NAME(gemm_batched_general_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'N', 'C'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
+//                if(rocblas_operation_transpose == trans_a && rocblas_operation_conjugate_transpose == trans_b)
+//                    hipLaunchKernelGGL( HIP_KERNEL_NAME(gemm_batched_general_kernel
+//                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'T', 'C'>),
+//                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
                 // clang-format on
             }
-        }
+          }
     }
-}
+
+    template
+    void syrkx_batched_solution<float>(rocblas_operation trans_a,
+                               rocblas_operation trans_b,
+                               rocblas_int       m,
+                               rocblas_int       n,
+                               rocblas_int       k,
+                               float             alpha,
+                               float*                dA_array,
+                               rocblas_int       lda,
+                               rocblas_stride    stride_a,
+                               float*                dB_array,
+                               rocblas_int       ldb,
+                               rocblas_stride    stride_b,
+                               float                 beta,
+                               float*                dC_array,
+                               rocblas_int       ldc,
+                               rocblas_stride    stride_c,
+                               rocblas_int       batch_count,
+                               hipStream_t       stream);
+
