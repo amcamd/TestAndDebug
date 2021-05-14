@@ -1293,6 +1293,21 @@ or
     </ul>
 </ul>
 
+<h1>SLURM commands</h1>
+<ul>
+	<li> <code>sinfo</code></li>
+	<li> <code>salloc --ntasks=1</code></li>
+	<li> <code>salloc --ntasks=1 --walltimne=24:00:00 --gres=gup:8 --ntasks-per-node=4 -- cpus-per-task=4</code></li>
+	<li> use sbatch to submit batch script</li>
+	<li> <pre>
+	#/bin/bash
+	#SBATCH --nodes=1
+	#SBATCH --ntask-per-node=1
+	#SBATCH	--gpus-per-node=8
+	#SBATCH --output myjob_output</pre></li>
+</ul>
+
+
 <h1>Onboarding</h1>
 <ul>
 <li> <a href="http://confluence.amd.com/display/MLSE/Onboarding">On boarding</a>  </li> 
