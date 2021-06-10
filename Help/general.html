@@ -1306,5 +1306,19 @@ or
 <h1>Penguin POD</h1>
 <code>ssh amcamd@login-29-25.pod.penguincomputing.com</code>
 
+<h1>hipBLAS on Cuda</h1>
+<ul>
+<li><code>sudo docker run  --gpus 1 --name amcamd_syrkx -tid --ipc=host --cap-add=SYS_PTRACE --privileged --security-opt seccomp=unconfined --device=/dev/kfd --device=/dev/dri --group-add video --group-add 44 -v /home:/home compute-artifactory.amd.com:5000/rocm-plus-docker/compute-rocm-dkms-no-npi-hipclang:7202-ubuntu-20.04-cuda-11.x-stg1 /bin/bash || exit 1</code></li>
+<li><code>sudo docker exec -e COLUMNS="`tput cols`" -e LINES="`tput lines`" -ti &lt;ID&gt; /bin/bash</code></li>
+<li><code>apt-get update</code></li>
+<li><code>apt install vim</code></li>
+<li>comment out (library_dependencies_ubuntu+=("cuda")) in install.sh</li>
+<li><code>apt install git</code></li>
+<li><code>apt install gfortran</code></li>
+<li><code>apt install cmake</code></li>
+<li><code>ln -sf /opt/rocm* /opt/rocm</code></li>
+<li><code>./install.sh -ndc --cuda</code></li>
+</ul>
+
 </body>
 </html>
