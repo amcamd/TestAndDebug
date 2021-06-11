@@ -1333,6 +1333,19 @@ or
 <li><code>./install.sh -ndc --cuda</code></li>
 </ul>
 
+<h1>hipMAGMA</h1>
+<ul>
+<li><code>wget https://bitbucket.org/icl/magma/get/hipMAGMAv2.0.0.tar.gz</code> <ul><li>Copies tgz file</li></ul></li>
+<li><code>gunzip hipMAGMAv2.0.0.tar.gz</code></li>
+<li><code>tar -xvf hipMAGMAv2.0.0.tar</code></li>
+<li><code>cp make.inc-examples/make.inc.hip_openblas make.inc</code> <ul><li>Creates a make.inc file from one of the examples, for example</li></ul></li>
+<li><code>export OPENBLASDIR=/usr/lib/x86_64-linux-gnu/openblas</code> <ul><li>Check openblas is on your machine and indicate where it is</li></ul></li>
+<li>Install hipblas and hipsparse if you are running tests with performance comparisons</li>
+<li><code>make -f make.gen.hipMAGMA</code> <ul><li>Generates HIP-specific code by running</li></ul></li>
+<li><code>make -f make.gen.hipMAGMA -j16 && make testing_hip/testing_dgemm -j16 && ./testing_hip/testing_dgemm</code>
+    <ul><li>Builds library and a tester, and runs the tester</li></ul></li>
+</ul>
+
 
 
 </body>
