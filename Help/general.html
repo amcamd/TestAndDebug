@@ -1293,6 +1293,21 @@ or
     </ul>
 </ul>
 
+<h1>SLURM commands</h1>
+<ul>
+	<li> <code>sinfo</code></li>
+	<li> <code>salloc --ntasks=1</code></li>
+	<li> <code>salloc --ntasks=1 --walltimne=24:00:00 --gres=gup:8 --ntasks-per-node=4 -- cpus-per-task=4</code></li>
+	<li> use sbatch to submit batch script</li>
+	<li> <pre>
+	#/bin/bash
+	#SBATCH --nodes=1
+	#SBATCH --ntask-per-node=1
+	#SBATCH	--gpus-per-node=8
+	#SBATCH --output myjob_output</pre></li>
+</ul>
+
+
 <h1>Onboarding</h1>
 <ul>
 <li> <a href="http://confluence.amd.com/display/MLSE/Onboarding">On boarding</a>  </li> 
@@ -1303,8 +1318,35 @@ or
 <h1>Centos</h1>
 <code>scl enable devtoolset-8 bash</code>
 
-<h1>Penguin POD</h1>
-<code>ssh amcamd@login-29-25.pod.penguincomputing.com</code>
+<h1>hipBLAS on Cuda</h1>
+<ul>
+<li><code>sudo docker run  --gpus 1 --name amcamd_syrkx -tid --ipc=host --cap-add=SYS_PTRACE --privileged --security-opt seccomp=unconfined --device=/dev/kfd --device=/dev/dri --group-add video --group-add 44 -v /home:/home compute-artifactory.amd.com:5000/rocm-plus-docker/compute-rocm-dkms-no-npi-hipclang:7202-ubuntu-20.04-cuda-11.x-stg1 /bin/bash || exit 1</code></li>
+<li> alternative docker run command: <code> docker run --gpus 1 -v /home:/home -it compute-artifactory.amd.com:5000/rocm-plus-docker/compute-rocm-dkms-no-npi-hipclang:6870-ubuntu-20.04-cuda-11.x-stg1 bin/bash</code></li>
+<li><code>sudo docker exec -e COLUMNS="`tput cols`" -e LINES="`tput lines`" -ti &lt;ID&gt; /bin/bash</code></li>
+<li><code>apt-get update</code></li>
+<li><code>apt install vim</code></li>
+<li>comment out (library_dependencies_ubuntu+=("cuda")) in install.sh</li>
+<li><code>apt install git</code></li>
+<li><code>apt install gfortran</code></li>
+<li><code>apt install cmake</code></li>
+<li><code>ln -sf /opt/rocm* /opt/rocm</code></li>
+<li><code>./install.sh -ndc --cuda</code></li>
+</ul>
+
+<h1>hipMAGMA</h1>
+<ul>
+<li><code>wget https://bitbucket.org/icl/magma/get/hipMAGMAv2.0.0.tar.gz</code> <ul><li>Copies tgz file</li></ul></li>
+<li><code>gunzip hipMAGMAv2.0.0.tar.gz</code></li>
+<li><code>tar -xvf hipMAGMAv2.0.0.tar</code></li>
+<li><code>cp make.inc-examples/make.inc.hip_openblas make.inc</code> <ul><li>Creates a make.inc file from one of the examples, for example</li></ul></li>
+<li><code>export OPENBLASDIR=/usr/lib/x86_64-linux-gnu/openblas</code> <ul><li>Check openblas is on your machine and indicate where it is</li></ul></li>
+<li>Install hipblas and hipsparse if you are running tests with performance comparisons</li>
+<li><code>make -f make.gen.hipMAGMA</code> <ul><li>Generates HIP-specific code by running</li></ul></li>
+<li><code>make -f make.gen.hipMAGMA -j16 && make testing_hip/testing_dgemm -j16 && ./testing_hip/testing_dgemm</code>
+    <ul><li>Builds library and a tester, and runs the tester</li></ul></li>
+</ul>
+
+
 
 <h1>hipBLAS on Cuda</h1>
 <ul>
