@@ -1040,6 +1040,7 @@
 //                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'T', 'N'>),
 //                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);
 //                if(rocblas_operation_none == trans_a && rocblas_operation_transpose == trans_b)
+//std::cout << "NT" << std::endl;
 //                    hipLaunchKernelGGL( HIP_KERNEL_NAME(gemm_batched_general_kernel
 //                    <T, dim_m, dim_n, blk_m, blk_n, blk_k, blk_m, blk_k, blk_k, blk_n, false, 'N', 'T'>),
 //                    dimGrid, dimBlock, 0, stream, m, n, k, alpha, dA_array, lda, dB_array, ldb, beta, dC_array, ldc, batch_count);

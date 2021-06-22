@@ -7,6 +7,7 @@
 
 #include "rocblas.h"
 #include "gemm_batched.h"
+#include "gemm_batched_new.h"
 
 #define HIP_CHECK(status)                                                                \
     if (status != hipSuccess) {                                                          \
@@ -348,7 +349,7 @@ void syrkx_strided_batched(rocblas_fill uplo, rocblas_operation trans,
     rocblas_operation trans_b = rocblas_operation_none == trans ?  rocblas_operation_transpose : rocblas_operation_none;
     rocblas_int m = n;
 
-    syrkx_batched_solution(trans, trans_b, m, n, k, alpha,
+    gemm_batched_solution(trans, trans_b, m, n, k, alpha,
                                d_a, lda, stride_a,
                                d_b, ldb, stride_b, beta,
                                d_c, ldc, stride_c, batch_count, stream);

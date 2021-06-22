@@ -19,7 +19,8 @@ all: lib test
 
 lib:
 	$(HIPCC) -O3 -fno-gpu-rdc -fPIC $(INC) -c gemm_batched.cpp
-	$(GCC) -shared -fPIC -o libastaux.so            gemm_batched.o
+	$(HIPCC) -O3 -fno-gpu-rdc -fPIC $(INC) -c gemm_batched_new.cpp
+	$(GCC) -shared -fPIC -o libastaux.so            gemm_batched.o gemm_batched_new.o
 
 test:
 	$(GCC) -D__HIP_PLATFORM_HCC__ -c main.cpp  $(INC)
