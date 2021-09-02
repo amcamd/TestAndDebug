@@ -37,6 +37,9 @@ echo "==============================================================="
 export HIPCC_LINK_FLAGS_APPEND="-O3 -parallel-jobs=4"
 export HIPCC_COMPILE_FLAGS_APPEND="-O3 -Wno-format-nonliteral -parallel-jobs=4"
 
+# --no-tensile
+# --build_dir
+
 
 if [ "$(/opt/rocm/bin/rocm_agent_enumerator | grep -m 1 gfx900)" == "gfx900" ]; then
     echo "=====ISA = gfx900, use -agfx900 directive ===================="
