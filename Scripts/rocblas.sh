@@ -34,8 +34,8 @@ echo "=====build=rocblas=with=install.sh============================="
 echo "==============================================================="
 
 
-export HIPCC_LINK_FLAGS_APPEND="-O3 -parallel-jobs=4"
-export HIPCC_COMPILE_FLAGS_APPEND="-O3 -Wno-format-nonliteral -parallel-jobs=4"
+export HIPCC_LINK_FLAGS_APPEND="-O3 -parallel-jobs=16"
+export HIPCC_COMPILE_FLAGS_APPEND="-O3 -Wno-format-nonliteral -parallel-jobs=16"
 
 # --no-tensile
 # --build_dir
