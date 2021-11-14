@@ -981,6 +981,7 @@ Docker containers used in Jenkins.
 	<li><code>sudo docker run -it --rm --device "/dev/kfd" --device "/dev/dri" --group-add video sunway513/ubuntu14.04:promote-free-v2</code></li>
 	<li><code>sudo docker run -it --rm --device "/dev/kfd" --device "/dev/dri" --group-add video rocm/rocm-terminal</code></li>
     <li><code>sudo docker run --name andrew -tid --ipc=host --cap-add=SYS_PTRACE --privileged --security-opt seccomp=unconfined --device=/dev/kfd --device=/dev/dri --group-add video --group-add 44 -v /home:/home compute-artifactory.amd.com:5000/rocm-plus-docker/compute-rocm-dkms-no-npi-hipclang:6132-STG1 /bin/bash || exit 1</code></li>
+	<li><code>sudo docker run -it --network=host --device=/dev/kfd --device=/dev/dri --ipc=host --shm-size 16G --group-add video --cap-add=SYS_PTRACE --security-opt seccomp=unconfined -v $HOME/dockerx:/dockerx rocmqa/staging-stg2:8629-py3-ub18.04-mathlib-stg-daily-build-job74</code></li>
 </ul></p>
 <p>To remove a docker container, first get CONTAINER ID with 
 <ul>
