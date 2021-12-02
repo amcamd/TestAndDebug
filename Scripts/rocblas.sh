@@ -34,8 +34,8 @@ echo "=====build=rocblas=with=install.sh============================="
 echo "==============================================================="
 
 
-export HIPCC_LINK_FLAGS_APPEND="-O3 -parallel-jobs=16"
-export HIPCC_COMPILE_FLAGS_APPEND="-O3 -Wno-format-nonliteral -parallel-jobs=16"
+export HIPCC_LINK_FLAGS_APPEND="-O3 -parallel-jobs=12"
+export HIPCC_COMPILE_FLAGS_APPEND="-O3 -Wno-format-nonliteral -parallel-jobs=12"
 
 # --no-tensile
 # --build_dir
@@ -46,7 +46,7 @@ if [ "$(/opt/rocm/bin/rocm_agent_enumerator | grep -m 1 gfx900)" == "gfx900" ]; 
     time VERBOSE=1 ./install.sh -agfx900 -c 2>&1 | tee install.out
 elif [ "$(/opt/rocm/bin/rocm_agent_enumerator | grep -m 1 gfx906)" == "gfx906" ]; then
     echo "=====ISA = gfx906, use -agfx906:xnack- directive ===================="
-    time VERBOSE=1 ./install.sh -agfx906:xnack- -c 2>&1 | tee install.out
+    time VERBOSE=1 ./install.sh -agfx906:xnack- --no-tensile --build_dir build_no_tensile -c 2>&1 | tee install.out
 elif [ "$(/opt/rocm/bin/rocm_agent_enumerator | grep -m 1 gfx908)" == "gfx908" ]; then
     echo "=====ISA = gfx908, use -agfx908:xnack- directive ===================="
     time VERBOSE=1 ./install.sh -agfx908:xnack- -c 2>&1 | tee install.out
