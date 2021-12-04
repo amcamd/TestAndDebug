@@ -1,0 +1,11 @@
+prototype for symm using block recursive gemm based algorithm.
+
+Dependency:
+- rocBLAS 
+  - edit Makefile to set ROCBLAS_INSTALL_DIR to the directory where rocBLAS is installed
+
+To build:
+- type: make
+
+To run
+- type: test.sh
