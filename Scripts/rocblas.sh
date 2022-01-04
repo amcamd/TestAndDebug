@@ -40,38 +40,50 @@ export HIPCC_COMPILE_FLAGS_APPEND="-O3 -Wno-format-nonliteral -parallel-jobs=12"
 # --no-tensile
 # --build_dir
 
+BUILD_TENSILE="--no-tensile"
+
+if [ "--no-tensile" == $BUILD_TENSILE ]; then
+    BUILD_DIR="build_no_tensile"
+elif [ "" == $BUILD_TENSILE ]; then
+    BUILD_DIR=""
+else
+    BUILD_DIR=""
+fi
 
 if [ "$(/opt/rocm/bin/rocm_agent_enumerator | grep -m 1 gfx900)" == "gfx900" ]; then
     echo "=====ISA = gfx900, use -agfx900 directive ===================="
-    time VERBOSE=1 ./install.sh -agfx900 -c 2>&1 | tee install.out
+    ISA="-agfx900"
 elif [ "$(/opt/rocm/bin/rocm_agent_enumerator | grep -m 1 gfx906)" == "gfx906" ]; then
     echo "=====ISA = gfx906, use -agfx906:xnack- directive ===================="
-    time VERBOSE=1 ./install.sh -agfx906:xnack- --no-tensile --build_dir build_no_tensile -c 2>&1 | tee install.out
+    ISA="-agfx906:xnack-"
 elif [ "$(/opt/rocm/bin/rocm_agent_enumerator | grep -m 1 gfx908)" == "gfx908" ]; then
     echo "=====ISA = gfx908, use -agfx908:xnack- directive ===================="
-    time VERBOSE=1 ./install.sh -agfx908:xnack- -c 2>&1 | tee install.out
+    ISA="-agfx908:xnack-"
 elif [ "$(/opt/rocm/bin/rocm_agent_enumerator | grep -m 1 gfx90a)" == "gfx90a" ]; then
     echo "=====ISA = gfx90a, use -agfx90a:xnack- directive ===================="
-    time VERBOSE=1 ./install.sh -agfx90a:xnack- -c 2>&1 | tee install.out
+    ISA="-agfx90a:xnack-"
 elif [ "$(/opt/rocm/bin/rocm_agent_enumerator | grep -m 1 gfx1010)" == "gfx1010" ]; then
     echo "=====ISA = gfx1010, use -agfx1010:xnack- directive ===================="
-    time VERBOSE=1 ./install.sh -agfx1010 -c 2>&1 | tee install.out
+    ISA="-agfx1010"
 elif [ "$(/opt/rocm/bin/rocm_agent_enumerator | grep -m 1 gfx1012)" == "gfx1012" ]; then
     echo "=====ISA = gfx1012, use -agfx1012:xnack- directive ===================="
-    time VERBOSE=1 ./install.sh -agfx1012 -c 2>&1 | tee install.out
+    ISA="-agfx1012"
 elif [ "$(/opt/rocm/bin/rocm_agent_enumerator | grep -m 1 gfx1030)" == "gfx1030" ]; then
     echo "=====ISA = gfx1030, use -agfx1030:xnack- directive ===================="
-    time VERBOSE=1 ./install.sh -agfx1030 -c 2>&1 | tee install.out
+    ISA="-agfx1030"
 else
     echo "build fat binary, ISA != gfx900 and ISA != gfx906 and ISA != gfx908"
-    time VERBOSE=1 ./install.sh -c 2>&1 | tee install.out
+    ISA=""
 fi
+
+time VERBOSE=1 ./install.sh $ISA $BUILD_TENSILE --build_dir $BUILD_DIR -c 2>&1 | tee install.out
+
 if [[ $? -ne 0 ]]; then
     echo "install error"
     exit 1
 fi
 
-cd build/release/clients/staging
+cd $BUILD_DIR/release/clients/staging
 if [[ $? -ne 0 ]]; then
     echo "cd staging error"
     exit 1
