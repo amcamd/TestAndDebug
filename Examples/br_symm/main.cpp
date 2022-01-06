@@ -9,10 +9,8 @@
 #include <stdlib.h>
 #include <hip/hip_runtime.h>
 #include "rocblas.h"
-//#include "rocblas-types.h"
 #include "symm_reference.hpp"
 #include "symm_block_recursive.hpp"
-//#include "symm_l3_reference.hpp"
 
 #ifndef CHECK_HIP_ERROR
 #define CHECK_HIP_ERROR(error)                    \
@@ -272,7 +270,6 @@ void template_symm(rocblas_side side,
                    rocblas_int ldc,
                    bool verbose)
 {
-
     rocblas_int ka = (side == rocblas_side_left) ? m : n;
 
     rocblas_int size_a = lda * ka;
@@ -299,8 +296,8 @@ void template_symm(rocblas_side side,
     CHECK_HIP_ERROR( hipMemcpy(db, hb.data(), sizeof(T) * size_b, hipMemcpyHostToDevice));
     CHECK_HIP_ERROR( hipMemcpy(dc, hc_legacy.data(), sizeof(T) * size_c, hipMemcpyHostToDevice));
 
-//  rocblas_handle handle;
-//  CHECK_ROCBLAS_ERROR(rocblas_create_handle(&handle));
+    rocblas_handle handle;
+    CHECK_ROCBLAS_ERROR(rocblas_create_handle(&handle));
 
     if(verbose)
     {
