@@ -280,12 +280,14 @@ void template_symm(rocblas_side side,
     std::vector<T>hb(size_b);
     std::vector<T>hc_legacy(size_c);
     std::vector<T>hc_gemm_based(size_c);
+    std::vector<T>hc_strided(size_c);
 
     initialize_symmetric_matrix(ha, m, n, lda, side, uplo);
     initialize_matrix(hb, m, n, ldb);
     initialize_matrix(hc_legacy, m, n, ldc);
 
     hc_gemm_based = hc_legacy;
+    hc_strided = hc_legacy;
     
     T *da, *db, *dc;
     CHECK_HIP_ERROR(hipMalloc(&da, size_a * sizeof(T)));
@@ -326,8 +328,13 @@ void template_symm(rocblas_side side,
         hb.data(), ldb, beta,
         hc_gemm_based.data(), ldc);
 
+    status = symm_strided_block_recursive( verbose, side, uplo, m, n, alpha,
+        ha.data(), lda,
+        hb.data(), ldb, beta,
+        hc_strided.data(), ldc);
+
     // calculate error
-    T error = 0.0;
+    T error = 0.0, error_strided = 0.0;
     T magnitude = 0.0;
     T tolerance = 1;
     T epsilon = std::numeric_limits<T>::epsilon();
@@ -337,11 +344,27 @@ void template_symm(rocblas_side side,
         {
             magnitude += hc_legacy[j + i * ldc] > T(0) ? hc_legacy[j + i * ldc] : - hc_legacy[j + i * ldc];
             T err = hc_legacy[j + i * ldc] - hc_gemm_based[j + i * ldc];
+            T err_strided = hc_legacy[j + i * ldc] - hc_strided[j + i * ldc];
             if(err != 0 && verbose)std::cout << "j, i, err = " << j << ", " << i << ", " << err << std::endl;
             error += err * err;
+            error_strided += err_strided * err_strided;
         }
     }
     if (error < epsilon * tolerance * magnitude)
+    {
+        std::cout << "----- pass ----- ";
+        if(error != 0)
+        {
+            std::cout << "error, magnitude = " << error << ", " << magnitude;
+        }
+        std::cout << std::endl;
+    }
+    else
+    {
+        std::cout << "----- fail ----- FAIL ----- error ------ ERROR -----";
+        std::cout << "error, magnitude, epsilon * tolerance * magnitude = " << error << ", " << magnitude << ", " << epsilon * tolerance * magnitude << std::endl;
+    }
+    if (error_strided < epsilon * tolerance * magnitude)
     {
         std::cout << "----- pass ----- ";
         if(error != 0)

@@ -414,90 +414,89 @@ rocblas_status symm_strided_block_recursive( bool verbose, rocblas_side side, ro
             stride_rem = 0;
             n_nb += 1;
         }
-    
-        // sub-diagonal gemm blocks calls
-        for(int i = 0; i < n_nb; i++)
+
+        rocblas_int i_start1 = i_start;
+        rocblas_int i_start2 = i_start - nb;
+        rocblas_int i1 = i_start;
+        rocblas_int i2 = i_start - nb;
+
+        if(rocblas_side_right == side)
         {
-            rocblas_int i1 = i_start + (i * stride);
-            rocblas_int i2 = i1 - nb;
-
-            if(rocblas_side_right == side)
+            if(rocblas_fill_lower == uplo)
             {
-                if(rocblas_fill_lower == uplo)
-                {
-                    // lower sub-diagonal (from stored part of a)
-                    if(zero_c)set_mat_zero(m, n, 1, ldc, c);
-                    gemm_reference(rocblas_operation_none, rocblas_operation_none, m, nb, nb, alpha,
-                        &(b[i1*ldb]), ldb,
-                        &(a[i1 + i2*lda]), lda, T(1.0),
-                        &(c[i2*ldc]), ldc);
-                    if(verbose)print_matrix("right, lower, c after gemm1", c, m, n, ldc);
-    
-                    // upper sub-diagonal (from transpose of stored part of a)
-                    if(zero_c)set_mat_zero(m, n, 1, ldc, c);
-                    gemm_reference(rocblas_operation_none, rocblas_operation_transpose, m, nb, nb, alpha,
-                        &(b[i2*ldb]), ldb,
-                        &(a[i1 + i2*lda]), lda, T(1.0),
-                        &(c[i1*ldc]), ldc);
-                    if(verbose)print_matrix("right, lower, c after gemm2", c, m, n, ldc);
-                }
-                else
-                {
-                    // upper sub-diagonal (from stored part of a)
-                    if(zero_c)set_mat_zero(m, n, 1, ldc, c);
-                    gemm_reference(rocblas_operation_none, rocblas_operation_none, m, nb, nb, alpha,
-                        &(b[i2*ldb]), ldb,
-                        &(a[i2 + i1*lda]), lda, T(1.0),
-                        &(c[i1*ldc]), ldc);
-                    if(verbose)print_matrix("right, upper, c after gemm1", c, m, n, ldc);
+                // lower sub-diagonal (from stored part of a)
+                if(zero_c)set_mat_zero(m, n, 1, ldc, c);
 
-                    // lower sub-diagonal (from transpose of stored part of a)
-                    if(zero_c)set_mat_zero(m, n, 1, ldc, c);
-                    gemm_reference(rocblas_operation_none, rocblas_operation_transpose, m, nb, nb, alpha,
-                        &(b[i1*ldb]), ldb,
-                        &(a[i2 + i1*lda]), lda, T(1.0),
-                        &(c[i2*ldc]), ldc);
-                    if(verbose)print_matrix("right, upper, c after gemm2", c, m, n, ldc);
-                }
+                gemm_st_bat_ref(rocblas_operation_none, rocblas_operation_none, m, nb, nb, alpha,
+                    &(b[i1*ldb]), ldb, stride*ldb,
+                    &(a[i1 + i2*lda]), lda, (stride + stride*lda), T(1.0),
+                    &(c[i2*ldc]), ldc, stride*ldc, n_nb);
+                if(verbose)print_matrix("right, lower, c after gemm1", c, m, n, ldc);
+
+                // upper sub-diagonal (from transpose of stored part of a)
+                if(zero_c)set_mat_zero(m, n, 1, ldc, c);
+                gemm_st_bat_ref(rocblas_operation_none, rocblas_operation_transpose, m, nb, nb, alpha,
+                    &(b[i2*ldb]), ldb, stride*ldb,
+                    &(a[i1 + i2*lda]), lda, stride*(1+lda), T(1.0),
+                    &(c[i1*ldc]), ldc, stride*ldc, n_nb);
+                if(verbose)print_matrix("right, lower, c after gemm2", c, m, n, ldc);
             }
             else
             {
-                if(rocblas_fill_lower == uplo)
-                {
-                    // lower sub-diagonal (from stored part of a)
-                    if(zero_c)set_mat_zero(m, n, 1, ldc, c);
-                    gemm_reference(rocblas_operation_none, rocblas_operation_none, nb, n, nb, alpha,
-                        &(a[i1 + i2*lda]), lda,
-                        &(b[i2]), ldb, T(1.0),
-                        &(c[i1]), ldc);
-                    if(verbose)print_matrix("left, lower, c after gemm1", c, m, n, ldc);
-    
-                    // upper sub-diagonal (from transpose of stored part of a)
-                    if(zero_c)set_mat_zero(m, n, 1, ldc, c);
-                    gemm_reference(rocblas_operation_transpose, rocblas_operation_none, nb, n, nb, alpha,
-                        &(a[i1 + i2*lda]), lda,
-                        &(b[i1]), ldb, T(1.0),
-                        &(c[i2]), ldc);
-                    if(verbose)print_matrix("left, lower, c after gemm2", c, m, n, ldc);
-                }
-                else
-                {
-                    // upper sub-diagonal (from stored part of a)
-                    if(zero_c)set_mat_zero(m, n, 1, ldc, c);
-                    gemm_reference(rocblas_operation_none, rocblas_operation_none, nb, n, nb, alpha,
-                        &(a[i2 + i1*lda]), lda,
-                        &(b[i1]), ldb, T(1.0),
-                        &(c[i2]), ldc);
-                    if(verbose)print_matrix("left, upper, c after gemm1", c, m, n, ldc);
-    
-                    // lower sub-diagonal (from transpose of stored part of a)
-                    if(zero_c)set_mat_zero(m, n, 1, ldc, c);
-                    gemm_reference(rocblas_operation_transpose, rocblas_operation_none, nb, n, nb, alpha,
-                        &(a[i2 + i1*lda]), lda,
-                        &(b[i2]), ldb, T(1.0),
-                        &(c[i1]), ldc);
-                    if(verbose)print_matrix("left, upper, c after gemm2", c, m, n, ldc);
-                }
+                // upper sub-diagonal (from stored part of a)
+                if(zero_c)set_mat_zero(m, n, 1, ldc, c);
+                gemm_st_bat_ref(rocblas_operation_none, rocblas_operation_none, m, nb, nb, alpha,
+                    &(b[i2*ldb]), ldb, stride*ldb,
+                    &(a[i1-nb + i1*lda]), lda, stride*(1+lda), T(1.0),
+                    &(c[i1*ldc]), ldc, stride*ldc, n_nb);
+                if(verbose)print_matrix("right, upper, c after gemm1", c, m, n, ldc);
+
+                // lower sub-diagonal (from transpose of stored part of a)
+                if(zero_c)set_mat_zero(m, n, 1, ldc, c);
+                gemm_st_bat_ref(rocblas_operation_none, rocblas_operation_transpose, m, nb, nb, alpha,
+                    &(b[i1*ldb]), ldb, stride*ldb,
+                    &(a[i1-nb + i1*lda]), lda, stride*(1+lda), T(1.0),
+                    &(c[i2*ldc]), ldc, stride*ldc, n_nb);
+                if(verbose)print_matrix("right, upper, c after gemm2", c, m, n, ldc);
+            }
+        }
+        else
+        {
+            if(rocblas_fill_lower == uplo)
+            {
+                // lower sub-diagonal (from stored part of a)
+                if(zero_c)set_mat_zero(m, n, 1, ldc, c);
+                gemm_st_bat_ref(rocblas_operation_none, rocblas_operation_none, nb, n, nb, alpha,
+                    &(a[i1 + i2*lda]), lda, stride*(1+lda),
+                    &(b[i2]), ldb, stride, T(1.0),
+                    &(c[i1]), ldc, stride, n_nb);
+                if(verbose)print_matrix("left, lower, c after gemm1", c, m, n, ldc);
+
+                // upper sub-diagonal (from transpose of stored part of a)
+                if(zero_c)set_mat_zero(m, n, 1, ldc, c);
+                gemm_st_bat_ref(rocblas_operation_transpose, rocblas_operation_none, nb, n, nb, alpha,
+                    &(a[i1 + i2*lda]), lda, stride*(1+lda),
+                    &(b[i1]), ldb, stride, T(1.0),
+                    &(c[i2]), ldc, stride, n_nb);
+                if(verbose)print_matrix("left, lower, c after gemm2", c, m, n, ldc);
+            }
+            else
+            {
+                // upper sub-diagonal (from stored part of a)
+                if(zero_c)set_mat_zero(m, n, 1, ldc, c);
+                gemm_st_bat_ref(rocblas_operation_none, rocblas_operation_none, nb, n, nb, alpha,
+                    &(a[i2 + i1*lda]), lda, stride*(1+lda),
+                    &(b[i1]), ldb, stride, T(1.0),
+                    &(c[i2]), ldc, stride, n_nb);
+                if(verbose)print_matrix("left, upper, c after gemm1", c, m, n, ldc);
+
+                // lower sub-diagonal (from transpose of stored part of a)
+                if(zero_c)set_mat_zero(m, n, 1, ldc, c);
+                gemm_st_bat_ref(rocblas_operation_transpose, rocblas_operation_none, nb, n, nb, alpha,
+                    &(a[i2 + i1*lda]), lda, stride*(1+lda),
+                    &(b[i2]), ldb, stride, T(1.0),
+                    &(c[i1]), ldc, stride, n_nb);
+                if(verbose)print_matrix("left, upper, c after gemm2", c, m, n, ldc);
             }
         }
     
