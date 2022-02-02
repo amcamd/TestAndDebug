@@ -45,7 +45,7 @@ BUILD_TENSILE="--no-tensile"
 if [ "--no-tensile" == $BUILD_TENSILE ]; then
     BUILD_DIR="build_no_tensile"
 elif [ "" == $BUILD_TENSILE ]; then
-    BUILD_DIR=""
+    BUILD_DIR="build_tensile"
 else
     BUILD_DIR=""
 fi
