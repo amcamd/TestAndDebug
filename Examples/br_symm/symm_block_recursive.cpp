@@ -101,6 +101,7 @@ rocblas_status gemm_st_bat_ref(rocblas_operation transA, rocblas_operation trans
     return rocblas_status_success;
 }
 
+// should work for batched and strided_batched, only tested for batch_count==1
 template<typename T>
 rocblas_status symm_block_recursive( bool verbose, rocblas_side side, rocblas_fill uplo,
       rocblas_int m, rocblas_int n, T alpha, 
