@@ -40,14 +40,13 @@ export HIPCC_COMPILE_FLAGS_APPEND="-O3 -Wno-format-nonliteral -parallel-jobs=12"
 # --no-tensile
 # --build_dir
 
-BUILD_TENSILE="--no-tensile"
+#BUILD_TENSILE="--no-tensile"
+BUILD_TENSILE=""
 
 if [ "--no-tensile" == $BUILD_TENSILE ]; then
     BUILD_DIR="build_no_tensile"
-elif [ "" == $BUILD_TENSILE ]; then
-    BUILD_DIR="build_tensile"
 else
-    BUILD_DIR=""
+    BUILD_DIR="build_tensile"
 fi
 
 if [ "$(/opt/rocm/bin/rocm_agent_enumerator | grep -m 1 gfx900)" == "gfx900" ]; then
