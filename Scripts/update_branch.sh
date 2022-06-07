@@ -73,7 +73,7 @@ if [[ $BRANCH != "master" ]] && [[ $BRANCH != "staging" ]] && [[ $BRANCH != "dev
 fi
 
 #require repository to be one of: rocBLAS-internal, rocBLAS, hipBLAS
-if [[ $REPOSITORY != "rocBLAS-internal" ]] && [[ $REPOSITORY != "rocBLAS" ]] && [[ $REPOSITORY != "hipBLAS" ]] && [[ $REPOSITORY != "rocSOLVER" ]]; then
+if [[ $REPOSITORY != "rocBLAS-internal" ]] && [[ $REPOSITORY != "rocBLAS" ]] && [[ $REPOSITORY != "hipBLAS" ]] && [[ $REPOSITORY != "Tensile" ]] && [[ $REPOSITORY != "rocSOLVER" ]]; then
     echo "Usage: $0 -r <repository>"
     echo "where repository =  rocBLAS-internal  or  rocBLAS  or  hipBLAS"
     exit 1
