@@ -1,11 +1,21 @@
 #!/bin/bash
 
-BRANCH="not_initialized"
+function display_help()
+{
+cat << EOF
+Script to update branch
+
+  Usage:
+    $0 <options>
+
+  Options:
+    -b|--branch        develop, master, staging                                  default: develop
+    -r|--repository    rocBLAS-internal, rocBLAS, hipBLAS, Tensile, rocSOLVER    default: rocBLAS-internal
+EOF
+}
+
 ORIGIN="amcamd"
 UPSTREAM="ROCmSoftwarePlatform"
-
-#read command line arguments
-#TODO add ORIGIN and UPSTREAM forks
 
 BRANCH=develop
 REPOSITORY=rocBLAS-internal
@@ -13,10 +23,12 @@ REPOSITORY=rocBLAS-internal
 echo "BRANCH = $BRANCH"
 echo "REPOSITORY = $REPOSITORY"
 
-POSITIONAL_ARGS=()
-
 while [[ $# -gt 0 ]]; do
   case $1 in
+    -h|--help)
+      display_help
+      exit 0
+      ;;
     -b|--branch)
       BRANCH="$2"
       shift # past argument
@@ -41,29 +53,9 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-
 echo "BRANCH = $BRANCH"
 echo "REPOSITORY = $REPOSITORY"
 
-
-#POSITIONAL=()
-#while [[ $# -gt 0 ]]
-#do
-#key="$1"
-#
-#case $key in
-#    -b|--branch)
-#    BRANCH="$2"
-#    shift
-#    shift
-#    ;;
-#    *)
-#    echo "Usage: $0 -b <branch>"
-#    echo "where branch =  master  or  staging  or   develop"
-#    exit 1
-#    ;;
-#esac
-#done
 
 #require branch to be one of: master, staging, develop
 if [[ $BRANCH != "master" ]] && [[ $BRANCH != "staging" ]] && [[ $BRANCH != "develop" ]]; then
