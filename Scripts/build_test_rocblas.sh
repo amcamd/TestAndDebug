@@ -11,6 +11,7 @@ Script to build rocBLAS and run tests
   Options:
     -r|--rocBLAS        rocBLAS_internal or rocBLAS  Default rocBLAS-internal)
     -t|--Tensile        Tensile or no-Tensile        Default Tensile)
+    -b|--branch         develop, master, ...         Default develop)
     -q|--quick          false or true                Default false)
     -p|--precheckin     false or true                Default false)
     -n|--nightly        false or true                Default false)
