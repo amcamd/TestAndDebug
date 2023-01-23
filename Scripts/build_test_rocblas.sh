@@ -96,6 +96,15 @@ echo "QUICK      = $QUICK"
 echo "PRECHECKIN = $PRECHECKIN"
 echo "NIGHTLY    = $NIGHTLY"
 
+while true; do
+    read -p "Confirm you want to build and run the tests above?" yn
+    case $yn in
+        [Yy]* ) break;;
+        [Nn]* ) echo "exiting script"; exit;;
+        * ) echo "Please answer yes or no.";;
+    esac
+done
+
 cd $ROCBLAS
 if [[ $? -ne 0 ]]; then
     echo "cd error"
