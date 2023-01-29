@@ -255,8 +255,68 @@ th, td {
 </ul>
 
 <h1>ROCm installation</h1>
-<p>Instructions at <a href="https://rocm.github.io/ROCmInstall.html">ROCm</a>
-<p>Instructions at <a href="http://confluence.amd.com/pages/viewpage.action?spaceKey=MLSE&title=HIPClang+-+PRIVATE+driver+installation">Mainline or Release</a>
+<p>
+If you get the following error message it may be fixed by reinstalling ROCm
+<pre> <code>
+  HSA Error:  Incompatible kernel and userspace, AMD Radeon VII disabled. Upgrade amdgpu.
+  HSA Error:  Incompatible kernel and userspace, AMD Radeon VII disabled. Upgrade amdgpu.
+  Query device error: cannot get device count
+
+  Invalid Device ID
+</code></pre>
+</p>
+
+<p>
+To install ROCm 5.4 follow <a href="https://docs.amd.com/bundle/ROCm-Installation-Guide-v5.4/page/How_to_Install_ROCm.html#_How_to_Install">Instructions</a>. Make sure you have the version or ROCm you want. The Instructions in the link are for is ROCm 5.4.
+</p>
+
+Below is from instructions
+
+
+<h3>Get Ubuntu version with</h3>
+<code>
+> uname -m && cat /etc/*release
+</code>
+
+<h3>Get installer</h3>
+<p>For Ubuntu 20.04
+<pre> <code>
+  > sudo apt-get update
+  > wget https://repo.radeon.com/amdgpu-install/5.4/ubuntu/focal/amdgpu-install_5.4.50400-1_all.deb
+  > sudo apt-get install ./amdgpu-install_5.4.50400-1_all.deb
+</code> </pre>
+</p>
+
+<p>For Ubuntu 22.04
+<pre> <code>
+  > sudo apt-get update
+  > wget https://repo.radeon.com/amdgpu-install/5.4/ubuntu/jammy/amdgpu-install_5.4.50400-1_all.deb
+  > sudo apt-get install ./amdgpu-install_5.4.50400-1_all.deb
+</code> </pre>
+</p>
+
+<h3>Uninstall previous ROCm</h3>
+<p>
+<pre> <code>
+  > amdgpu-install --uninstall
+</code></pre>
+</p>
+
+<h3>Install ROCm 5.4</h3>
+<p> 
+<pre><code>
+  > sudo amdgpu-install --usecase=rocm
+
+  Next reboot
+</code></pre></p>
+
+
+<p>
+If it cannot find dkms.conf you may need to look in <code>/usr/src</code>
+<pre> <code>
+  sudo ln -s  /usr/src/amdgpu-5.18.13-1510348.20.04/ source
+</code></pre>
+</p>
 
 <h1>VIM</h1>
 <dl>
