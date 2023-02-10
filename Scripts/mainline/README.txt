@@ -1,4 +1,4 @@
 May require:
 apt-get install curl
-pip install dictdiff 
+pip install dictdiffer
 
