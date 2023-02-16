@@ -1,0 +1,33 @@
+Instructions to generate rocBLAS.pdf from .rst and Doxygen files
+The following needs to be installed before generating the User Guide
+
+sudo apt-get update -y
+sudo apt-get install build-essential
+sudo apt-get install python3-dev python3-pip python3-setuptools
+sudo apt-get install libxml2-dev libxslt1-dev zlib1g-dev
+sudo apt-get install python3-pip
+sudo pip3 install virtualenv
+sudo apt-get install -y doxygen
+sudo apt-get install redis-server
+sudo apt-get -y install texlive-latex-recommended texlive-pictures texlive-latex-extra latexmk
+git clone --recurse-submodules https://github.com/readthedocs/readthedocs.org.git
+
+
+After the above is installed, follow the procedure below to generate the html or pdf User Guide
+
+
+virtualenv --python=python3 venv
+
+source venv/bin/activate
+
+pip install sphinx_rtd_theme
+
+pip install breathe
+
+cd rocBLAS-internal/docs
+
+Execute the ./run_doc.sh script
+
+PDF file should be in rocBLAS-internal/docs/source/_build/latex/rocBLAS.pdf
+HTML version should be in rocBLAS-internal/docs/source/_build/html. Start viewing file index.html, and it links to other files.
+
