@@ -201,9 +201,9 @@ th, td {
           <li> <font color="red">need to log out and log back in</font></li>
       </ul>
   </li>
-  <li><code>export KMDUMPISA=1</code>
+  <li><code>/opt/rocm/hip/bin/hipcc -save-temps bit_extract.cpp -o bit_extract</code>
     <ul>
-        <li>dumping isa while compiling by exporting environment variable</li>
+        <li>produce assembly isa .s files</li>
     </ul>
   </li>
   <li><code>export AMD_LOG_LEVEL=3  replaces  export HCC_PROFILE=2</code>
