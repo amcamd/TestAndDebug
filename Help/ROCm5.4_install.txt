@@ -1,0 +1,51 @@
+
+My home machine failed with:
+
+  HSA Error:  Incompatible kernel and userspace, AMD Radeon VII disabled. Upgrade amdgpu.
+  HSA Error:  Incompatible kernel and userspace, AMD Radeon VII disabled. Upgrade amdgpu.
+  Query device error: cannot get device count
+
+  Invalid Device ID
+
+The other machine ts2-hq-04 failed with:
+
+  Query device error: cannot get device count
+  Error: invalid device ID. There may not be such device ID.
+
+
+
+To install ROCm 5.4 follow https://docs.amd.com/bundle/ROCm-Installation-Guide-v5.4/page/How_to_Install_ROCm.html#_How_to_Install.
+ 
+
+
+Below is what I did to install ROCm 5.4 on Ubuntu 20.04. 
+
+Get Ubuntu version with
+> uname -m && cat /etc/*release
+
+Get installer
+For Ubuntu 20.04
+ 
+  > sudo apt-get update
+  > wget https://repo.radeon.com/amdgpu-install/5.4/ubuntu/focal/amdgpu-install_5.4.50400-1_all.deb
+  > sudo apt-get install ./amdgpu-install_5.4.50400-1_all.deb
+ 
+For Ubuntu 22.04
+ 
+  > sudo apt-get update
+  > wget https://repo.radeon.com/amdgpu-install/5.4/ubuntu/jammy/amdgpu-install_5.4.50400-1_all.deb
+  > sudo apt-get install ./amdgpu-install_5.4.50400-1_all.deb
+ 
+Uninstall previous ROCm
+ 
+  > amdgpu-install --uninstall
+
+Install ROCm 5.4
+
+  > sudo amdgpu-install --usecase=rocm
+
+  Next reboot
+If it cannot find dkms.conf you may need to look in /usr/src . I created the symlink below for it to find dkms.conf
+ 
+  sudo ln -s  /usr/src/amdgpu-5.18.13-1510348.20.04/ source
+
