@@ -146,6 +146,8 @@ else
     ISA=""
 fi
 
+#export ROCM_PATH=/opt/rocm-5.1.1/    # if ROCm not in /opt/rocm
+
 time VERBOSE=1 ./install.sh $ISA $BUILD_TENSILE --build_dir $BUILD_DIR -cd --cmake_install  2>&1 | tee install.out
 
 if [[ $? -ne 0 ]]; then
