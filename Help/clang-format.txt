@@ -1,0 +1,40 @@
+To install clang-format version 13.0.0
+(https://github.com/RadeonOpenCompute/llvm-project roc-4.3.1 21313 286c48af238c2d3a24ebc5a06ea5191f333eaed0)
+
+use <ENTER DESIRED DIRECTORY> = $home/rocm4.3.1_clang-format
+
+#UBUNTU
+output_directory=<ENTER DESIRED DIRECTORY>
+workspace=$(mktemp -d)
+cd -- "$workspace"
+wget https://repo.radeon.com/rocm/apt/4.3.1/pool/main/l/llvm-amdgpu4.3.1/llvm-amdgpu4.3.1_13.0.0.21313.40301_amd64.deb
+ar x llvm-amdgpu4.3.1_13.0.0.21313.40301_amd64.deb data.tar.xz
+tar xJf data.tar.xz --strip-components=5 -C "$output_directory" ./opt/rocm-4.3.1/llvm/bin/clang-format
+rm -r -- "$workspace"
+
+#CENTOS 7/8
+output_directory=<ENTER DESIRED DIRECTORY>
+workspace=$(mktemp -d)
+cd -- "$workspace"
+wget https://repo.radeon.com/rocm/yum/4.3.1/llvm-amdgpu4.3.1-13.0.0.21313.40301-59.el7.x86_64.rpm
+# centos8: https://repo.radeon.com/rocm/centos8/4.3.1/llvm-amdgpu4.3.1-13.0.0.21313.40301-59.el8.x86_64.rpm
+rpm2cpio llvm-amdgpu-13.0.0.21295.40300-52.el7.x86_64.rpm | cpio -idm --quiet ./opt/rocm-4.3.0/llvm/bin/clang-format
+mv ./opt/rocm-4.3.0/llvm/bin/clang-format "$output_directory/"
+rm -r -- "$workspace"
+
+
+
+To format a file, use:
+
+#                  /opt/rocm/llvm/bin/clang-format -style=file -i <path-to-source-file>
+/home/achapman/rocm4.3.1_clang-format/clang-format -style=file -i <path-to-source-file>
+
+To format all files, run the following script in rocBLAS directory:
+
+#!/bin/bash
+#git ls-files -z *.cc *.cpp *.h *.hpp *.cl *.h.in *.hpp.in *.cpp.in | xargs -0 /opt/rocm/llvm/bin/clang-format -style=file -i
+ git ls-files -z *.cc *.cpp *.h *.hpp *.cl *.h.in *.hpp.in *.cpp.in | xargs -0 /home/achapman/rocm4.3.1_clang-format/clang-format -style=file -i
+
+
+# to prevent githooks running on commit:
+git commit --no-verify -m"commit message"
