@@ -23,6 +23,9 @@ Below is what I did to install ROCm 5.4 on Ubuntu 20.04.
 Get Ubuntu version with
 > uname -m && cat /etc/*release
 
+Purge any previous amdgpu-install
+> sudo apt-get purge amdgpu-install
+
 Get installer
 For Ubuntu 20.04
  
