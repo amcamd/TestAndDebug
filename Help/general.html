@@ -678,8 +678,29 @@ See reference <a href="http://www.draconianoverlord.com/2013/09/07/no-cherry-pic
     <li> <code>git push --all</code></li>
 </ul>
 
+<h2>Update version numbers and create release-staging/rocm-rel-x.x</h2>
+<ul>
+<li>make sure rocBLAS-internal:amcamd:develop is up-to-date with rocBLAS-internal:ROCmSoftwarePlatform:develop</li>
+<li>make new branch rocBLAS-internal:ROCmSoftwarePlatform:release-staging/rocm-rel-x.x from rocBLAS-internal:ROCmSoftwarePlatform:develop</li>
+<li><code>mkdir -p ~/repos/rocBLASmergeDevelop</code></li>
+<li><code>cd ~/repos/rocBLASmergeDevelop; rm -rf rocBLAS-internal</code></li>
+<li><code>git clone git@github.com:amcamd/rocBLAS-internal.git</code></li>
+<li><code>cd rocBLAS-internal; git checkout develop</code></li>
+<li><code>./bump_develop_version.sh</code></li>
+<li>check that the rocBLAS version, rocblas_SOVERSION, Tensile version, and Tensile hash are correct</li>
+<li><code>git add -u</code></li>
+<li><code>git commit -m"develop branch for release after ROCm x.x"</code></li>
+<li><code>git push</code></li>
+<li><code>git checkout release-staging/rocm-rel-x.x</code></li>
+<li><code>./bump_release-staging_version.sh</code></li>
+<li>Check that the rocBLAS version, rocblas_SOVERSION, Tensile version, and Tensile hash are correct</li>
+<li><code>git add -u</code></li>
+<li><code>git commit -m"release-staging branch for ROCm x.x"</code></li>
+<li><code>git push</code></li>
+<li>make PRs for both the develop and release-staging/rocm-rel-x.x branches</li>
+</ul>
 
-<h2>Merge rocBLAS develop into master and release</h2>
+<h2>(out of date)Merge rocBLAS develop into master and release</h2>
 <h4>Get amcamd develop branch up to date with ROCmSoftwarePlatform</h4>
 <ul>
 	<li> <code>mkdir -p ~/repos/rocBLASmergeDevelop</code></li>
