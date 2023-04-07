@@ -10,7 +10,7 @@ Script to build rocBLAS and run tests
 
   Options:
     -r|--rocBLAS        rocBLAS_internal or rocBLAS  Default rocBLAS-internal)
-    -t|--Tensile        Tensile or no-Tensile        Default Tensile)
+    -t|--tensile        tensile or no-tensile        Default tensile)
     -b|--branch         develop, master, ...         Default develop)
     -q|--quick          false or true                Default false)
     -p|--precheckin     false or true                Default false)
@@ -19,7 +19,7 @@ EOF
 }
 
 ROCBLAS=rocBLAS-internal
-TENSILE=Tensile
+TENSILE=tensile
 BRANCH=develop
 
 QUICK=false
@@ -37,7 +37,7 @@ while [[ $# -gt 0 ]]; do
       shift # past argument
       shift # past value
       ;;
-    -t|--Tensile)
+    -t|--tensile)
       TENSILE="$2"
       shift # past argument
       shift # past value
@@ -75,13 +75,13 @@ if [[ $ROCBLAS != "rocBLAS" && $ROCBLAS != "rocBLAS-internal" ]]; then
     echo "where repository is rocBLAS  or  rocBLAS-internal"
     exit 1
 fi
-if [[ $TENSILE != "Tensile" && $TENSILE != "noTensile" ]]; then
-    echo "Usage: $0 -t <Tensile>" 
-    echo "where Tensile is Tensile  or  noTensile"
+if [[ $TENSILE != "tensile" && $TENSILE != "no_tensile" ]]; then
+    echo "Usage: $0 -t <tensile>" 
+    echo "where <tensile> is tensile  or  no_tensile"
     exit 1
 fi
 
-if [[ $TENSILE == "Tensile" ]]; then
+if [[ $TENSILE == "tensile" ]]; then
     BUILD_TENSILE=""
     BUILD_DIR="build_tensile"
 else
