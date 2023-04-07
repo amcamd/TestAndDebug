@@ -10,7 +10,7 @@ Script to build rocBLAS and run tests
 
   Options:
     -r|--rocBLAS        rocBLAS_internal or rocBLAS  Default rocBLAS-internal)
-    -t|--tensile        tensile or no-tensile        Default tensile)
+    -t|--tensile        tensile or no_tensile        Default tensile)
     -b|--branch         develop, master, ...         Default develop)
     -q|--quick          false or true                Default false)
     -p|--precheckin     false or true                Default false)
@@ -85,7 +85,7 @@ if [[ $TENSILE == "tensile" ]]; then
     BUILD_TENSILE=""
     BUILD_DIR="build_tensile"
 else
-    BUILD_TENSILE="--no-tensile"
+    BUILD_TENSILE="--no_tensile"
     BUILD_DIR="build_no_tensile"
 fi
 
