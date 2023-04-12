@@ -73,7 +73,7 @@ echo "=====clone=rocblas============================================="
 echo "==============================================================="
 
 if [[ $CONNECTION == "https" ]]; then
-    echo "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"
+    cat ~/githubToken
     git clone https://github.com/$ORIGIN/$REPOSITORY.git
 else
     git clone  git@github.com:$ORIGIN/$REPOSITORY.git
