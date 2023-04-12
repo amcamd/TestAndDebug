@@ -11,12 +11,14 @@ Script to clone rocBLAS
   Options:
     -r|--repository     rocBLAS_internal or rocBLAS       Default rocBLAS-internal)
     -o|--origin         amcamd or ROCmSoftwarePlatform    Default amcamd)
+    -c|--connection     ssh or https                      Default ssh
     -h|--help           this help information)
 EOF
 }
 
 ORIGIN="amcamd"
 REPOSITORY="rocBLAS-internal"
+CONNECTION="ssh"
 
 while [[ $# -gt 0 ]]; do
   case $1 in
@@ -31,6 +33,11 @@ while [[ $# -gt 0 ]]; do
       ;;
     -o|--origin)
       ORIGIN="$2"
+      shift # past argument
+      shift # past value
+      ;;
+    -c|--connection)
+      CONNECTION="$2"
       shift # past argument
       shift # past value
       ;;
@@ -65,7 +72,12 @@ fi
 echo "=====clone=rocblas============================================="
 echo "==============================================================="
 
-git clone  git@github.com:$ORIGIN/$REPOSITORY.git
+if [[ $CONNECTION == "https" ]]; then
+    echo "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"
+    git clone https://github.com/$ORIGIN/$REPOSITORY.git
+else
+    git clone  git@github.com:$ORIGIN/$REPOSITORY.git
+fi
 
 if [[ $? -ne 0 ]]; then
     echo "clone error"
