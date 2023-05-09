@@ -103,6 +103,9 @@ th, td {
     <td><a href="https://amdcloud.sharepoint.com/sites/connect/teams/hr/Pages/HRT/USA_MyHR_Home.aspx">MyHr</a><br></td>
     <td>Access to AskHR, myAMD, TalentConnect, HR Connect, AMD Connect</td>
 </tr><tr>
+    <td><a href="https://amdcloud.sharepoint.com/sites/connect/news-events/news/Pages/New-AskHR-Platform.aspx">AskHr</a><br></td>
+    <td>AskHR Platform</td>
+</tr><tr>
     <td><a href="http://confluence.amd.com/display/MLSE/Onboarding">On-boarding</a><br></td>
     <td>Group on-boarding</td>
 </tr><tr>
@@ -1175,19 +1178,24 @@ deb [arch=amd64] http://10.255.8.5/rocm/apt/debian/ xenial main
 
 <h1>clang-format</h1>
 <ul>
+    <li><a href="https://confluence.amd.com/display/MLSE/Code+Formatting+and+Style+Guides">Cory's page on clang-format</a><br></li>
     <li><a href="https://dx13.co.uk/articles/2015/4/3/Setting-up-git-clang-format.html">Setting up git-clang-format</a><br></li>
     <li><a href="https://clang.llvm.org/docs/ClangFormatStyleOptions.html">clang-format style options</a><br></li>
     <li><a href="http://clang.llvm.org/docs/ClangFormat.html#vim-integration">clang-format VIM integration</a><br></li>
 </ul>
+Instructions for UBUNTU from Cory's page:
 <ul>
-    <li>install clang-format with: <code>sudo apt-get update; sudo apt-get install clang-format</code></li>
-    <li><a href="https://llvm.org/svn/llvm-project/cfe/trunk/tools/clang-format/git-clang-format">Download git-clang-format from here</a><br></li>
-    <li>make it executable with chmod +x ~/bin/git-clang-format</li>
-    <li>check its been picked pu by git: <code>git clang-format -h</code></li>
-    <li>Try it out with <code>git clang-format --diff</code></li>
+    <li><code>output_directory=&lt;ENTER DESIRED DIRECTORY, try ~/bin &gt;</code></li>
+    <li><code>workspace=$(mktemp -d)</code></li>
+    <li><code>cd -- "$workspace"</code></li>
+    <li><code>wget https://repo.radeon.com/rocm/apt/4.3.1/pool/main/l/llvm-amdgpu4.3.1/llvm-amdgpu4.3.1_13.0.0.21313.40301_amd64.deb</code></li>
+    <li><code>ar x llvm-amdgpu4.3.1_13.0.0.21313.40301_amd64.deb data.tar.xz</code></li>
+    <li><code>tar xJf data.tar.xz --strip-components=5 -C "$output_directory" ./opt/rocm-4.3.1/llvm/bin/clang-format</code></li>
+    <li><code>rm -r -- "$workspace"</code></li>
+    <li>edit environment variable $PATH so that it finds the correct clang-format<code></code></li>
 </ul>
 <ul>
-    <li> To format a file: <code>clang-format-3.8 -style=file -i <path_to_source_file></code>
+    <li> To format a file: <code>clang-format -style=file -i <path_to_source_file></code>
     <li> To format at checkin: <code>./.githooks/install</code>
 </ul>
 
