@@ -401,6 +401,11 @@ Host github.com
 </ul>
 
 <h1>Useful Git commands</h1>
+<h4>Listing all branches, deleting a remote branch</h4>
+<ul>
+    <li><code>git for-each-ref --sort=committerdate refs/heads/ --format='%(HEAD) %(color:yellow)%(refname:short)%(color:reset) - %(color:red)%(objectname:short)%(color:reset) - %(contents:subject) - %(authorname) (%(color:green)%(committerdate:relative)%(color:reset))' refs/remotes/</code></li>
+    <li><code>git push origin --delete branch_name</code></li> 
+</ul>
 <h4>By-passing the hook for a commit</h4>
 <code> git commit --no-verify</code>
 <h4>List all commmits between two hashes</h4>
