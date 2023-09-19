@@ -172,11 +172,21 @@ void initialize_arrays   (rocblas_int n, rocblas_int incx, T* x, T* x_ref)
 }
 
 template <typename T>
+bool ref_calc(rocblas_int n, rocblas_int incx, T alpha, T* hx_ref)
+{
+    for(int i = 0; i < n; i++)
+    {
+        hx_ref[i*incx] *= alpha;
+    }
+    return true;
+}
+
+template <typename T>
 bool verify_solution(rocblas_int n, rocblas_int incx, T alpha, T* hx, T* hx_ref)
 {
     for(int i = 0; i < n; i++)
     {
-        if(hx[i*incx] != hx_ref[i*incx] * alpha)
+        if(hx[i*incx] != hx_ref[i*incx])
         {
             std::cout << "i, hx[i*incx], hx_ref[i*incx] = " << i << ", " << hx[i*incx] << ", " << hx_ref[i*incx] << std::endl;
             return false;
@@ -190,7 +200,6 @@ __global__ void Xscal(rocblas_int n, T alpha, T* x, rocblas_int incx)
 {
     uint32_t tid = blockIdx.x * blockDim.x + threadIdx.x;
 
-    // bound
     if(tid < n)
     {
         x[tid * int64_t(incx)] *= alpha;
@@ -198,34 +207,50 @@ __global__ void Xscal(rocblas_int n, T alpha, T* x, rocblas_int incx)
 }
 
 template <typename T>
-__global__ void Xscal_2x(rocblas_int n, T alpha, T* x, rocblas_int incx)
+__global__ void Xscal_float4(rocblas_int n, T alpha, T* x)
 {
     uint32_t tid = blockIdx.x * blockDim.x + threadIdx.x;
 
-    float4 *x4;
-    x4 = reinterpret_cast<float4 *>(x);
-
-    // bound
     if(tid < n)
     {
-        x4[tid * int64_t(incx)] *= alpha;
+        x[tid] *= alpha;
     }
+}
+
+template <>
+__global__ void Xscal_float4<float>(rocblas_int n, float alpha, float* x)
+{
+    uint32_t tid = blockIdx.x * blockDim.x + threadIdx.x;
+
+    float4 *x_float4_ptr = reinterpret_cast<float4 *>(x + tid*4);
+
+    float4 x_float4 = *x_float4_ptr;
+
+    x_float4.x *= alpha;
+    x_float4.y *= alpha;
+    x_float4.z *= alpha;
+    x_float4.w *= alpha;
+
+    *x_float4_ptr = x_float4;
 }
 
 template <typename T>
 void template_scal(rocblas_int n, rocblas_int incx)
 {
     T alpha = 10.0;
-    T *dx, *hx, *hx_ref;
+    T *dx, *dx_mult_4, *hx, *hx_ref;
 
     hx = (T*)malloc(n*sizeof(T));
     hx_ref = (T*)malloc(n*sizeof(T));
 
     initialize_arrays(n, incx, hx, hx_ref);
+    ref_calc(n, incx, alpha, hx_ref);
 
     CHECK_HIP_ERROR(hipMalloc(&dx, n * sizeof(T)));
+    CHECK_HIP_ERROR(hipMalloc(&dx_mult_4, n * sizeof(T)));
 
-    CHECK_HIP_ERROR(hipMemcpy(dx, hx, n * sizeof(T), hipMemcpyHostToDevice));
+    CHECK_HIP_ERROR(hipMemcpy(       dx, hx, n * sizeof(T), hipMemcpyHostToDevice));
+    CHECK_HIP_ERROR(hipMemcpy(dx_mult_4, hx, n * sizeof(T), hipMemcpyHostToDevice));
 
     int blocks = (n - 1) / NB + 1;
     dim3 grid(blocks, 1, 1);
@@ -238,7 +263,7 @@ void template_scal(rocblas_int n, rocblas_int incx)
     start = std::chrono::high_resolution_clock::now();
     CHECK_HIP_ERROR(hipDeviceSynchronize());
 
-        hipLaunchKernelGGL(Xscal, dim3(grid), dim3(threads), 0, 0, n, alpha, dx, 1);
+        hipLaunchKernelGGL(Xscal, grid, threads, 0, 0, n, alpha, dx, 1);
 
     CHECK_HIP_ERROR(hipDeviceSynchronize());
     end = std::chrono::high_resolution_clock::now();
@@ -246,14 +271,50 @@ void template_scal(rocblas_int n, rocblas_int incx)
     dur= end - start;
     seconds = dur.count();
 
+    CHECK_HIP_ERROR(hipMemcpy(hx, dx, n * sizeof(T), hipMemcpyDeviceToHost));
+
+    verify_solution(n, incx, alpha, hx, hx_ref) ? std::cout << "PASS Xscal "
+                                                : std::cout << "FAIL Xscal ";
+
     double ops = n;
     double gflops = ops / seconds / 1e9;
 
-    std::cout << ",  gflops = " << gflops << std::endl;
+    std::cout << "sec, gflops = " << seconds << ", " << gflops << std::endl; 
 
-    CHECK_HIP_ERROR(hipMemcpy(hx, dx, n * sizeof(T), hipMemcpyDeviceToHost));
+    if(n % 4 == 0 && incx == 1 && NB % 4 == 0 && std::is_same_v<float, T>)
+    {
+        rocblas_int n_mult_4 = n / 4;
 
-    verify_solution(n, incx, alpha, hx, hx_ref);
+        int blocks_mult_4 = (n_mult_4 - 1) / NB + 1;
+        dim3 grid_mult_4(blocks_mult_4, 1, 1);
+        dim3 threads_mult_4(NB, 1, 1);
+
+        start = std::chrono::high_resolution_clock::now();
+        CHECK_HIP_ERROR(hipDeviceSynchronize());
+
+            hipLaunchKernelGGL(Xscal_float4, grid_mult_4, threads_mult_4, 0, 0, n_mult_4, alpha, dx_mult_4);
+
+        CHECK_HIP_ERROR(hipDeviceSynchronize());
+        end = std::chrono::high_resolution_clock::now();
+        CHECK_HIP_ERROR(hipDeviceSynchronize());
+        dur= end - start;
+        seconds = dur.count();
+
+        CHECK_HIP_ERROR(hipMemcpy(hx, dx_mult_4, n * sizeof(T), hipMemcpyDeviceToHost));
+
+        verify_solution(n, incx, alpha, hx, hx_ref) ? std::cout << "PASS dx_mult_4 "
+                                                    : std::cout << "FAIL dx_mult_4 ";
+
+        double ops = n;
+        double gflops = ops / seconds / 1e9;
+
+        std::cout << "sec, gflops = " << seconds << ", " << gflops << std::endl; 
+    }
+
+    CHECK_HIP_ERROR(hipFree(dx));
+    CHECK_HIP_ERROR(hipFree(dx_mult_4));
+    free(hx);
+    free(hx_ref);
 }
 
 int main(int argc, char* argv[])
@@ -271,28 +332,28 @@ int main(int argc, char* argv[])
 //  if(precision == 's' || precision == 'S')
 //  {
         precision = 's';
-        std::cout << "precision, n = float, " << n;
-        template_scal<float>(n, incx);
+        std::cout << "precision, n*4, incx = float, " << n*4 << ", " << incx << std::endl;
+        template_scal<float>(n*4, incx);
         std::cout << "------------------------------------------------------" << std::endl;
 //  }
 //  else if(precision == 'd' || precision == 'D')
 //  {
         precision = 'd';
-        std::cout << "precision, n = double, " << n;
-        template_scal<double>(n, incx);
+        std::cout << "precision, n*2, incx = double, " << n*2 << ", " << incx << std::endl;;
+        template_scal<double>(n*2, incx);
         std::cout << "------------------------------------------------------" << std::endl;
 //  }
 //  else if(precision == 'c' || precision == 'C')
 //  {
-        precision = 'c';
-        std::cout << "precision, n = rocblas_float_complex, " << n;
-        template_scal<rocblas_float_complex>(n, incx);
-        std::cout << "------------------------------------------------------" << std::endl;
+////    precision = 'c';
+////    std::cout << "precision, n = rocblas_float_complex, " << n;
+////    template_scal<rocblas_float_complex>(n, incx);
+////    std::cout << "------------------------------------------------------" << std::endl;
 //  }
 //  else if(precision == 'z' || precision == 'Z')
 //  {
         precision = 'z';
-        std::cout << "precision, n = rocblas_double_complex, " << n;
+        std::cout << "precision, n, incx = rocblas_double_complex, " << n << ", " << incx << std::endl;
         template_scal<rocblas_double_complex>(n, incx);
         std::cout << "------------------------------------------------------" << std::endl;
 //  }
