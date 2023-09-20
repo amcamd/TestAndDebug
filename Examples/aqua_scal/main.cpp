@@ -124,35 +124,6 @@ void initialize_arrays(rocblas_int n, rocblas_int incx, T* x, T* x_ref)
     }
 }
 
-/*
-template <>
-void initialize_arrays<float>(rocblas_int n, rocblas_int incx, float* x, float* x_ref)
-{
-    std::random_device rd;  // a seed source for the random number engine
-    std::mt19937 generator(rd()); // mersenne_twister_engine seeded with rd()
-    std::uniform_int_distribution<int> distribution(1, 6);
-
-    for (int i = 0; i < n; i++)
-    {
-        x[i*incx] = static_cast<float>(distribution(generator));
-        x_ref[i*incx] = x[i*incx];
-    }
-}
-template <>
-void initialize_arrays<double>(rocblas_int n, rocblas_int incx, double* x, double* x_ref)
-{
-    std::random_device rd;  // a seed source for the random number engine
-    std::mt19937 generator(rd()); // mersenne_twister_engine seeded with rd()
-    std::uniform_int_distribution<int> distribution(1, 6);
-
-    for (int i = 0; i < n; i++)
-    {
-        x[i*incx] = static_cast<double>(distribution(generator));
-        x_ref[i*incx] = x[i*incx];
-    }
-}
-*/
-
 //template <typename T, typename = typename std::enable_if_t<std::is_same_v<T, float> ||
 template <typename T, std::enable_if_t<std::is_same_v<T, float> ||
                                        std::is_same_v<T, double>>>
@@ -262,39 +233,39 @@ __global__ void Xscal_double2<double>(rocblas_int n, double alpha, double* x)
 }
 
 template <typename T>
-void rocblas_Xscal( rocblas_int n, T alpha, T* dx, rocblas_int incx)
+void rocblas_Xscal( rocblas_handle handle, rocblas_int n, T alpha, T* dx, rocblas_int incx)
 {
     std::cout << "need to specialize rocblas_Xscal templated function" << std::endl;
 }
 template <>
-void rocblas_Xscal<float>( rocblas_int n, float alpha, float* dx, rocblas_int incx)
+void rocblas_Xscal<float>( rocblas_handle handle, rocblas_int n, float alpha, float* dx, rocblas_int incx)
 {
-    rocblas_handle handle;
-    rocblas_create_handle(&handle);
+//  rocblas_handle handle;
+//  rocblas_create_handle(&handle);
 
     rocblas_sscal(handle, n, &alpha, dx, incx);
 }
 template <>
-void rocblas_Xscal<double>( rocblas_int n, double alpha, double* dx, rocblas_int incx)
+void rocblas_Xscal<double>( rocblas_handle handle, rocblas_int n, double alpha, double* dx, rocblas_int incx)
 {
-    rocblas_handle handle;
-    rocblas_create_handle(&handle);
+//  rocblas_handle handle;
+//  rocblas_create_handle(&handle);
 
     rocblas_dscal(handle, n, &alpha, dx, incx);
 }
 template <>
-void rocblas_Xscal<rocblas_float_complex>( rocblas_int n, rocblas_float_complex alpha, rocblas_float_complex* dx, rocblas_int incx)
+void rocblas_Xscal<rocblas_float_complex>( rocblas_handle handle, rocblas_int n, rocblas_float_complex alpha, rocblas_float_complex* dx, rocblas_int incx)
 {
-    rocblas_handle handle;
-    rocblas_create_handle(&handle);
+//  rocblas_handle handle;
+//  rocblas_create_handle(&handle);
 
     rocblas_cscal(handle, n, &alpha, dx, incx);
 }
 template <>
-void rocblas_Xscal<rocblas_double_complex>( rocblas_int n, rocblas_double_complex alpha, rocblas_double_complex* dx, rocblas_int incx)
+void rocblas_Xscal<rocblas_double_complex>( rocblas_handle handle, rocblas_int n, rocblas_double_complex alpha, rocblas_double_complex* dx, rocblas_int incx)
 {
-    rocblas_handle handle;
-    rocblas_create_handle(&handle);
+//  rocblas_handle handle;
+//  rocblas_create_handle(&handle);
 
     rocblas_zscal(handle, n, &alpha, dx, incx);
 }
@@ -304,14 +275,17 @@ void template_scal(rocblas_int n, rocblas_int incx)
 {
     double ops = (std::is_same_v<float, T> || std::is_same_v<double, T>) ? n : 6*n;
     double gflops;
-    int64_t n_launch = 10;
+    int64_t n_launch = 100;
+
+    rocblas_handle handle;
+    rocblas_create_handle(&handle);
 
     std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
     std::chrono::duration<double> dur;
     double seconds = 0.0;
 
     T alpha = 10.0;
-    T *dx, *dx_mult_4, *dx_mult_2, *hx, *hx_ref, *hx_calc;
+    T *dx, *hx, *hx_ref, *hx_calc;
 
     hx      = (T*)malloc(n*sizeof(T));
     hx_ref  = (T*)malloc(n*sizeof(T));
@@ -321,52 +295,48 @@ void template_scal(rocblas_int n, rocblas_int incx)
     ref_calc(n, incx, alpha, hx_ref);
 
     CHECK_HIP_ERROR(hipMalloc(&dx, n * sizeof(T)));
-    CHECK_HIP_ERROR(hipMalloc(&dx_mult_4, n * sizeof(T)));
-    CHECK_HIP_ERROR(hipMalloc(&dx_mult_2, n * sizeof(T)));
 
-    CHECK_HIP_ERROR(hipMemcpy(       dx, hx, n * sizeof(T), hipMemcpyHostToDevice));
-    CHECK_HIP_ERROR(hipMemcpy(dx_mult_4, hx, n * sizeof(T), hipMemcpyHostToDevice));
-    CHECK_HIP_ERROR(hipMemcpy(dx_mult_2, hx, n * sizeof(T), hipMemcpyHostToDevice));
+    CHECK_HIP_ERROR(hipMemcpy(dx, hx, n * sizeof(T), hipMemcpyHostToDevice));
 
 //  ------ rocBLAS -----
-    rocblas_Xscal( n, alpha, dx, 1);
-
+//  correctness
     CHECK_HIP_ERROR(hipMemcpy( dx, hx, n * sizeof(T), hipMemcpyHostToDevice));
-    start = std::chrono::high_resolution_clock::now();
-    CHECK_HIP_ERROR(hipDeviceSynchronize());
-
-        for (int i = 0; i < n_launch; i++)
-        {
-            rocblas_Xscal( n, alpha, dx, 1);
-        }
-
-    CHECK_HIP_ERROR(hipDeviceSynchronize());
-    end = std::chrono::high_resolution_clock::now();
-    CHECK_HIP_ERROR(hipDeviceSynchronize());
-    dur= end - start;
-    seconds = dur.count();
-
-    CHECK_HIP_ERROR(hipMemcpy(       dx, hx, n * sizeof(T), hipMemcpyHostToDevice));
-        rocblas_Xscal( n, alpha, dx, 1);
+        rocblas_Xscal( handle, n, alpha, dx, 1);
     CHECK_HIP_ERROR(hipMemcpy(hx_calc, dx, n * sizeof(T), hipMemcpyDeviceToHost));
 
     verify_solution(n, incx, alpha, hx_calc, hx_ref) ? std::cout << "rocBLAS; PASS "
                                                      : std::cout << "rocBLAS; FAIL ";
 
-    gflops = (ops * n_launch) / seconds / 1e9;
+//  timing
+    start = std::chrono::high_resolution_clock::now();
+    CHECK_HIP_ERROR(hipDeviceSynchronize());
+
+        for (int i = 0; i < n_launch; i++)
+        {
+            rocblas_Xscal( handle, n, alpha, dx, 1);
+        }
+
+    CHECK_HIP_ERROR(hipDeviceSynchronize());
+    end = std::chrono::high_resolution_clock::now();
+    CHECK_HIP_ERROR(hipDeviceSynchronize());
+    dur= end - start; seconds = dur.count(); gflops = (ops * n_launch) / seconds / 1e9;
 
     std::cout << "sec, gflops = " << seconds << ", " << gflops << std::endl; 
 
-
-
-
-
-
 //  ----- simple -----
+//  correctness
     int blocks = (n - 1) / NB + 1;
     dim3 grid(blocks, 1, 1);
     dim3 threads(NB, 1, 1);
 
+    CHECK_HIP_ERROR(hipMemcpy( dx, hx, n * sizeof(T), hipMemcpyHostToDevice));
+        hipLaunchKernelGGL(Xscal, grid, threads, 0, 0, n, alpha, dx, 1);
+    CHECK_HIP_ERROR(hipMemcpy(hx_calc, dx, n * sizeof(T), hipMemcpyDeviceToHost));
+
+    verify_solution(n, incx, alpha, hx_calc, hx_ref) ? std::cout << " simple; PASS "
+                                                     : std::cout << " simple; FAIL ";
+
+//  timing
     start = std::chrono::high_resolution_clock::now();
     CHECK_HIP_ERROR(hipDeviceSynchronize());
 
@@ -378,17 +348,7 @@ void template_scal(rocblas_int n, rocblas_int incx)
     CHECK_HIP_ERROR(hipDeviceSynchronize());
     end = std::chrono::high_resolution_clock::now();
     CHECK_HIP_ERROR(hipDeviceSynchronize());
-    dur= end - start;
-    seconds = dur.count();
-
-    CHECK_HIP_ERROR(hipMemcpy( dx, hx, n * sizeof(T), hipMemcpyHostToDevice));
-        hipLaunchKernelGGL(Xscal, grid, threads, 0, 0, n, alpha, dx, 1);
-    CHECK_HIP_ERROR(hipMemcpy(hx_calc, dx, n * sizeof(T), hipMemcpyDeviceToHost));
-
-    verify_solution(n, incx, alpha, hx_calc, hx_ref) ? std::cout << " simple; PASS "
-                                                     : std::cout << " simple; FAIL ";
-
-    gflops = (ops * n_launch) / seconds / 1e9;
+    dur= end - start; seconds = dur.count(); gflops = (ops * n_launch) / seconds / 1e9;
 
     std::cout << "sec, gflops = " << seconds << ", " << gflops << std::endl; 
 
@@ -400,28 +360,27 @@ void template_scal(rocblas_int n, rocblas_int incx)
         dim3 grid_mult_4(blocks_mult_4, 1, 1);
         dim3 threads_mult_4(NB, 1, 1);
 
+//      correctness
+        CHECK_HIP_ERROR(hipMemcpy(dx, hx, n * sizeof(T), hipMemcpyHostToDevice));
+            hipLaunchKernelGGL(Xscal_float4, grid_mult_4, threads_mult_4, 0, 0, n_mult_4, alpha, dx);
+        CHECK_HIP_ERROR(hipMemcpy(hx_calc, dx, n * sizeof(T), hipMemcpyDeviceToHost));
+
+        verify_solution(n, incx, alpha, hx_calc, hx_ref) ? std::cout << "  mult4, PASS "
+                                                         : std::cout << "  mult4, FAIL ";
+
+//      timing
         start = std::chrono::high_resolution_clock::now();
         CHECK_HIP_ERROR(hipDeviceSynchronize());
 
             for (int i = 0; i < n_launch; i++)
             {
-                hipLaunchKernelGGL(Xscal_float4, grid_mult_4, threads_mult_4, 0, 0, n_mult_4, alpha, dx_mult_4);
+                hipLaunchKernelGGL(Xscal_float4, grid_mult_4, threads_mult_4, 0, 0, n_mult_4, alpha, dx);
             }
 
         CHECK_HIP_ERROR(hipDeviceSynchronize());
         end = std::chrono::high_resolution_clock::now();
         CHECK_HIP_ERROR(hipDeviceSynchronize());
-        dur= end - start;
-        seconds = dur.count();
-
-        CHECK_HIP_ERROR(hipMemcpy(dx_mult_4, hx, n * sizeof(T), hipMemcpyHostToDevice));
-            hipLaunchKernelGGL(Xscal_float4, grid_mult_4, threads_mult_4, 0, 0, n_mult_4, alpha, dx_mult_4);
-        CHECK_HIP_ERROR(hipMemcpy(hx_calc, dx_mult_4, n * sizeof(T), hipMemcpyDeviceToHost));
-
-        verify_solution(n, incx, alpha, hx_calc, hx_ref) ? std::cout << "  mult4, PASS "
-                                                         : std::cout << "  mult4, FAIL ";
-
-        gflops = (ops * n_launch) / seconds / 1e9;
+        dur= end - start; seconds = dur.count(); gflops = (ops * n_launch) / seconds / 1e9;
 
         std::cout << "sec, gflops = " << seconds << ", " << gflops << std::endl; 
     }
@@ -434,35 +393,32 @@ void template_scal(rocblas_int n, rocblas_int incx)
         dim3 grid_mult_2(blocks_mult_2, 1, 1);
         dim3 threads_mult_2(NB, 1, 1);
 
+//      correctness
+        CHECK_HIP_ERROR(hipMemcpy(dx, hx, n * sizeof(T), hipMemcpyHostToDevice));
+            hipLaunchKernelGGL(Xscal_double2, grid_mult_2, threads_mult_2, 0, 0, n_mult_2, alpha, dx);
+        CHECK_HIP_ERROR(hipMemcpy(hx_calc, dx, n * sizeof(T), hipMemcpyDeviceToHost));
+
+        verify_solution(n, incx, alpha, hx_calc, hx_ref) ? std::cout << "  mult2; PASS "
+                                                         : std::cout << "  mult2; FAIL ";
+
+//      timing
         start = std::chrono::high_resolution_clock::now();
         CHECK_HIP_ERROR(hipDeviceSynchronize());
 
             for (int i = 0; i < n_launch; i++)
             {
-                hipLaunchKernelGGL(Xscal_double2, grid_mult_2, threads_mult_2, 0, 0, n_mult_2, alpha, dx_mult_2);
+                hipLaunchKernelGGL(Xscal_double2, grid_mult_2, threads_mult_2, 0, 0, n_mult_2, alpha, dx);
             }
 
         CHECK_HIP_ERROR(hipDeviceSynchronize());
         end = std::chrono::high_resolution_clock::now();
         CHECK_HIP_ERROR(hipDeviceSynchronize());
-        dur= end - start;
-        seconds = dur.count();
-
-        CHECK_HIP_ERROR(hipMemcpy(dx_mult_2, hx, n * sizeof(T), hipMemcpyHostToDevice));
-            hipLaunchKernelGGL(Xscal_double2, grid_mult_2, threads_mult_2, 0, 0, n_mult_2, alpha, dx_mult_2);
-        CHECK_HIP_ERROR(hipMemcpy(hx_calc, dx_mult_2, n * sizeof(T), hipMemcpyDeviceToHost));
-
-        verify_solution(n, incx, alpha, hx_calc, hx_ref) ? std::cout << "  mult2; PASS "
-                                                         : std::cout << "  mult2; FAIL ";
-
-        gflops = (ops * n_launch) / seconds / 1e9;
+        dur= end - start; seconds = dur.count(); gflops = (ops * n_launch) / seconds / 1e9;
 
         std::cout << "sec, gflops = " << seconds << ", " << gflops << std::endl; 
     }
 
     CHECK_HIP_ERROR(hipFree(dx));
-    CHECK_HIP_ERROR(hipFree(dx_mult_4));
-    CHECK_HIP_ERROR(hipFree(dx_mult_2));
     free(hx);
     free(hx_ref);
 }
