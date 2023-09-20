@@ -206,6 +206,7 @@ __global__ void Xscal(rocblas_int n, T alpha, T* x, rocblas_int incx)
     }
 }
 
+
 template <typename T>
 __global__ void Xscal_float4(rocblas_int n, T alpha, T* x)
 {
@@ -235,10 +236,37 @@ __global__ void Xscal_float4<float>(rocblas_int n, float alpha, float* x)
 }
 
 template <typename T>
+__global__ void Xscal_double2(rocblas_int n, T alpha, T* x)
+{
+    uint32_t tid = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if(tid < n)
+    {
+        x[tid] *= alpha;
+    }
+}
+
+template <>
+__global__ void Xscal_double2<double>(rocblas_int n, double alpha, double* x)
+{
+    uint32_t tid = blockIdx.x * blockDim.x + threadIdx.x;
+
+    double2 *x_double2_ptr = reinterpret_cast<double2 *>(x + tid*2);
+
+    double2 x_double2 = *x_double2_ptr;
+
+    x_double2.x *= alpha;
+    x_double2.y *= alpha;
+
+    *x_double2_ptr = x_double2;
+}
+
+
+template <typename T>
 void template_scal(rocblas_int n, rocblas_int incx)
 {
     T alpha = 10.0;
-    T *dx, *dx_mult_4, *hx, *hx_ref;
+    T *dx, *dx_mult_4, *dx_mult_2, *hx, *hx_ref;
 
     hx = (T*)malloc(n*sizeof(T));
     hx_ref = (T*)malloc(n*sizeof(T));
@@ -248,9 +276,11 @@ void template_scal(rocblas_int n, rocblas_int incx)
 
     CHECK_HIP_ERROR(hipMalloc(&dx, n * sizeof(T)));
     CHECK_HIP_ERROR(hipMalloc(&dx_mult_4, n * sizeof(T)));
+    CHECK_HIP_ERROR(hipMalloc(&dx_mult_2, n * sizeof(T)));
 
     CHECK_HIP_ERROR(hipMemcpy(       dx, hx, n * sizeof(T), hipMemcpyHostToDevice));
     CHECK_HIP_ERROR(hipMemcpy(dx_mult_4, hx, n * sizeof(T), hipMemcpyHostToDevice));
+    CHECK_HIP_ERROR(hipMemcpy(dx_mult_2, hx, n * sizeof(T), hipMemcpyHostToDevice));
 
     int blocks = (n - 1) / NB + 1;
     dim3 grid(blocks, 1, 1);
@@ -311,8 +341,39 @@ void template_scal(rocblas_int n, rocblas_int incx)
         std::cout << "sec, gflops = " << seconds << ", " << gflops << std::endl; 
     }
 
+    if(n % 2 == 0 && incx == 1 && NB % 2 == 0 && std::is_same_v<double, T>)
+    {
+        rocblas_int n_mult_2 = n / 2;
+
+        int blocks_mult_2 = (n_mult_2 - 1) / NB + 1;
+        dim3 grid_mult_2(blocks_mult_2, 1, 1);
+        dim3 threads_mult_2(NB, 1, 1);
+
+        start = std::chrono::high_resolution_clock::now();
+        CHECK_HIP_ERROR(hipDeviceSynchronize());
+
+            hipLaunchKernelGGL(Xscal_double2, grid_mult_2, threads_mult_2, 0, 0, n_mult_2, alpha, dx_mult_2);
+
+        CHECK_HIP_ERROR(hipDeviceSynchronize());
+        end = std::chrono::high_resolution_clock::now();
+        CHECK_HIP_ERROR(hipDeviceSynchronize());
+        dur= end - start;
+        seconds = dur.count();
+
+        CHECK_HIP_ERROR(hipMemcpy(hx, dx_mult_2, n * sizeof(T), hipMemcpyDeviceToHost));
+
+        verify_solution(n, incx, alpha, hx, hx_ref) ? std::cout << "PASS dx_mult_2 "
+                                                    : std::cout << "FAIL dx_mult_2 ";
+
+        double ops = n;
+        double gflops = ops / seconds / 1e9;
+
+        std::cout << "sec, gflops = " << seconds << ", " << gflops << std::endl; 
+    }
+
     CHECK_HIP_ERROR(hipFree(dx));
     CHECK_HIP_ERROR(hipFree(dx_mult_4));
+    CHECK_HIP_ERROR(hipFree(dx_mult_2));
     free(hx);
     free(hx_ref);
 }
@@ -345,10 +406,10 @@ int main(int argc, char* argv[])
 //  }
 //  else if(precision == 'c' || precision == 'C')
 //  {
-////    precision = 'c';
-////    std::cout << "precision, n = rocblas_float_complex, " << n;
-////    template_scal<rocblas_float_complex>(n, incx);
-////    std::cout << "------------------------------------------------------" << std::endl;
+        precision = 'c';
+        std::cout << "precision, n, incx = rocblas_float_complex, " << n << ", " << incx << std::endl;
+        template_scal<rocblas_float_complex>(n, incx);
+        std::cout << "------------------------------------------------------" << std::endl;
 //  }
 //  else if(precision == 'z' || precision == 'Z')
 //  {
