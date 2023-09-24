@@ -1,6 +1,6 @@
 
-ROCBLAS_INSTALL_DIR=/home/achapman/repos/ROCmSoftwarePlatform/rocBLAS/build/release/rocblas-install/rocblas
-ROCBLAS_INCLUDE=$(ROCBLAS_INSTALL_DIR)/include
+ROCBLAS_INSTALL_DIR=/home/achapman/repos/ROCmSoftwarePlatform/rocBLAS-internal/build_tensile/release/rocblas-install
+ROCBLAS_INCLUDE=$(ROCBLAS_INSTALL_DIR)/include/rocblas
 ROCBLAS_LIB_PATH=$(ROCBLAS_INSTALL_DIR)/lib
 ROCBLAS_LIB=rocblas
 

@@ -12,7 +12,7 @@
 #include "dcld.hpp"
 #include "trmm_reference.hpp"
 #include "trmm_gemm_based.hpp"
-#include "trmm_recursive.hpp"
+//#include "trmm_recursive.hpp"
 //#include "rocblas_trmm.hpp"
 
 #ifndef CHECK_HIP_ERROR
