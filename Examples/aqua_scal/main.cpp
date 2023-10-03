@@ -293,6 +293,7 @@ void template_scal(rocblas_int n, rocblas_int incx, int64_t n_hot, int64_t n_col
 //  CHECK_HIP_ERROR(hipMemcpy(dx, hx_orig, n * sizeof(T), hipMemcpyHostToDevice));
 
 //  ------ rocBLAS -----
+
 //  correctness
     CHECK_HIP_ERROR(hipMemcpy( dx, hx_orig, n * sizeof(T), hipMemcpyHostToDevice));
         rocblas_Xscal( handle, n, alpha, dx, 1);
@@ -365,7 +366,7 @@ void template_scal(rocblas_int n, rocblas_int incx, int64_t n_hot, int64_t n_col
 
             for (int i = 0; i < n_hot; i++)
             {
-                hipLaunchKernelGGL(Xscal_float4, grid_mult_4, threads_mult_4, 0, 0, n_mult_4, alpha, dx);
+                hipLaunchKernelGGL(Xscal_float4, grid_mult_4, threads_mult_4, 0, 0, n, alpha, dx);
             }
 
         CHECK_HIP_ERROR(hipDeviceSynchronize());
@@ -408,7 +409,8 @@ void template_scal(rocblas_int n, rocblas_int incx, int64_t n_hot, int64_t n_col
     if(n % 2 == 0 && incx == 1 && NB % 2 == 0 && std::is_same_v<double, T>) std::cout << ", gflops_mult2";
 
     std::cout << "  " << n << ", " << gflops_rocblas << ", " << gflops_simple;
-    if(n % 4 == 0 && incx == 1 && NB % 4 == 0 && std::is_same_v<float, T>) std::cout << ", " << gflops_mult4;
+//  if(n % 4 == 0 && incx == 1 && NB % 4 == 0 && std::is_same_v<float, T>) std::cout << ", " << gflops_mult4;
+    if(              incx == 1                && std::is_same_v<float, T>) std::cout << ", " << gflops_mult4;
     if(n % 2 == 0 && incx == 1 && NB % 2 == 0 && std::is_same_v<double, T>) std::cout << ", " << gflops_mult2;
 
     std::cout << std::endl;
