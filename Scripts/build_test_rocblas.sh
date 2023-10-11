@@ -132,6 +132,9 @@ elif [ "$(/opt/rocm/bin/rocm_agent_enumerator | grep -m 1 gfx908)" == "gfx908" ]
 elif [ "$(/opt/rocm/bin/rocm_agent_enumerator | grep -m 1 gfx90a)" == "gfx90a" ]; then
     echo "=====ISA = gfx90a, use -agfx90a:xnack- directive ===================="
     ISA="-agfx90a:xnack-"
+elif [ "$(/opt/rocm/bin/rocm_agent_enumerator | grep -m 1 gfx940)" == "gfx940" ]; then
+    echo "=====ISA = gfx940, use -agfx940 directive ===================="
+    ISA="-agfx940"
 elif [ "$(/opt/rocm/bin/rocm_agent_enumerator | grep -m 1 gfx1010)" == "gfx1010" ]; then
     echo "=====ISA = gfx1010, use -agfx1010:xnack- directive ===================="
     ISA="-agfx1010"
