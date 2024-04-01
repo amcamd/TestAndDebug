@@ -80,12 +80,6 @@ th, td {
     <td><a href="https://github.com/ecrc/kblas-gpu">KBLAS</a><br></td>
     <td>KAUST BLAS</td>
 </tr><tr>
-    <td><a href="http://32ipi028l5q82yhj72224m8j-wpengine.netdna-ssl.com/wp-content/uploads/2016/08/AMD_GCN3_Instruction_Set_Architecture_rev1.1.pdf">Reference Guide</a><br></td>
-    <td>Reference Guide, Gen 3 gfx 2016</td>
-</tr><tr>
-    <td><a href="https://github.com/CLRX/CLRX-mirror/wiki/GcnIsa">AMD GCN ISA</a><br></td>
-    <td>GCN instruction description</td>
-</tr><tr>
     <td><a href="http://developer.amd.com/wordpress/media/2017/08/Vega_Shader_ISA_28July2017.pdf">Vega10 ISA</a><br></td>
     <td>Instruct Set Architecture for Vega 10</td>
 </tr><tr>
@@ -1498,23 +1492,6 @@ or
     <ul><li>Builds library and a tester, and runs the tester</li></ul></li>
 </ul>
 
-
-
-<h1>hipBLAS on Cuda</h1>
-<ul>
-<li><code>sudo docker run  --gpus 1 --name amcamd_syrkx -tid --ipc=host --cap-add=SYS_PTRACE --privileged --security-opt seccomp=unconfined --device=/dev/kfd --device=/dev/dri --group-add video --group-add 44 -v /home:/home compute-artifactory.amd.com:5000/rocm-plus-docker/compute-rocm-dkms-no-npi-hipclang:7202-ubuntu-20.04-cuda-11.x-stg1 /bin/bash || exit 1</code></li>
-<li><code>sudo docker exec -e COLUMNS="`tput cols`" -e LINES="`tput lines`" -ti &lt;ID&gt; /bin/bash</code></li>
-<li><code>apt-get update</code></li>
-<li><code>apt install vim</code></li>
-<li>comment out (library_dependencies_ubuntu+=("cuda")) in install.sh</li>
-<li><code>apt install git</code></li>
-<li><code>apt install gfortran</code></li>
-<li><code>apt install cmake</code></li>
-<li><code>ln -sf /opt/rocm* /opt/rocm</code></li>
-<li><code>./install.sh -ndc --cuda</code></li>
-</ul>
-
-
 <h1>Unified stack</h1>
 <ul>
 <li> <a href="https://confluence.amd.com/pages/viewpage.action?pageId=416619125">Linux Stack Unification</a>  </li> 
@@ -1527,6 +1504,33 @@ or
 <li> Alternatively, start at: <a href="https://amd.service-now.com">AMD AskIT</a>; then search for GitHub in top right magnifying glass link.</li>
 </ul>
 
+<h1>Tmux</h1>
+<ul>
+  <li> <a href="https://tmuxcheatsheet.com/">cheat sheet</a></li> 
+  <li><code>tmux ls</code>
+    <ul>
+	    <li>list all sessions</li>
+    </ul>
+  <li><code>tmux new -s my_session</code>
+    <ul>
+	    <li>start a new session named <code>my_session</code></li>
+    </ul>
+  <li><code>tmux attach -t my_session</code>
+    <ul>
+	    <li>attach to session named <code>my_session</code></li>
+    </ul>
+  <li><code>tmux new-session -A -s my_session</code>
+    <ul>
+	    <li>start a new session or attach to an existing session named <code>my_session</code></li>
+    </ul>
+  <li><code>Ctrl + b d</code>
+    <ul>
+	    <li>detach from session</li>
+    </ul>
+  <li><code>tmux kill-session -t my_session</code>
+    <ul>
+	    <li>kill session named <code>my_session</code></li>
+    </ul>
 
 </body>
 </html>
