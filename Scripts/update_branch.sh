@@ -15,7 +15,7 @@ EOF
 }
 
 ORIGIN="amcamd"
-UPSTREAM="ROCmSoftwarePlatform"
+UPSTREAM="ROCm"
 
 BRANCH=develop
 REPOSITORY=rocBLAS-internal

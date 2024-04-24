@@ -10,7 +10,7 @@ Script to clone rocBLAS
 
   Options:
     -r|--repository     rocBLAS_internal or rocBLAS       Default rocBLAS-internal)
-    -o|--origin         amcamd or ROCmSoftwarePlatform    Default amcamd)
+    -o|--origin         amcamd or ROCm    Default amcamd)
     -c|--connection     ssh or https                      Default ssh
     -h|--help           this help information)
 EOF
@@ -62,10 +62,10 @@ if [[ $REPOSITORY != "rocBLAS-internal" ]] && [[ $REPOSITORY != "rocBLAS" ]]; th
     exit 1
 fi
 
-#require origin to be one of: amcamd, ROCmSoftwarePlatform
-if [[ $ORIGIN != "amcamd" ]] && [[ $ORIGIN != "ROCmSoftwarePlatform" ]]; then
+#require origin to be one of: amcamd, ROCm
+if [[ $ORIGIN != "amcamd" ]] && [[ $ORIGIN != "ROCm" ]]; then
     echo "Usage: $0 -r <origin>"
-    echo "where origin = amcamd or ROCmSoftwarePlatform"
+    echo "where origin = amcamd or ROCm"
     exit 1
 fi
 
