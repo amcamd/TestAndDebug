@@ -3,13 +3,13 @@
 function display_help()
 {
 cat <<EOF
-Script to clone rocBLAS
+Script to clone rocBLAS-internal, rocBLAS, or hipBLAS
 
   Usage:
     $0 <options>
 
   Options:
-    -r|--repository     rocBLAS_internal or rocBLAS       Default rocBLAS-internal)
+    -r|--repository     rocBLAS_internal, rocBLAS, hipBLAS      Default rocBLAS-internal)
     -o|--origin         amcamd or ROCm    Default amcamd)
     -c|--connection     ssh or https                      Default ssh
     -h|--help           this help information)
@@ -56,9 +56,9 @@ while [[ $# -gt 0 ]]; do
 done
 
 #require repository to be one of: rocBLAS-internal, rocBLAS
-if [[ $REPOSITORY != "rocBLAS-internal" ]] && [[ $REPOSITORY != "rocBLAS" ]]; then
+if [[ $REPOSITORY != "rocBLAS-internal" ]] && [[ $REPOSITORY != "rocBLAS" ]] && [[ $REPOSITORY != "hipBLAS" ]]; then
     echo "Usage: $0 -r <repository>"
-    echo "where repository =  rocBLAS-internal  or  rocBLAS"
+    echo "where repository =  rocBLAS-internal, rocBLAS, or hipBLAS"
     exit 1
 fi
 
