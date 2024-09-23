@@ -24,7 +24,7 @@ template<class T>
 void linked_list<T>::add(node* previous_node, node* new_node){
 	if(previous_node == nullptr) // previous_node is first node
 	{
-		if(head != nullptr) // insert new_node at head of exisisting list
+		if(head != nullptr) // add new_node at head of exisisting list
 		{
 			new_node->next = head;
 		}
@@ -41,7 +41,7 @@ void linked_list<T>::add(node* previous_node, node* new_node){
 			previous_node->next = new_node;
 			new_node->next = nullptr;
 		}
-		else  // insert new_node between existing nodes
+		else  // add new_node between existing nodes
 		{
 			new_node->next = previous_node->next;
 			previous_node->next = new_node;
