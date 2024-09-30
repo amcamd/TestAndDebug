@@ -22,8 +22,10 @@ int main(int argc, char* argv[])
 
     free_list_allocator *fl_alloc = new free_list_allocator(4096, free_list_allocator::FIND_FIRST);
 
-    fl_alloc->allocate(512, 64);
-    fl_alloc->allocate(64, 64);
+    void* alloc512 = fl_alloc->allocate(512, 64);
+    void* alloc64  = fl_alloc->allocate(64, 64);
+
+    fl_alloc->free(alloc512);
 
     return 0;
 }

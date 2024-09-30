@@ -11,6 +11,7 @@ Script to build rocBLAS and run tests
   Options:
     -r|--rocBLAS        rocBLAS_internal or rocBLAS  Default rocBLAS-internal)
     -t|--tensile        tensile or no_tensile        Default tensile)
+    -l|--hipblaslt      hipblaslt or no_hipblaslg    Default hipblaslt)
     -b|--branch         develop, master, ...         Default develop)
     -q|--quick          false or true                Default false)
     -p|--precheckin     false or true                Default false)
@@ -20,6 +21,7 @@ EOF
 
 ROCBLAS=rocBLAS-internal
 TENSILE=tensile
+HIPBLASLT=hipblaslt
 BRANCH=develop
 
 QUICK=false
@@ -39,6 +41,11 @@ while [[ $# -gt 0 ]]; do
       ;;
     -t|--tensile)
       TENSILE="$2"
+      shift # past argument
+      shift # past value
+      ;;
+    -l|--hipblaslt)
+      HIPBLASLT="$2"
       shift # past argument
       shift # past value
       ;;
@@ -80,6 +87,11 @@ if [[ $TENSILE != "tensile" && $TENSILE != "no_tensile" ]]; then
     echo "where <tensile> is tensile  or  no_tensile"
     exit 1
 fi
+if [[ $HIPBLASLT != "hipblaslt" && $HIPBLASLT != "no_hipblaslt" ]]; then
+    echo "Usage: $0 -t <hipblaslt>" 
+    echo "where <hipblaslt> is hipblaslt  or  no_hipblaslt"
+    exit 1
+fi
 
 if [[ $TENSILE == "tensile" ]]; then
     BUILD_TENSILE=""
@@ -89,8 +101,16 @@ else
     BUILD_DIR="build_no_tensile"
 fi
 
+if [[ $HIPBLASLT == "hipblaslt" ]]; then
+    BUILD_HIPBLASLT=""
+else
+    BUILD_HIPBLASLT="--no_hipblaslt"
+    BUILD_DIR="build_no_hipblaslt"
+fi
+
 echo "rocBLAS    = $ROCBLAS"
 echo "TENSILE    = $TENSILE"
+echo "HIPBLASLT  = $HIPBLASLT"
 echo "BRANCH     = $BRANCH"
 echo "QUICK      = $QUICK"
 echo "PRECHECKIN = $PRECHECKIN"
@@ -157,7 +177,7 @@ fi
 
 #export ROCM_PATH=/opt/rocm-5.1.1/    # if ROCm not in /opt/rocm
 
-time VERBOSE=1 ./install.sh $ISA $BUILD_TENSILE --build_dir $BUILD_DIR -cd --cmake_install  2>&1 | tee install.out
+time VERBOSE=1 ./install.sh $ISA $BUILD_TENSILE $BUILD_HIPBLASLT --build_dir $BUILD_DIR -cd --cmake_install  2>&1 | tee install.out
 
 if [[ $? -ne 0 ]]; then
     echo "install error"

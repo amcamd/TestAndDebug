@@ -55,7 +55,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-#require repository to be one of: rocBLAS-internal, rocBLAS
+#require repository to be one of: rocBLAS-internal, rocBLAS, hipBLAS
 if [[ $REPOSITORY != "rocBLAS-internal" ]] && [[ $REPOSITORY != "rocBLAS" ]] && [[ $REPOSITORY != "hipBLAS" ]]; then
     echo "Usage: $0 -r <repository>"
     echo "where repository =  rocBLAS-internal, rocBLAS, or hipBLAS"

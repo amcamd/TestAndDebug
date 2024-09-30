@@ -38,7 +38,6 @@ class free_list_allocator
 
         void* allocate(const size_t size, const size_t alignment=0);
         void free(void* ptr);
-
         void reset();
         void init();
     private:
@@ -62,7 +61,6 @@ class free_list_allocator
         void  find_best(const size_t size, const size_t alignment, size_t& padding, 
                                fh_node *& previous_node, fh_node *& found_node);
         void coalesce(fh_node *previous_node, fh_node *free_node);
-
 };
 
 free_list_allocator::free_list_allocator(const size_t total_size, const placement_policy p_policy)
