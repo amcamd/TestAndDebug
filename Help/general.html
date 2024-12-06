@@ -1550,5 +1550,35 @@ or
 </table>
 </p>
 
+<h1>AOCL</h1>
+
+To install AOCL on Windows machine:
+
+<ul>
+    <li>get the file: https://mkmartifactory.amd.com:443/artifactory/sw-mathlib-dev-local/dependencies/AMD_AOCL_Windows.msi</li>
+    <li>Install the AOCL msi using the built-in windows <code>msiexec</code> utility with the following options:</li>
+    <ul>
+	<li><code>msiexec /i amd_aocl_windows.msi /QN</code></li>
+        <ul>
+            <li>The <code>/i</code> option ‘specifies normal install’</li>
+            <li>The <code>/QN</code> option ‘Specifies there's no UI/User interaction during the installation process’</li>
+        </ul>
+    </ul>
+    <li>Using this tool + options should allow you to install without any user interactions</li>
+</ul>
+
+To reduce CPU load
+<ul>
+    <li><code>export OMP_NUM_THREADS=22</code></li>
+    <li>or best to use logical core count -2 if you can check that with</li>
+    <ul>
+        <li><code>grep ^cpu\\scores /proc/cpuinfo | uniq | awk '{print $4}'</code></li>
+    </ul>
+    <li>If this does not work, try</li>
+    <ul>
+        <li><code>lscpu</code></li>
+    </ul>
+</ul>
+
 </body>
 </html>
