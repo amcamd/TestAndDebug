@@ -1,10 +1,10 @@
 # Makefile assumes rocBLAS is installed in /opt/rocm/rocblas
 
-ROCBLAS_INSTALL_DIR=/opt/rocm/rocblas
-ROCBLAS_INCLUDE=$(ROCBLAS_INSTALL_DIR)/include
+ROCBLAS_INSTALL_DIR=/opt/rocm
+ROCBLAS_INCLUDE=$(ROCBLAS_INSTALL_DIR)/include/rocblas
 ROCBLAS_LIB_PATH=$(ROCBLAS_INSTALL_DIR)/lib
 ROCBLAS_LIB=rocblas
-HIP_INCLUDE=/opt/rocm/hip/include
+HIP_INCLUDE=/opt/rocm/include/hip
 LDFLAGS=-L$(ROCBLAS_LIB_PATH) -l$(ROCBLAS_LIB)
 LD=hipcc
 CFLAGS=-I$(ROCBLAS_INCLUDE) -I$(HIP_INCLUDE)
