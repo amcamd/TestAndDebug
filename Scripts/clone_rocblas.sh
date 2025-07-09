@@ -77,7 +77,7 @@ if [[ $CONNECTION == "https" ]]; then
     git clone https://github.com/$ORIGIN/$REPOSITORY.git
 else
 
-    if [[ $ORIGIN == "ROCm" && [[ $REPOSITORY == "mono-repo" ]]; then
+    if [[ $ORIGIN == "ROCm" ]] && [[ $REPOSITORY == "mono-repo" ]]; then
         git clone --no-checkout --filter=blob:none https://github.com/ROCm/rocm-libraries.git
         cd rocm-libraries
         git sparse-checkout init --cone
@@ -93,7 +93,12 @@ if [[ $? -ne 0 ]]; then
     exit 1
 fi
 
-cd $REPOSITORY
+if [[ $ORIGIN == "ROCm" ]] && [[ $REPOSITORY == "mono-repo" ]]; then
+    cd projects/rocblas
+else
+    cd $REPOSITORY
+fi
+
 if [[ $? -ne 0 ]]; then
     echo "directory does not exist"
     exit 1
