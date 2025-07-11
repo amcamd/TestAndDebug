@@ -9,7 +9,7 @@ Script to build rocBLAS and run tests
     $0 <options>
 
   Options:
-    -r|--rocBLAS        rocBLAS_internal or rocBLAS  Default rocBLAS-internal)
+    -r|--rocBLAS        mono-repo, rocBLAS_internal or rocBLAS  Default mono-repo)
     -t|--tensile        tensile or no_tensile        Default tensile)
     -l|--hipblaslt      hipblaslt or no_hipblaslg    Default hipblaslt)
     -b|--branch         develop, master, ...         Default develop)
@@ -19,7 +19,7 @@ Script to build rocBLAS and run tests
 EOF
 }
 
-ROCBLAS=rocBLAS-internal
+ROCBLAS=mono-repo
 TENSILE=tensile
 HIPBLASLT=hipblaslt
 BRANCH=develop
@@ -77,9 +77,9 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-if [[ $ROCBLAS != "rocBLAS" && $ROCBLAS != "rocBLAS-internal" ]]; then
+if [[ $ROCBLAS != "mono-repo" && $ROCBLAS != "rocBLAS" && $ROCBLAS != "rocBLAS-internal" ]]; then
     echo "Usage: $0 -r <repository>" 
-    echo "where repository is rocBLAS  or  rocBLAS-internal"
+    echo "where repository is mono-repo or rocBLAS or rocBLAS-internal"
     exit 1
 fi
 if [[ $TENSILE != "tensile" && $TENSILE != "no_tensile" ]]; then
@@ -125,7 +125,11 @@ while true; do
     esac
 done
 
-cd $ROCBLAS
+if [[ $ROCBLAS == "mono-repo" ]]; then
+    cd rocm-libraries/projects/rocblas
+else
+    cd $ROCBLAS
+fi
 if [[ $? -ne 0 ]]; then
     echo "cd error"
     exit 1
@@ -161,6 +165,9 @@ elif [ "$(/opt/rocm/bin/rocm_agent_enumerator | grep -m 1 gfx941)" == "gfx941" ]
 elif [ "$(/opt/rocm/bin/rocm_agent_enumerator | grep -m 1 gfx942)" == "gfx942" ]; then
     echo "=====ISA = gfx942, use -agfx942 directive ===================="
     ISA="-agfx942"
+elif [ "$(/opt/rocm/bin/rocm_agent_enumerator | grep -m 1 gfx950)" == "gfx950" ]; then
+    echo "=====ISA = gfx950, use -agfx950 directive ===================="
+    ISA="-agfx950"
 elif [ "$(/opt/rocm/bin/rocm_agent_enumerator | grep -m 1 gfx1010)" == "gfx1010" ]; then
     echo "=====ISA = gfx1010, use -agfx1010:xnack- directive ===================="
     ISA="-agfx1010"
