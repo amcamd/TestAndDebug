@@ -1616,7 +1616,16 @@ To reduce CPU load
 	<li>To run on specific machine: <code>srun -w ctr-navi4x-aj53-ws10 --pty bash -i</code></li>
 	<li>view nodes: <code>sinfo  -o "%40N %10c %10m %25f %30G" -N</code></li>
 	<li>view reservation: <code>scontrol show res</code></li>
+	<li>run .slurm script: <code>sbatch name.slurm</code></li>
 </ul>
+Example .slurm script
+<code>
+#!/bin/bash
+#SBATCH -J test_qsub
+#SBATCH --gres gpu:gfx942:1
+
+./rocblas-bench -f gemm > qsub.out
+</code>
 <h1>Jira cloud</h1>
 <ul>
 	<li> <a href="https://amd.atlassian.net/wiki/spaces/MLSE/pages/744186310/Future+Jira+Process">Future_Jira_Process</a></li> 
