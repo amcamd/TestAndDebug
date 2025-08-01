@@ -1610,6 +1610,7 @@ To reduce CPU load
 </ul>
 
 <h1>Alola cluster</h1>
+<p>
 <ul>
 	<li>To run on any gfx942 single device: <code>srun --gres=gpu:gfx942:1 --pty bash -i</code></li>
 	<li>To run on any gfx942 single device for 4 hours: <code>srun --gres gpu:gfx942:1 -t 4:00:00 --pty bash -i </code></li>
@@ -1617,19 +1618,27 @@ To reduce CPU load
 	<li>view nodes: <code>sinfo  -o "%40N %10c %10m %25f %30G" -N</code></li>
 	<li>view reservation: <code>scontrol show res</code></li>
 	<li>run .slurm script: <code>sbatch name.slurm</code></li>
-</ul>
+</ul> </p>
+
+<p>
 Example .slurm script
-<div class="box">
-<pre>
-<code>
+<div class="box"> <pre> <code>
 #!/bin/bash
 #SBATCH -J test_qsub
 #SBATCH --gres gpu:gfx942:1
 
 ./rocblas-bench -f gemm > qsub.out
-</code>
-</pre>
-</div>
+</code> </pre> </div> </p>
+
+<p>
+The following can be used to run executable ./hello_world in docker rocm/composable_kernel:ck_ub24.04_rocm6.4.1
+
+<div class="box"> <pre> <code>
+time srun --pty --gres=gpu:gfx90a:1 --time=00:05:00 bash -c "docker run --rm --ipc=host --network=host 
+--device=/dev/kfd --device=/dev/dri --group-add video --cap-add=SYS_PTRAC E --security-opt seccomp=unconfined 
+-v $HOME:$HOME -w $HOME rocm/composable_kernel:ck_ub24.04_rocm6.4.1 ./hello_world"
+</code> </pre> </div> </p>
+
 <h1>Jira cloud</h1>
 <ul>
 	<li> <a href="https://amd.atlassian.net/wiki/spaces/MLSE/pages/744186310/Future+Jira+Process">Future_Jira_Process</a></li> 
