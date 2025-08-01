@@ -1626,6 +1626,8 @@ Example .slurm script
 #!/bin/bash
 #SBATCH -J test_qsub
 #SBATCH --gres gpu:gfx942:1
+#SBATCH --time=1:00:00       #maximum runtime (D-HH:MM:SS)
+#SBATCH --output myjob_output
 
 ./rocblas-bench -f gemm > qsub.out
 </code> </pre> </div> </p>
