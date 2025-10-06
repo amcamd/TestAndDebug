@@ -81,7 +81,7 @@ else
         git clone --no-checkout --filter=blob:none https://github.com/ROCm/rocm-libraries.git
         cd rocm-libraries
         git sparse-checkout init --cone
-        git sparse-checkout set projects/rocblas shared/tensile
+        git sparse-checkout set projects/rocblas projects/hipblas shared/tensile
         git checkout develop
     else
         git clone  git@github.com:$ORIGIN/$REPOSITORY.git
