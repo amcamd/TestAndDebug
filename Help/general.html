@@ -12,30 +12,27 @@ th, td {
 </style>
 </head>
 <body>
-<h1>www sites</h1>
+<h1>Useful www sites</h1>
 <p>
 <table>
 <tr>
-    <td><a href="https://github.com/ROCmSoftwarePlatform/rocBLAS">rocBLAS</a>, 
-        <a href="https://github.com/amcamd/rocBLAS">amcamd</a>,
-        <a href="https://github.com/ROCm/rocm-libraries/tree/develop/projects/rocblas">mono-repo</a>, 
-        <a href="https://github.com/amcamd/rocm-libraries">monno-repo/amcamd</a></td>
-    <td>Github site for rocBLAS</td>
+    <td><a href="https://github.com/ROCm/rocm-libraries/tree/develop/projects/rocblas">mono-repo</a>, 
+        <a href="https://github.com/ROCmSoftwarePlatform/rocBLAS">rocBLAS</a>, 
+        <a href="https://github.com/ROCmSoftwarePlatform/rocBLAS-internal">rocBLAS-internal</a>, 
+        <a href="https://github.com/ROCmSoftwarePlatform/hipBLAS">hipBLAS</a>, 
+        <a href="https://github.com/ROCmSoftwarePlatform/Tensile">Tensile</a></td>
+    <td>Github site for ROCm and ROCmSoftwarePlatform</td>
 </tr><tr>
-    <td><a href="https://github.com/ROCmSoftwarePlatform/hipBLAS">hipBLAS</a>, 
-        <a href="https://github.com/amcamd/hipBLAS">amcamd</a></td>
-    <td>Github site for hipBLAS</td>
-</tr><tr>
-    <td><a href="https://github.com/ROCmSoftwarePlatform/Tensile">Tensile</a></td>
-    <td>Github site for Tensile</td>
+    <td><a href="https://github.com/amcamd/rocm-libraries">mono-repo</a>,
+        <a href="https://github.com/amcamd/rocBLAS">rocBLAS</a>,
+        <a href="https://github.com/amcamd/rocBLAS-internal">rocBLAS-internal</a>, 
+        <a href="https://github.com/amcamd/hipBLAS">hipBLAS</a>,
+	<a href="https://github.com/amcamd/Tensile">Tensile</a></td>
+    <td>Github site for amcamd</td>
 </tr><tr>
     <td><a href="https://github.com/amcamd/TestAndDebug">TestAndDebug</a></td>
     <td>Site I use for any open code and testing</td>
 </tr><tr>
-    <td><a href="https://github.com/ROCmSoftwarePlatform/rocBLAS-internal">rocBLAS-internal</a>, 
-        <a href="https://github.com/amcamd/rocBLAS-internal">amcamd</a></td>
-    <td>Github site for rocBLAS-internal</td>
-<tr>
     <td><a href="https://rocm.docs.amd.com/en/latest/">rocBLAS documentation</a></td>
     <td>ROCm Documentation site for rocBLAS</td>
 </tr><tr>
@@ -99,9 +96,6 @@ th, td {
     <td><a href="https://performancemanager4.successfactors.com/sf/home?company=AMD#Shell-home">MyHr</a></td>
     <td>AskHR, myAMD, TalentConnect, HR Connect, AMD Connect</td>
 
-</tr><tr>
-    <td><a href="http://confluence.amd.com/display/MLSE/Onboarding">On-boarding</a></td>
-    <td>Group on-boarding</td>
 </tr><tr>
     <td><a href="https://confluence.amd.com/display/MLSE/MLSE+Library+Windows+Support">MLSE Library Windows Support</a></td>
     <td>Windows support</td>
@@ -193,10 +187,6 @@ th, td {
     <ul>
       <li>get driver version
     </ul>
-  <li><code>apt-cache depends hcc</code>
-    <ul>
-      <li>lists packages required by hcc
-    </ul>
   <li><code>/opt/rocm/bin/rocm_agent_enumerator, /opt/rocm/bin/rocminfo, /opt/rocm/bin/hipconfig
       </code>
     <ul>
@@ -216,9 +206,9 @@ th, td {
     <ul>
       <li>fetch new versions of packages existing on the machine if APT knows about these new versions by way of apt-get update
     </ul>
-  <li><code>ip route get 8.8.8.8 | awk '{print $NF; exit}'</code>
+  <li><code>ip route get 8.8.8.8</code>
     <ul>
-      <li>get the ip address, alternative command is ifconfig
+	    <li>get the ip address, alternative command is <code>ip addr</code>
     </ul>
   <li><code>sudo lsblk, sudo blkid, ls -l /dev/disk/bu-uuid, </code>
     <ul>
@@ -296,70 +286,6 @@ th, td {
 
 </ul>
 
-<h1>ROCm installation</h1>
-<p>
-If you get the following error message it may be fixed by reinstalling ROCm
-<pre> <code>
-  HSA Error:  Incompatible kernel and userspace, AMD Radeon VII disabled. Upgrade amdgpu.
-  HSA Error:  Incompatible kernel and userspace, AMD Radeon VII disabled. Upgrade amdgpu.
-  Query device error: cannot get device count
-
-  Invalid Device ID
-</code></pre>
-</p>
-
-<p>
-To install ROCm 5.4 follow <a href="https://docs.amd.com/bundle/ROCm-Installation-Guide-v5.4/page/How_to_Install_ROCm.html#_How_to_Install">Instructions</a>. Make sure you have the version or ROCm you want. The Instructions in the link are for is ROCm 5.4.
-</p>
-
-Below is from instructions
-
-
-<h3>Get Ubuntu version with</h3>
-<code>
-> uname -m && cat /etc/*release
-</code>
-
-<h3>Get installer</h3>
-<p>For Ubuntu 20.04
-<pre> <code>
-  > sudo apt-get update
-  > wget https://repo.radeon.com/amdgpu-install/5.4/ubuntu/focal/amdgpu-install_5.4.50400-1_all.deb
-  > sudo apt-get install ./amdgpu-install_5.4.50400-1_all.deb
-</code> </pre>
-</p>
-
-<p>For Ubuntu 22.04
-<pre> <code>
-  > sudo apt-get update
-  > wget https://repo.radeon.com/amdgpu-install/5.4/ubuntu/jammy/amdgpu-install_5.4.50400-1_all.deb
-  > sudo apt-get install ./amdgpu-install_5.4.50400-1_all.deb
-</code> </pre>
-</p>
-
-<h3>Uninstall previous ROCm</h3>
-<p>
-<pre> <code>
-  > amdgpu-install --uninstall
-</code></pre>
-</p>
-
-<h3>Install ROCm 5.4</h3>
-<p> 
-<pre><code>
-  > sudo amdgpu-install --usecase=rocm
-
-  Next reboot
-</code></pre></p>
-
-
-<p>
-If it cannot find dkms.conf you may need to look in <code>/usr/src</code>
-<pre> <code>
-  sudo ln -s  /usr/src/amdgpu-5.18.13-1510348.20.04/ source
-</code></pre>
-</p>
-
 <h1>VIM</h1>
 <dl>
     <dt>To change to color scheme that allows for viewing comments</dt>
@@ -397,44 +323,6 @@ If it cannot find dkms.conf you may need to look in <code>/usr/src</code>
 <p>To get the min values  =A1=MIN($A1:$C1)
 <p>Select &lt;Format&gt;, choose a Fill color
 
-
-<h1>GitBucket</h1>
-<table>
-<tr>
-    <td>user.name</td>	<td>amcamd</td>
-</tr><tr>
-    <td>user.email</td>           <td>andrew.chapman@amd.com</td>
-</tr>
-</table>
-
-<h1>GitHub</h1>
-<table>
-<tr>
-    <td>user.name</td>	<td>amcamd</td>
-</tr><tr>
-    <td>user.email</td>           <td>andrew.chapman@amd.com</td>
-</tr>
-</table>
-
-<h4>using SSH key</h4>
-<ul>
-    <li>follow instructions at the following link to
-    <ul>
-        <li>generate a key</li>
-        <li>add ssh key to the ssh-agent</li>
-        <li>add the ssh key to Github account</li>
-    </ul>
-<a href="https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent#generating-a-new-ssh-key">Generating a new SSH key and adding it to the ssh-agent</a>
-    </li>
-    <li> Enalbe SSO on ssh keys. This is in your github account under [settings] [SSH and GPG keys]</li>
-    <li> <code>git clone git@github.com:ROCmSoftwarePlatform/rocBLAS-internal.git</code></li>
-    <li> You may need to add the following to ~/.ssh/config</li>
-<pre>
-Host github.com
-     Hostname ssh.github.com
-     Port 443
-</pre>
-</ul>
 
 <h1>Useful Git commands</h1>
 <h4>Listing all branches, deleting a remote branch</h4>
@@ -699,305 +587,10 @@ See reference <a href="http://www.draconianoverlord.com/2013/09/07/no-cherry-pic
 </ul>
 </ul>
 
-<h4>After hot fix merge rocBLAS master into develop</h4>
-<ul>
-    <li> <code>mkdir -p ~/repos/rocBLASmergeDevelop; cd ~/repos/rocBLAS_merge_develop</code></li>
 
-    <li> <code>git clone https://github.com/ROCmSoftwarePlatform/rocBLAS.git</code></li>
-
-    <li> <code>cd rocBLAS</code></li>
-    <li> <code>git checkout master</code></li>
-    <li> edit both bump_develop_version.sh and bump_master_version.sh</li>
-    <li> <code>./bump_master_version.sh</code></li>
-    <ul>
-        <li> check changes are correct with    <code>git status</code> and look at CMakeLists.txt and other files.</li>
-        <li> <code> git add -u</code></li>
-        <li> <code>git commit -m"version for master branch release"</code></li>
-    </ul>
-
-    <li> <code>git checkout develop</code></li>
-    <li> <code>git merge master</code></li>
-
-    <li> fix merge conflict in CMakeList.txt, this is in place of<code>./bump_develop_version.sh</code></li>
-    <ul>
-        <li> check changes are correct with    <code>git status</code> and look at CMakeLists.txt and other files.</li>
-        <li> <code> git add -u</code></li>
-        <li> <code>git commit -m"version for develop branch release"</code></li>
-    </ul>
-
-    <li> <code>git push --all</code></li>
-</ul>
-
-<h2>Update version numbers and create release-staging/rocm-rel-x.x</h2>
-<ul>
-<li>make sure rocBLAS-internal:amcamd:develop is up-to-date with rocBLAS-internal:ROCmSoftwarePlatform:develop</li>
-<li>make new branch rocBLAS-internal:ROCmSoftwarePlatform:release-staging/rocm-rel-x.x from rocBLAS-internal:ROCmSoftwarePlatform:develop</li>
-<li><code>mkdir -p ~/repos/rocBLASmergeDevelop</code></li>
-<li><code>cd ~/repos/rocBLASmergeDevelop; rm -rf rocBLAS-internal</code></li>
-<li><code>git clone git@github.com:amcamd/rocBLAS-internal.git</code></li>
-<li><code>cd rocBLAS-internal; git checkout develop</code></li>
-<li><code>./bump_develop_version.sh</code></li>
-<li>check that the rocBLAS version, rocblas_SOVERSION, Tensile version, and Tensile hash are correct</li>
-<li><code>git add -u</code></li>
-<li><code>git commit -m"develop branch for release after ROCm x.x"</code></li>
-<li><code>git push</code></li>
-<li><code>git checkout release-staging/rocm-rel-x.x</code></li>
-<li><code>./bump_release-staging_version.sh</code></li>
-<li>Check that the rocBLAS version, rocblas_SOVERSION, Tensile version, and Tensile hash are correct</li>
-<li><code>git add -u</code></li>
-<li><code>git commit -m"release-staging branch for ROCm x.x"</code></li>
-<li><code>git push</code></li>
-<li>make PRs for both the develop and release-staging/rocm-rel-x.x branches</li>
-</ul>
-
-<h2>(out of date)Merge rocBLAS develop into master and release</h2>
-<h4>Get amcamd develop branch up to date with ROCmSoftwarePlatform</h4>
-<ul>
-	<li> <code>mkdir -p ~/repos/rocBLASmergeDevelop</code></li>
-	<li> <code>cd ~/repos/rocBLASmergeDevelop; rm -rf rocBLAS</code></li>
-
-    <li> <code>git clone https://github.com/amcamd/rocBLAS.git</code></li>
-
-    <li> <code>cd rocBLAS; git checkout develop</code></li>
-
-    <li><code>git remote add upstream https://github.com/ROCmSoftwarePlatform/rocBLAS.git</code></li>
-    <li><code>git fetch upstream</code></li>
-    <li><code>git rebase upstream/develop develop</code></li>
-    <li><code>git status</code></li>
-    <li><code>git push</code></li>
-</ul>
-<h4>Get amcamd master branch up to date with ROCmSoftwarePlatform</h4>
-<ul>
-    <li> <code>mkdir -p ~/repos/rocBLASmergeDevelop</code></li>
-    <li> <code>cd ~/repos/rocBLASmergeDevelop; rm -rf rocBLAS</code></li>
-
-    <li> <code>git clone https://github.com/amcamd/rocBLAS.git</code></li>
-
-    <li> <code>cd rocBLAS; git checkout master</code></li>
-
-    <li><code>git remote add upstream https://github.com/ROCmSoftwarePlatform/rocBLAS.git</code></li>
-    <li><code>git fetch upstream</code></li>
-    <li><code>git rebase upstream/master master</code></li>
-    <li><code>git status</code></li>
-    <li><code>git push</code></li>
-</ul>
-
-<h4>Merge master into develop and resolve merge conflicts</h4>
-<ul>
-    <li> <code>cd ~/repos/rocBLASmergeDevelop; rm -rf rocBLAS</code></li>
-    <li> <code>git clone https://github.com/amcamd/rocBLAS.git</code></li>
-    <li> <code>cd rocBLAS; git checkout develop </code></li>
-
-    <li> <code>git merge origin/master</code></li>
-    <li> resolve merge conflicts
-    <li> <code>git commit -m"merge master into develop before ROCm2.10"</code></li>
-    <li> <code>git push</code></li>
-</ul>
-
-<h4>Merge develop into master and merge all</h4>
-<ul>
-    <li> edit both bump_develop_version.sh and bump_master_version.sh</li>
-    <li> <code>./bump_master_version.sh</code></li>
-    <ul>
-        <li> check changes are correct with    <code>git status</code> and look at CMakeLists.txt and other files.</li>
-        <li> <code> git add -u</code></li>
-        <li> <code>git commit -m"version for master branch release"</code></li>
-    </ul>
-
-    <li> <code>git checkout master</code></li>
-    <li> <code>git merge develop</code></li>
-    <li> <code>git checkout develop</code></li>
-    <li> <code>git merge master --ff-only</code>  # getting the develop branch to include the new merge commit</li>
-
-    <li> <code>./bump_develop_version.sh</code></li>
-    <ul>
-        <li> check changes are correct with    <code>git status</code> and look at CMakeLists.txt and other files.</li>
-        <li> <code> git add -u</code></li>
-        <li> <code>git commit -m"version for develop branch release"</code></li>
-    </ul>
-
-    <li> <code>git push --all</code></li>
-</ul>
-
-<h2>Merge hipBLAS develop into master and release</h2>
-
-<h4>Note on version numbers for rocBLAS and hipBLAS</h4>
-<ul>
-	<li><a href="http://semver.org">Semantic Versioning</a> is used for version numbers. This uses MAJOR.MINOR.PATCH for version numbers.</li>
-	<li>We also use the convention that the MINOR version number is even for the master branch and odd for the develop branch.</li>
-	<li>rocBLAS and hipBLAS version numbers are in <code>VERSION_STRING</code> in the file CMakeLists.txt.</li>
-	<li>The scripts <code>bump_master_version.sh</code> and <code>bump_develop_version.sh</code> are used to bump the version numbers.</li>
-	<li><code>bump_master_version.sh</code> is run first, and it changes the version number from the existing odd number for the develop branch to the next even number for the master branch.</li>
-	<li><code>bump_develop_version.sh</code> runs second, and it changes the version number from the new even number for the master branch to the next odd number for the develop branch.</li>
-</ul>
-
-<h4>Note on Tensile tag and version number</h4>
-<ul>
-	<li>The Tensile used by rocBLAS is from the tag in the file rocBLAS/tensile_tag.txt.</li>
-	<li>The tag will generally be different for the develop and master versions of rocBLAS.</li>
-	<li>The file rocBLAS/CMakeLists.txt also contains a Tensile version specified explicitly in a find_package command. Note that this is not the CMake variable TENSILE_VERSION, it is an immediate value.</li>
-	<li>The Tensile version will generally change with each release of rocBLAS</li>
-	<li>The Tensile group will supply a new Tensile version and Tensile tag</li>
-	<li>The Tensile version and Tensile tag are changed by the scripts <code>bump_master_version.sh</code> and <code>bump_develop_version.sh</code>.
-</ul>
-
-
-
-
-<h4>Get amcamd develop branch up to date with ROCmSoftwarePlatform</h4>
-<ul>
-    <li> <code>mkdir -p ~/repos/hipBLASmergeDevelop</code></li>
-    <li> <code>cd ~/repos/hipBLASmergeDevelop; rm -rf hipBLAS</code></li>
-
-    <li> <code>git clone https://github.com/amcamd/hipBLAS.git</code></li>
-
-    <li> <code>cd hipBLAS; git checkout develop</code></li>
-
-    <li><code>git remote add upstream https://github.com/ROCmSoftwarePlatform/hipBLAS.git</code></li>
-    <li><code>git fetch upstream</code></li>
-    <li><code>git rebase upstream/develop develop</code></li>
-    <li><code>git status; git push</code></li>
-</ul>
-<h4>Get amcamd master branch up to date with ROCmSoftwarePlatform</h4>
-<ul>
-
-    <li><code>cd ~/repos/hipBLASmergeDevelop; rm -rf hipBLAS</code></li>
-
-    <li><code>git clone https://github.com/amcamd/hipBLAS.git</code></li>
-
-    <li><code>cd hipBLAS; git checkout master</code></li>
-
-    <li><code>git remote add upstream https://github.com/ROCmSoftwarePlatform/hipBLAS.git</code></li>
-    <li><code>git fetch upstream</code></li>
-    <li><code>git rebase upstream/master master</code></li>
-    <li><code>git status</code></li>
-    <li><code>git push</code></li>
-</ul>
-<h4>Merge master into develop and resolve merge conflicts</h4>
-<ul>
-    <li> <code>cd ~/repos/hipBLASmergeDevelop; rm -rf hipBLAS</code></li>
-    <li> <code>git clone https://github.com/amcamd/hipBLAS.git</code></li>
-    <li> <code>cd hipBLAS; git checkout develop</code></li>
-
-    <li> <code>git merge origin/master</code></li>
-    <li> resolve merge conflicts
-    <li> <code>git commit -m"merge master into develop before ROCm2.10"</code></li>
-    <li> <code>git push</code></li>
-</ul>
-<h4>Merge develop into master and merge all</h4>
-<ul>
-    <li> edit both bump_develop_version.sh and bump_master_version.sh</li>
-    <li> <code>./bump_master_version.sh</code></li>
-    <ul>
-        <li> check changes are correct with    <code>git status</code> and look at CMakeLists.txt and other files.</li>
-        <li> <code> git add -u</code></li>
-        <li> <code>git commit -m"version for master branch release"</code></li>
-    </ul>
-
-    <li> <code>git checkout master</code></li>
-    <li> <code>git merge develop</code></li>
-    <li> <code>git checkout develop</code></li>
-    <li> <code>git merge master --ff-only</code>  # getting the develop branch to include the new merge commit</li>
-
-    <li> <code>./bump_develop_version.sh</code></li>
-    <ul>
-        <li> check changes are correct with    <code>git status</code> and look at CMakeLists.txt and other files.</li>
-        <li> <code> git add -u</code></li>
-        <li> <code>git commit -m"version for develop branch release"</code></li>
-    </ul>
-
-    <li> <code>git push --all</code></li>
-
-</ul>
-
-
-<h2>(out of date)Merge Tensile develop into master and release</h2>
-<ul>
-    <li> <code>mkdir -p ~/repos/Tensile_merge_develop; cd ~/repos/Tensile_merge_develop</code></li>
-
-    <li> <code>git clone https://github.com/ROCmSoftwarePlatform/Tensile.git</code></li>
-
-    <li> <code>cd Tensile</code></li>
-    <li> <code>git checkout develop</code></li>
-    <li> edit bump-version.h</li>
-    <li> <code>./bump-version.sh</code></li>
-    <ul>
-        <li> check to see that Tensile/__init__.py has changed</li>
-        <li> check version in .yaml files with  <code>grep MinimumRequiredVersion Tensile/Configs/*yaml</code></li>
-        <li> <code>git add -u</code></li>
-        <li> <code>git commit -m"change version for new release"</code></li>
-    </ul>
-
-    <li> <code>git checkout master</code></li>
-    <li> <code>git merge develop</code></li>
-    <li> <code>git checkout develop</code></li>
-    <li> <code>git merge master --ff-only  # getting the develop branch to include the new merge commit</code></li>
-    <li> check that there is the correct Tensile/__init__.py in develop and master</li>
-
-    <li> <code>git push --all</code></li>
-
-    <li> go to  https://github.com/ROCmSoftwarePlatform/Tensile.git</li>
-
-    <li> under repository name click &lt;Releases&gt;</li>
-
-    <li> click &lt;Draft a new release&gt;</li>
-    <ul>
-        <li> select MASTER branch</li>
-        <li>enter <a href="http://semver.org">Semantic Versioning</a> version tag</li>
-        <li>enter Title and notes</li>
-        <li>add .deb and .rpm files from Jenkins.
-            You may need to use Chrome browser in place of Firefox for adding .deb and .rpm.</li>
-        <li> click &lt;Publish release&gt;</li>
-    </ul>
-</ul>
 
 <h1>Useful commands</h1>
 <p>find ./rocBLAS-develop -type f -exec grep -l gemv {} \; 
-
-
-<h1>Timing with C++11</h1>
-<pre>
-#include &lt;chrono&gt;
-  std::chrono::time_point&lt;std::chrono::high_resolution_clock&gt; start, end;
-  std::chrono::duration&lt;double&gt;dur;
-  hipDeviceSynchronize();
-  start = std::chrono::high_resolution_clock::now();
-    status = hcblasSgemm(handle, typeA, typeB, M, N, K, &amp;alpha, 
-    d_A, lda, d_B, ldb, &amp;beta, d_C, ldc);
-  hipDeviceSynchronize();
-  end = std::chrono::high_resolution_clock::now();
-  dur = end - start;
-  double gemmSec= dur.count();
-
-  printf("dur, gemmSec = %f, %f\n",dur, gemmSec);
-  double gflops = (double)(M) * (double)(N) * (double)(K) * 2.0 / gemmSec / 1e9;
-  printf("gflops = %f\n",gflops);
-
-
-Alternative explicit cast to microseconds. Do not cast to seconds for jobs
-running for &lt; 1sec, because it truncates so you will loose all precition
-less than one second.
-  double gemmSec2= chrono::duration_cast&lt;chrono::microseconds&gt;(end - start).count();
-
-</pre>
-The event timer can also be used. It gives results similar to C++11 chrono.
-<pre>
-#include &lt;hip/hip_runtime.h&gt;
-#include &lt;hip/hip_runtime_api.h&gt;
-
-  hipEvent_t hipStart, hipStop;
-  hipEventCreate(&hipStart);
-  hipEventCreate(&hipStop);
-
-  hipEventRecord(hipStart);
-
-  hipEventRecord(hipStop);
-
-  float milliseconds = 0;
-  hipEventElapsedTime(&milliseconds, hipStart, hipStop);
-
-</pre>
-
 
 <h1>ATITOOL (atitool)</h1>
 
@@ -1304,43 +897,6 @@ sudo apt-get dist-upgrade
 sudo do-release-upgrade
 </pre>
 
-<h1>Upgrade ROCm</h1>
-<pre>
-# you can check gpg key with
-apt-key list
-
-# if ROCm Release Manager key has expired,  update gpg key with
-wget -qO - http://repo.radeon.com/rocm/apt/debian/rocm.gpg.key | sudo apt-key add -
-echo 'deb [arch=amd64] http://repo.radeon.com/rocm/apt/debian/ xenial main' | sudo tee /etc/apt/sources.list.d/rocm.list
-
-sudo apt update
-sudo apt -y autoremove rocm-dkms
-# I don't think hee next four did anything, but it's worth a shot to make sure all old installations were purged
-sudo apt purge hsakmt-roct
-sudo apt purge hakmt-roct-dev
-sudo apt purge compute-firmware
-sudo apt purge $(dpkg -l | grep 'kfd\|rocm' | grep linux | grep -v libc | awk '{print $2}')
-
-#This was required
-sudo dkms remove rock/1.7.137-ubuntu --all
-sudo apt upgrade
-sudo reboot
-
-# After the reboot
-sudo apt -y install rocm-dkms
-
-#chedk the file /etc/adduser.conf, if it does not have lines below, add them
-echo 'ADD_EXTRA_GROUPS=1' | sudo tee -a /etc/adduser.conf
-echo 'EXTRA_GROUPS=video' | sudo tee -a /etc/adduser.conf
-
-Check the file /etc/profile.d/rocm.sh, if it does not have below in PATH, add it
-echo 'export PATH=$PATH:/opt/rocm/bin:/opt/rocm/profiler/binop/rocm/opencl/bin/x86_64' | sudo tee -a /etc/profile.d/rocm.sh
-
-# you may need to add the following line to /etc/modprobe.d/amd.conf or /etc/modprobe.d/dkms.conf
-options amdgpu exp_hw_support=1
-
-sudo reboot
-</pre>
 
 <h1>Doxygen</h1>
 <p><a href="http://www.doxygen.nl/manual/index.html">Doxygen manual, with information on formatting</a><br>
@@ -1575,35 +1131,6 @@ or
 </table>
 </p>
 
-<h1>AOCL</h1>
-
-To install AOCL on Windows machine:
-
-<ul>
-    <li>get the file: https://mkmartifactory.amd.com:443/artifactory/sw-mathlib-dev-local/dependencies/AMD_AOCL_Windows.msi</li>
-    <li>Install the AOCL msi using the built-in windows <code>msiexec</code> utility with the following options:</li>
-    <ul>
-	<li><code>msiexec /i amd_aocl_windows.msi /QN</code></li>
-        <ul>
-            <li>The <code>/i</code> option ‘specifies normal install’</li>
-            <li>The <code>/QN</code> option ‘Specifies there's no UI/User interaction during the installation process’</li>
-        </ul>
-    </ul>
-    <li>Using this tool + options should allow you to install without any user interactions</li>
-</ul>
-
-To reduce CPU load
-<ul>
-    <li><code>export OMP_NUM_THREADS=22</code></li>
-    <li>or best to use logical core count -2 if you can check that with</li>
-    <ul>
-        <li><code>grep ^cpu\\scores /proc/cpuinfo | uniq | awk '{print $4}'</code></li>
-    </ul>
-    <li>If this does not work, try</li>
-    <ul>
-        <li><code>lscpu</code></li>
-    </ul>
-</ul>
 
 <h1>Extend Windows timeout</h1>
 <ul>
