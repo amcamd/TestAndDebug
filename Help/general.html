@@ -64,14 +64,6 @@ th, td {
     <td><a href="http://docs.nvidia.com/cuda/cublas/#introduction">cuBLAS</a>,
         <a href="https://github.com/ecrc/kblas-gpu">KBLAS</a></td>
     <td>cuBLAS, KAUST BLAS</td>
-<!--
-</tr><tr>
-    <td><a href="http://developer.amd.com/wordpress/media/2017/08/Vega_Shader_ISA_28July2017.pdf">Vega10 ISA</a></td>
-    <td>Instruct Set Architecture for Vega 10</td>
--->
-</tr><tr>
-    <td><a href="https://code.visualstudio.com/">Code Visual Studio</a></td>
-    <td>useful for debugging python code on Linux</td>
 </tr><tr>
     <td><a href="https://cmake.org/cmake-tutorial/">Cmake Tutorial</a></td>
     <td>Introductory Cmake tutorial</td>
@@ -81,20 +73,9 @@ th, td {
 </tr><tr>
     <td><a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet">Editing Github Wiki </a></td>
     <td>Useful for editing Github Wiki documents</td>
-
-<!--
-</tr><tr>
-    <td><a href="https://amdcloud.sharepoint.com/sites/connect/teams/hr/Pages/HRT/USA_MyHR_Home.aspx">MyHr</a></td>
-    <td>Access to AskHR, myAMD, TalentConnect, HR Connect, AMD Connect</td>
-</tr><tr>
-    <td><a href="https://amdcloud.sharepoint.com/sites/connect/news-events/news/Pages/New-AskHR-Platform.aspx">AskHr</a></td>
-    <td>AskHR Platform</td>
--->
-
 </tr><tr>
     <td><a href="https://performancemanager4.successfactors.com/sf/home?company=AMD#Shell-home">MyHr</a></td>
     <td>AskHR, myAMD, TalentConnect, HR Connect, AMD Connect</td>
-
 </tr><tr>
     <td><a href="https://confluence.amd.com/display/MLSE/MLSE+Library+Windows+Support">MLSE Library Windows Support</a></td>
     <td>Windows support</td>
@@ -119,10 +100,6 @@ th, td {
 </tr><tr>
     <td><a href="https://confluence.amd.com/pages/viewpage.action?pageId=2097780">Severity and priority</a></td>
     <td>Definition of S1, S2, S3, S4, P1, P2, P3</td>
-</tr><tr>
-    <td><a href="https://ontrack-internal.amd.com/secure/Dashboard.jspa?selectPageId=46351">Braga Dashboard</a>,
-        <a href="https://confluence.amd.com/display/MLSE/Dashboards+User+Guide#DashboardsUserGuide-MathLibraries-ROCm6.0/6.1/6.2DefectActionDashboard">Dashboards</a></td>
-    <td>Braga Dashboard, Dashboards</td>
 </tr><tr>
     <td><a href="https://ontrack-internal.amd.com/secure/Dashboard.jspa?selectPageId=49919">Defects</a>,
 	    <a href="https://ontrack-internal.amd.com/secure/Dashboard.jspa?selectPageId=48686">FeaturesDefects</a></td>
@@ -235,7 +212,7 @@ th, td {
           <li> <font color="red">need to log out and log back in</font></li>
       </ul>
   </li>
-  <li><code>/opt/rocm/hip/bin/hipcc -save-temps bit_extract.cpp -o bit_extract</code>
+  <li><code>/opt/rocm/bin/hipcc -save-temps bit_extract.cpp -o bit_extract</code>
     <ul>
         <li>produce assembly isa .s files</li>
     </ul>
@@ -260,29 +237,11 @@ th, td {
         <li>for message  libmcwamp_cpu.so: cannot open shared object file</li>
     </ul>
   </li>
-  <li><code>/opt/rocm/bin/rocm_agent_enumerator</code>
-      <ul>
-          <li>to get device information</li>
-      </ul>
-  </li>
   <li><code>gsettings set org.gnome.desktop.wm.codeferences focus-mode 'mouse'</code>
     <ul>
       <li>focus follows mouse
     </ul>
   </li>
-  <li><pre>Two changes to prevent terminal freeze</pre>
-    <ul>
-      <li>In the application <code>Software & Updates</code>,<br> 
-          go to <code>Additional Drivers</code><br> 
-          Under the <code>Unknown: Unknown</code> tag select the radio button for<br>
-          <code>Using Processor microcode firmware 
-            for AMD CPUs from amd64-microcode (proprietary)</code> 
-      <li><code>sudo vim /etc/default/grub</code><br>
-          Find the line <code>GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"</code><br>
-          change it to <code>GRUB_CMDLINE_LINUX_DEFAULT="quiet splash intel_idle.max_cstate=1"</code>
-    </ul>
-  </li>
-
 </ul>
 
 <h1>VIM</h1>
@@ -414,12 +373,10 @@ For the error when running <code>git checkout &lt;BRANCH_NAME&gt;</code>
 </ul>
 
 
-<h4>List commits between hashes</h4>
-<code>git log --pretty=format:"%an%x09|%s" a272ad8e78c45261b58939e05add58aaf04b75be..020e91969485333dabc0751e66a80de726cabdfa</code>
-
 <h4>Syncing a fork</h4>
 <ul>
 <li><pre>
+===: git remote add upstream https://github.com/ROCmSoftwarePlatform/rocBLAS
 ===: git fetch upstream
 <samp>
 remote: Counting objects: 1, done.
@@ -629,7 +586,7 @@ See reference <a href="http://www.draconianoverlord.com/2013/09/07/no-cherry-pic
 
 
 <h1>rocm-smi  (ROCm System Management Interface</h1>
-<p>Run <code>rocm-smi --help</code> for information. Below commands set
+<p>Run <code>/opt/rocm/bin/rocm-smi --help</code> for information. Below commands set
 the device 1 clock to level 7 (1000 Hz) before a command, and then resets to
 default after command.
 <pre>
@@ -675,14 +632,6 @@ http://rocm-dockers-list:8506/
 <ul>
 	<li><a href="http://rastra-bms/docker_list?job_name=compute-rocm-dkms-no-npi-hipclang">Docker images for Mainline staging and other builds</a></li>
 	<li><a href="https://github.com/ROCm/rocmdevtools/tree/eyoshida/rocm-dev-docker/scripts/rocm-dev-docker">Eiden's rocm-dev-docker.py to generate Docker images</a></li>
-	<li><a href="https://compute-artifactory.amd.com/artifactory/rocm-docker-experimental/rocm-plus-docker/compute-rocm-dkms-no-npi-hipclang/">Simpler view for compute-rocm-dkms-no-npi-hipclang (mainline) </a></li>
-	<li><a href="https://compute-artifactory.amd.com/artifactory/rocm-docker-experimental/rocm-plus-docker/compute-rocm-dkms-component-staging-mathlibs/">Simpler view for compute-rocm-dkms-component-staging-mathlibs (staging)</a></li>
-</ul>
-</p>
-<p>Other Docker containers
-<ul>
-    <li><a href="https://hub.docker.com/r/rocm/rocm-terminal/tags/">Released Docker for rocm/rocm-terminal</a><br></li>
-    <li><a href="https://compute-artifactory.amd.com/artifactory/rocm-docker-experimental/rocm-plus-docker/">rocm-docker-experimantal</a><br></li>
 </ul>
 </p>
 
@@ -785,35 +734,6 @@ cd HIP && mkdir build && cd build && cmake .. && sudo make install
 
 <pre>sudo apt-get install rocm-opencl-dev</pre>
 
-<h1>Artifactory</h1>
-
-<p>
-http://compute-artifactory.amd.com/artifactory/webapp/#/artifacts/browse/tree/General/deb-experimental-local
-<p>
-http://compute-artifactory.amd.com/artifactory/webapp/#/artifacts/browse/tree/General/rocm-docker-github/kknox/hcc/clang_tot_upgrade/hcc-lc-ubuntu-16.04
-
-<p>
-edit /etc/apt/sources.list.d/rocm.list
-
-<p>
-change
-deb [arch=amd64] http://packages.amd.com/rocm/apt/debian/ xenial main
-
-<p>
-to something like
-deb [arch=amd64] http://compute-artifactory.amd.com/rocm/apt/debian/ xcnial 
-<p>
-or
-<p>
-http://compute-artifactory.amd.com/artifactory/webapp/#/artifacts/browse/tree/General/rocm-release-1.6-deb/amd/rocm
-<p>
-or
-<p>
-deb [arch=amd64] http://compute-artifactory.amd.com/artifactory/list/rocm-release-1.6-deb/ xenial main
-<p>
-or
-<p>
-deb [arch=amd64] http://10.255.8.5/rocm/apt/debian/ xenial main
 
 <h1>clang-format</h1>
 <ul>
@@ -1077,12 +997,6 @@ or
 <li><code>make -f make.gen.hipMAGMA -j16 && make testing_hip/testing_dgemm -j16 && ./testing_hip/testing_dgemm</code>
     <ul><li>Builds library and a tester, and runs the tester</li></ul></li>
 </ul>
-
-<h1>Unified stack</h1>
-<ul>
-<li> <a href="https://confluence.amd.com/pages/viewpage.action?pageId=416619125">Linux Stack Unification</a>  </li> 
-</ul>
-
 
 <h1>GitHub Access</h1>
 <ul>
