@@ -53,3 +53,22 @@ do
 	OUT_FILE="$FUNCTION$STRIDED_BATCHED$EX.quick.txt"
 	$EXECUTABLE --gtest_filter=$FILTER 2>&1 | tee $OUT_FILE
 done
+
+#----- L2 BLAS -----
+
+FUNCTIONS="trsv gbmv gemv hbmv hemv her her2 hpmv hpr hpr2 trmv tpmv tbmv tbsv ger geru gerc spr spr2 syr syr2 sbmv spmv symv"
+
+for FUNCTION in $FUNCTIONS
+do
+        FILTER="*$FUNCTION*quick*-*$BATCHED*:*$EX*"
+        OUT_FILE="$FUNCTION.quick.txt"
+        $EXECUTABLE --gtest_filter=$FILTER 2>&1 | tee $OUT_FILE
+
+        FILTER="*$FUNCTION$BATCHED*quick*-*$EX*"
+        OUT_FILE="$FUNCTION$BATCHED.quick.txt"
+        $EXECUTABLE --gtest_filter=$FILTER 2>&1 | tee $OUT_FILE
+
+        FILTER="*$FUNCTION$STRIDED_BATCHED*quick*-*$EX*"
+        OUT_FILE="$FUNCTION$STRIDED_BATCHED.quick.txt"
+        $EXECUTABLE --gtest_filter=$FILTER 2>&1 | tee $OUT_FILE
+done
